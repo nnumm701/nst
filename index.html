@@ -290,12 +290,19 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(4px);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 100;
         padding: 1rem;
+    }
+
+    .fixed.inset-0[class*="bg-black/"],
+    .fixed.inset-0[class*="bg-slate-950/"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
     .modal-content {
@@ -1645,7 +1652,7 @@
 
     <!-- ==================== IMPORT MODAL ==================== -->
     <div id="importModal"
-        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
         <div
             class="glass-card rounded-2xl w-full max-w-6xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[92vh]">
             <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-800/50">
@@ -1722,7 +1729,7 @@
 
     <!-- ==================== QUOTA MODAL ==================== -->
     <div id="quotaModal"
-        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
         <div
             class="glass-card rounded-2xl w-full max-w-5xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-800/50">
