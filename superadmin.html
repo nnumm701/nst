@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - NST System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: "Prompt", sans-serif; }
+        .panel { background: rgba(15, 23, 42, .88); border: 1px solid rgba(148, 163, 184, .24); }
+        .field { width: 100%; border-radius: .75rem; border: 1px solid rgba(148, 163, 184, .28); background: #0f172a; color: white; padding: .75rem .9rem; outline: none; }
+        .field:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, .18); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .75rem; padding: .7rem 1rem; font-weight: 700; transition: .15s ease; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-soft { background: rgba(30, 41, 59, .9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, .22); }
+        .btn-danger { background: rgba(220, 38, 38, .18); color: #fca5a5; border: 1px solid rgba(248, 113, 113, .38); }
+        .btn-green { background: rgba(5, 150, 105, .24); color: #86efac; border: 1px solid rgba(74, 222, 128, .34); }
+        .tab-active { background: #0e7490; color: white; }
+        th { color: #94a3b8; font-size: .78rem; text-align: left; white-space: nowrap; }
+        td { border-top: 1px solid rgba(148, 163, 184, .14); padding: .85rem .7rem; vertical-align: middle; }
+    </style>
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+</head>
+
+<body class="min-h-screen bg-[#080d19] text-slate-200">
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(14,116,144,.22),transparent_34%),linear-gradient(180deg,#111827,#080d19)]"></div>
+
+    <div id="loading" class="hidden fixed inset-0 z-50 bg-slate-950/55 backdrop-blur-sm items-center justify-center">
+        <div class="panel rounded-2xl px-6 py-5 text-center shadow-2xl">
+            <i class="fas fa-circle-notch fa-spin text-sky-300 text-3xl mb-3"></i>
+            <div class="font-semibold">กำลังประมวลผล...</div>
+        </div>
+    </div>
+
+    <main class="max-w-[1500px] mx-auto px-4 py-6">
+        <section id="loginView" class="min-h-[88vh] flex items-center justify-center">
+            <div class="panel w-full max-w-md rounded-2xl p-7 shadow-2xl">
+                <div class="mb-6">
+                    <p class="text-sky-300 text-sm font-bold">NST Super Admin</p>
+                    <h1 class="text-2xl font-bold text-white mt-1">เข้าสู่ระบบผู้ดูแล</h1>
+                    <p class="text-slate-400 text-sm mt-1">ใช้บัญชี admin เพื่อจัดการผู้ใช้และกฎเกณฑ์สถานี</p>
+                </div>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">ชื่อผู้ใช้</label>
+                        <input id="loginUsername" class="field" autocomplete="username" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">รหัสผ่าน</label>
+                        <input id="loginPassword" class="field" type="password" autocomplete="current-password" required>
+                    </div>
+                    <label class="flex items-center gap-3 text-sm text-slate-300">
+                        <input id="rememberCredentials" type="checkbox" class="w-4 h-4">
+                        จดจำเครื่องนี้
+                    </label>
+                    <button class="btn btn-primary w-full" type="submit"><i class="fas fa-right-to-bracket"></i>เข้าสู่ระบบ</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="appView" class="hidden">
+            <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-sky-300 text-sm font-bold">NST Super Admin</p>
+                    <h1 class="text-3xl font-bold text-white">จัดการระบบ</h1>
+                    <p class="text-slate-400 mt-1">แก้ไขผู้ใช้ รหัสผ่าน และกฎเกณฑ์ของแต่ละสถานี</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div id="currentUserName" class="font-bold text-white">admin</div>
+                        <div class="text-xs text-sky-300">ผู้ดูแลระบบ</div>
+                    </div>
+                    <a href="index.html" class="btn btn-soft"><i class="fas fa-house"></i>หน้าหลัก</a>
+                    <button id="logoutBtn" class="btn btn-danger"><i class="fas fa-right-from-bracket"></i>ออก</button>
+                </div>
+            </header>
+
+            <div class="panel rounded-2xl p-2 mb-5 grid grid-cols-2 md:grid-cols-4 gap-2">
+                <button class="btn btn-soft tab tab-active" data-tab="users"><i class="fas fa-users-gear"></i>ผู้ใช้</button>
+                <button class="btn btn-soft tab" data-tab="body"><i class="fas fa-weight-scale"></i>เกณฑ์ร่างกาย</button>
+                <button class="btn btn-soft tab" data-tab="physical"><i class="fas fa-person-running"></i>เกณฑ์สถานี</button>
+                <button class="btn btn-soft tab" data-tab="settings"><i class="fas fa-sliders"></i>ตั้งค่าทดสอบ</button>
+            </div>
+
+            <section id="usersTab" class="tab-page panel rounded-2xl overflow-hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">จัดการผู้ใช้</h2>
+                        <p class="text-sm text-slate-400">เพิ่ม แก้ไข ลบผู้ใช้ และเปลี่ยนรหัสผ่านแบบเข้ารหัส</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openUserModal()"><i class="fas fa-user-plus"></i>เพิ่มผู้ใช้</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[760px]">
+                        <thead>
+                            <tr class="bg-slate-900/80">
+                                <th class="px-4 py-3">ชื่อผู้ใช้</th>
+                                <th class="px-4 py-3">ชื่อแสดง</th>
+                                <th class="px-4 py-3">บทบาท</th>
+                                <th class="px-4 py-3">เข้าสู่ระบบล่าสุด</th>
+                                <th class="px-4 py-3 text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="bodyTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">เกณฑ์ร่างกาย</h2>
+                        <p class="text-sm text-slate-400">กำหนด BMI สูงสุด รอบอกต่ำสุด และสถานะใช้งานตามเพศ</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCriteriaModal('body')"><i class="fas fa-plus"></i>เพิ่มเกณฑ์</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[760px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">เพศ</th><th class="px-4 py-3">BMI สูงสุด</th><th class="px-4 py-3">รอบอกต่ำสุด</th><th class="px-4 py-3">ใช้รอบอก</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                        <tbody id="bodyCriteriaBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="physicalTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">เกณฑ์คะแนนแต่ละสถานี</h2>
+                        <p class="text-sm text-slate-400">กำหนดช่วงค่า คะแนน และคะแนนเพิ่มต่อหน่วยของ วิ่ง ลุกนั่ง ดันพื้น</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCriteriaModal('physical')"><i class="fas fa-plus"></i>เพิ่มเกณฑ์</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[980px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">สถานี</th><th class="px-4 py-3">เพศ</th><th class="px-4 py-3">ค่าจาก</th><th class="px-4 py-3">ค่าถึง</th><th class="px-4 py-3">คะแนน</th><th class="px-4 py-3">เพิ่ม/หน่วย</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                        <tbody id="physicalCriteriaBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="settingsTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">ตั้งค่าการทดสอบ</h2>
+                        <p class="text-sm text-slate-400">ตั้งค่ากลาง เช่น จำนวนสถานีที่ใช้คำนวณคะแนนเฉลี่ย</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCriteriaModal('settings')"><i class="fas fa-plus"></i>เพิ่มรายการ</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[680px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">รายการ</th><th class="px-4 py-3">ค่า</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                        <tbody id="settingsCriteriaBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <div id="userModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm p-4 items-center justify-center">
+        <form id="userForm" class="panel w-full max-w-lg rounded-2xl p-6 shadow-2xl">
+            <input id="userMode" type="hidden" value="create">
+            <h3 id="userModalTitle" class="text-xl font-bold text-white mb-5">เพิ่มผู้ใช้</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">ชื่อผู้ใช้</label>
+                    <input id="userUsername" class="field" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">ชื่อแสดง</label>
+                    <input id="userName" class="field" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">บทบาท</label>
+                    <select id="userRole" class="field">
+                        <option value="admin">admin - ผู้ดูแลระบบ</option>
+                        <option value="body_measurement">body_measurement - สถานีวัดร่างกาย</option>
+                        <option value="medical_check">medical_check - สถานีแพทย์</option>
+                        <option value="running">running - สถานีวิ่ง</option>
+                        <option value="sit_up">sit_up - สถานีลุกนั่ง</option>
+                        <option value="push_up">push_up - สถานีดันพื้น</option>
+                        <option value="data_review">data_review - ดูผลคะแนนวิ่ง</option>
+                        <option value="Add_application">Add_application - เพิ่มผู้สมัคร</option>
+                        <option value="data_processing">data_processing - นำเข้า/ส่งออกข้อมูล</option>
+                        <option value="uniform">uniform - เครื่องแต่งกาย</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">รหัสผ่าน</label>
+                    <input id="userPassword" type="password" class="field">
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-3">ตอนแก้ไขผู้ใช้ เว้นรหัสผ่านว่างไว้ถ้าไม่ต้องการเปลี่ยน ระบบจะเข้ารหัสก่อนบันทึกทุกครั้ง</p>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" class="btn btn-soft" onclick="closeModal('userModal')">ยกเลิก</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i>บันทึก</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="criteriaModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm p-4 items-center justify-center">
+        <form id="criteriaForm" class="panel w-full max-w-2xl rounded-2xl p-6 shadow-2xl">
+            <input id="criteriaGroup" type="hidden">
+            <input id="criteriaRowId" type="hidden">
+            <h3 id="criteriaTitle" class="text-xl font-bold text-white mb-5">เพิ่มกฎเกณฑ์</h3>
+            <div id="criteriaFields" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" class="btn btn-soft" onclick="closeModal('criteriaModal')">ยกเลิก</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i>บันทึก</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = window.NST_API_URL || '/api';
+        const state = { users: [], criteria: { body: [], physical: [], settings: [] }, currentUser: null };
+        const roleNames = {
+            admin: 'ผู้ดูแลระบบ',
+            body_measurement: 'สถานีวัดร่างกาย',
+            medical_check: 'สถานีแพทย์',
+            running: 'สถานีวิ่ง',
+            sit_up: 'สถานีลุกนั่ง',
+            push_up: 'สถานีดันพื้น',
+            data_review: 'ดูผลคะแนนวิ่ง',
+            Add_application: 'เพิ่มผู้สมัคร',
+            data_processing: 'นำเข้า/ส่งออกข้อมูล',
+            uniform: 'เครื่องแต่งกาย'
+        };
+
+        function $(id) { return document.getElementById(id); }
+        function showLoading() { $('loading').classList.remove('hidden'); $('loading').classList.add('flex'); }
+        function hideLoading() { $('loading').classList.add('hidden'); $('loading').classList.remove('flex'); }
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+        }
+        async function api(action, args = []) {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, args })
+            });
+            const text = await response.text();
+            const result = text ? JSON.parse(text) : {};
+            if (!response.ok) throw new Error(result.message || `HTTP ${response.status}`);
+            return result;
+        }
+        function token() { return sessionStorage.getItem('nst_token') || ''; }
+
+        async function boot() {
+            const saved = JSON.parse(localStorage.getItem('nst_superadmin_login') || 'null');
+            if (saved) {
+                $('loginUsername').value = saved.username || '';
+                $('loginPassword').value = saved.password || '';
+                $('rememberCredentials').checked = Boolean(saved.username || saved.password);
+            }
+            const userText = sessionStorage.getItem('nst_user');
+            if (!token() || !userText) return;
+            showLoading();
+            try {
+                const result = await api('validateSession', [token()]);
+                if (!result.valid || result.user.role !== 'admin') throw new Error(result.message || 'ไม่มีสิทธิ์เข้าถึง');
+                state.currentUser = result.user;
+                await enterApp();
+            } catch (error) {
+                sessionStorage.removeItem('nst_token');
+                sessionStorage.removeItem('nst_user');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function enterApp() {
+            $('loginView').classList.add('hidden');
+            $('appView').classList.remove('hidden');
+            $('currentUserName').textContent = state.currentUser?.name || state.currentUser?.username || 'admin';
+            await loadAll();
+        }
+
+        async function loadAll() {
+            showLoading();
+            try {
+                const result = await api('getSuperAdminConfig', [token()]);
+                if (!result.success) throw new Error(result.message);
+                state.users = result.users || [];
+                state.criteria = result.criteria || { body: [], physical: [], settings: [] };
+                renderAll();
+            } catch (error) {
+                Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderAll() {
+            $('usersBody').innerHTML = state.users.map(user => `
+                <tr>
+                    <td class="px-4 font-bold text-white">${escapeHtml(user.username)}</td>
+                    <td class="px-4">${escapeHtml(user.name)}</td>
+                    <td class="px-4"><span class="rounded-full bg-sky-500/15 text-sky-200 px-3 py-1 text-xs font-bold">${escapeHtml(roleNames[user.role] || user.role)}</span></td>
+                    <td class="px-4 text-slate-400">${escapeHtml(user.lastLogin || '-')}</td>
+                    <td class="px-4">
+                        <div class="flex justify-end gap-2">
+                            <button class="btn btn-soft !px-3 !py-2" onclick="openUserModal('${escapeHtml(user.username)}')" title="แก้ไข"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger !px-3 !py-2" onclick="removeUser('${escapeHtml(user.username)}')" title="ลบ"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+
+            $('bodyCriteriaBody').innerHTML = state.criteria.body.map(row => `
+                <tr>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['เพศ'])}</td>
+                    <td class="px-4">${escapeHtml(row['BMI สูงสุด'])}</td>
+                    <td class="px-4">${escapeHtml(row['รอบอกต่ำสุด'])}</td>
+                    <td class="px-4">${escapeHtml(row['ใช้รอบอก'])}</td>
+                    <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
+                    <td class="px-4">${criteriaActions('body', row)}</td>
+                </tr>`).join('');
+
+            $('physicalCriteriaBody').innerHTML = state.criteria.physical.map(row => `
+                <tr>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['สถานี'])}</td>
+                    <td class="px-4">${escapeHtml(row['เพศ'])}</td>
+                    <td class="px-4">${escapeHtml(row['ค่าจาก'])}</td>
+                    <td class="px-4">${escapeHtml(row['ค่าถึง'])}</td>
+                    <td class="px-4">${escapeHtml(row['คะแนน'])}</td>
+                    <td class="px-4">${escapeHtml(row['คะแนนเพิ่มต่อหน่วย'])}</td>
+                    <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
+                    <td class="px-4">${criteriaActions('physical', row)}</td>
+                </tr>`).join('');
+
+            $('settingsCriteriaBody').innerHTML = state.criteria.settings.map(row => `
+                <tr>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['รายการ'])}</td>
+                    <td class="px-4">${escapeHtml(row['ค่า'])}</td>
+                    <td class="px-4">${criteriaActions('settings', row)}</td>
+                </tr>`).join('');
+        }
+
+        function statusBadge(value) {
+            const enabled = !['FALSE', 'false', '0', 'ไม่ใช้งาน', 'ปิด'].includes(String(value || '').trim());
+            return `<span class="rounded-full ${enabled ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200'} px-3 py-1 text-xs font-bold">${enabled ? 'ใช้งาน' : 'ปิด'}</span>`;
+        }
+        function criteriaActions(group, row) {
+            return `<div class="flex justify-end gap-2">
+                <button class="btn btn-soft !px-3 !py-2" onclick="openCriteriaModal('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger !px-3 !py-2" onclick="removeCriteria('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-trash"></i></button>
+            </div>`;
+        }
+
+        function openUserModal(username = '') {
+            const user = state.users.find(item => item.username === username);
+            $('userMode').value = user ? 'edit' : 'create';
+            $('userModalTitle').textContent = user ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้';
+            $('userUsername').value = user?.username || '';
+            $('userUsername').readOnly = Boolean(user);
+            $('userName').value = user?.name || '';
+            $('userRole').value = user?.role || 'body_measurement';
+            $('userPassword').value = '';
+            $('userPassword').required = !user;
+            $('userPassword').placeholder = user ? 'เว้นว่างไว้ถ้าไม่เปลี่ยนรหัสผ่าน' : 'กำหนดรหัสผ่าน';
+            openModal('userModal');
+        }
+
+        function fieldInput(id, label, value = '', type = 'text') {
+            return `<div><label class="block text-sm text-slate-300 mb-2">${label}</label><input id="${id}" class="field" type="${type}" value="${escapeHtml(value)}"></div>`;
+        }
+        function selectInput(id, label, value, options) {
+            return `<div><label class="block text-sm text-slate-300 mb-2">${label}</label><select id="${id}" class="field">${options.map(item => `<option value="${escapeHtml(item)}" ${item === value ? 'selected' : ''}>${escapeHtml(item)}</option>`).join('')}</select></div>`;
+        }
+
+        function openCriteriaModal(group, rowId = '') {
+            const row = rowId ? (state.criteria[group] || []).find(item => item._rowId === rowId) : null;
+            $('criteriaGroup').value = group;
+            $('criteriaRowId').value = row?._rowId || '';
+            $('criteriaTitle').textContent = row ? 'แก้ไขกฎเกณฑ์' : 'เพิ่มกฎเกณฑ์';
+            if (group === 'body') {
+                $('criteriaFields').innerHTML =
+                    selectInput('cGender', 'เพศ', row?.['เพศ'] || 'ชาย', ['ชาย', 'หญิง']) +
+                    fieldInput('cBmiMax', 'BMI สูงสุด', row?.['BMI สูงสุด'] || '', 'number') +
+                    fieldInput('cChestMin', 'รอบอกต่ำสุด', row?.['รอบอกต่ำสุด'] || '', 'number') +
+                    selectInput('cUseChest', 'ใช้รอบอก', row?.['ใช้รอบอก'] || 'TRUE', ['TRUE', 'FALSE']) +
+                    selectInput('cActive', 'สถานะใช้งาน', row?.['สถานะใช้งาน'] || 'TRUE', ['TRUE', 'FALSE']);
+            } else if (group === 'physical') {
+                $('criteriaFields').innerHTML =
+                    selectInput('cStation', 'สถานี', row?.['สถานี'] || 'วิ่ง', ['วิ่ง', 'ลุกนั่ง', 'ดันพื้น']) +
+                    selectInput('cGender', 'เพศ', row?.['เพศ'] || 'ชาย', ['ชาย', 'หญิง', 'ทั้งหมด']) +
+                    fieldInput('cFrom', 'ค่าจาก', row?.['ค่าจาก'] || '') +
+                    fieldInput('cTo', 'ค่าถึง', row?.['ค่าถึง'] || '') +
+                    fieldInput('cScore', 'คะแนน', row?.['คะแนน'] || '', 'number') +
+                    fieldInput('cBonus', 'คะแนนเพิ่มต่อหน่วย', row?.['คะแนนเพิ่มต่อหน่วย'] || '', 'number') +
+                    selectInput('cActive', 'สถานะใช้งาน', row?.['สถานะใช้งาน'] || 'TRUE', ['TRUE', 'FALSE']);
+            } else {
+                $('criteriaFields').innerHTML =
+                    fieldInput('cItem', 'รายการ', row?.['รายการ'] || '') +
+                    fieldInput('cValue', 'ค่า', row?.['ค่า'] || '');
+            }
+            openModal('criteriaModal');
+        }
+
+        function openModal(id) { $(id).classList.remove('hidden'); $(id).classList.add('flex'); }
+        function closeModal(id) { $(id).classList.add('hidden'); $(id).classList.remove('flex'); }
+
+        document.querySelectorAll('.tab').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(item => item.classList.remove('tab-active'));
+                button.classList.add('tab-active');
+                document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
+                $(`${button.dataset.tab}Tab`).classList.remove('hidden');
+            });
+        });
+
+        $('loginForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const username = $('loginUsername').value.trim();
+            const password = $('loginPassword').value;
+            if ($('rememberCredentials').checked) localStorage.setItem('nst_superadmin_login', JSON.stringify({ username, password }));
+            else localStorage.removeItem('nst_superadmin_login');
+            showLoading();
+            try {
+                const result = await api('login', [username, password]);
+                if (!result.success) throw new Error(result.message);
+                if (result.user.role !== 'admin') throw new Error('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ');
+                state.currentUser = result.user;
+                sessionStorage.setItem('nst_token', result.token);
+                sessionStorage.setItem('nst_user', JSON.stringify(result.user));
+                await enterApp();
+            } catch (error) {
+                Swal.fire('เข้าสู่ระบบไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        $('userForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const payload = {
+                username: $('userUsername').value.trim(),
+                name: $('userName').value.trim(),
+                role: $('userRole').value,
+                password: $('userPassword').value
+            };
+            const action = $('userMode').value === 'edit' ? 'updateUser' : 'createUser';
+            showLoading();
+            try {
+                const result = await api(action, [token(), payload]);
+                if (!result.success) throw new Error(result.message);
+                closeModal('userModal');
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'สำเร็จ', text: result.message, timer: 1300, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('บันทึกไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        $('criteriaForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const group = $('criteriaGroup').value;
+            let payload = { _rowId: $('criteriaRowId').value };
+            if (group === 'body') payload = { ...payload, gender: $('cGender').value, bmiMax: $('cBmiMax').value, chestMin: $('cChestMin').value, useChest: $('cUseChest').value, active: $('cActive').value };
+            if (group === 'physical') payload = { ...payload, station: $('cStation').value, gender: $('cGender').value, from: $('cFrom').value, to: $('cTo').value, score: $('cScore').value, bonusPerUnit: $('cBonus').value, active: $('cActive').value };
+            if (group === 'settings') payload = { ...payload, item: $('cItem').value, value: $('cValue').value };
+            showLoading();
+            try {
+                const result = await api('saveCriteriaRow', [token(), group, payload]);
+                if (!result.success) throw new Error(result.message);
+                closeModal('criteriaModal');
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'สำเร็จ', text: result.message, timer: 1300, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('บันทึกไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        async function removeUser(username) {
+            const confirm = await Swal.fire({ icon: 'warning', title: 'ลบผู้ใช้?', text: `ต้องการลบ ${username} หรือไม่`, showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#dc2626' });
+            if (!confirm.isConfirmed) return;
+            showLoading();
+            try {
+                const result = await api('deleteUser', [token(), username]);
+                if (!result.success) throw new Error(result.message);
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('ลบไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function removeCriteria(group, rowId) {
+            const confirm = await Swal.fire({ icon: 'warning', title: 'ลบกฎเกณฑ์?', text: 'ข้อมูลแถวนี้จะถูกลบออกจาก Supabase', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#dc2626' });
+            if (!confirm.isConfirmed) return;
+            showLoading();
+            try {
+                const result = await api('deleteCriteriaRow', [token(), group, rowId]);
+                if (!result.success) throw new Error(result.message);
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('ลบไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        $('logoutBtn').addEventListener('click', async () => {
+            try { await api('logout', [token()]); } catch (error) {}
+            sessionStorage.removeItem('nst_token');
+            sessionStorage.removeItem('nst_user');
+            location.reload();
+        });
+
+        boot();
+    </script>
+</body>
+
+</html>
