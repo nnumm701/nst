@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลเครื่องแต่งกาย</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+    /* ==================== CUSTOM FONTS ==================== */
+    .font-prompt {
+        font-family: 'Prompt', sans-serif;
+    }
+
+    /* ==================== GLASS MORPHISM ==================== */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-nav {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ==================== LOADING SPINNER ==================== */
+    .spinner {
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-panel {
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ==================== DATA TABLE ==================== */
+    .data-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        contain: layout paint;
+    }
+
+    #quotaDataTable *,
+    #nstDataTable *,
+    #failedDataTable * {
+        transition: none !important;
+        filter: none !important;
+    }
+
+    .data-table thead th {
+        background: rgba(30, 58, 138, 0.4);
+        color: #bfdbfe;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+
+    /* ... */
+    .data-table tbody td {
+        padding: 12px 16px;
+        color: #cbd5e1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(30, 58, 138, 0.2);
+    }
+
+    /* ==================== DASHBOARD PERFORMANCE MODE ==================== */
+    #adminDashboard,
+    #adminDashboard * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    #adminDashboard .glass-card,
+    #adminDashboard .modal-content,
+    #adminDashboard .modal-overlay,
+    #mainApp .glass-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+    }
+
+    #adminDashboard .glass-card {
+        background: rgba(30, 41, 59, 0.96) !important;
+    }
+
+    #mainApp .glass-nav {
+        background: #0f172a !important;
+    }
+
+    #adminDashboard .shadow-sm,
+    #adminDashboard .shadow,
+    #adminDashboard .shadow-lg,
+    #adminDashboard .shadow-xl,
+    #adminDashboard .shadow-2xl,
+    #adminDashboard [class*="shadow-"] {
+        box-shadow: none !important;
+    }
+
+    #adminDashboard [class*="bg-gradient"],
+    #adminDashboard [class*="from-"],
+    #adminDashboard [class*="to-"],
+    #adminDashboard [class*="via-"] {
+        background-image: none !important;
+    }
+
+    #adminDashboard .fa-spin,
+    #adminDashboard .spinner,
+    #mainApp .fa-spin,
+    #mainApp .spinner {
+        animation: spin 1s linear infinite !important;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    #quotaDataTable tbody tr:hover,
+    #nstDataTable tbody tr:hover,
+    #failedDataTable tbody tr:hover {
+        background: inherit !important;
+    }
+
+    #mainApp,
+    #mainApp * {
+        text-shadow: none !important;
+        filter: none !important;
+    }
+
+    #mainApp .glass-card,
+    #mainApp .modal-content,
+    #mainApp .modal-overlay,
+    #mainApp [class*="backdrop-blur"],
+    #mainApp [class*="drop-shadow"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        filter: none !important;
+    }
+
+    #mainApp button,
+    #mainApp input,
+    #mainApp select,
+    #mainApp textarea,
+    #mainApp .badge {
+        transition: none !important;
+        box-shadow: none !important;
+    }
+
+    #mainApp [class*="hover:"],
+    #mainApp [class*="focus:"],
+    #mainApp [class*="active:"],
+    #mainApp [class*="peer-checked:"],
+    #mainApp [class*="group-hover:"] {
+        transition: none !important;
+    }
+
+    .data-table tbody tr:last-child td:first-child {
+        border-radius: 0 0 0 12px;
+    }
+
+    .data-table tbody tr:last-child td:last-child {
+        border-radius: 0 0 12px 0;
+    }
+
+    /* ==================== STATUS BADGES ==================== */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-pass {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-fail {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* ==================== TAB BUTTONS ==================== */
+    .tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* ==================== ACTION BUTTONS ==================== */
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 1rem;
+    }
+
+    .modal-content {
+        animation: modalIn 0.3s ease-out;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* ==================== PAGE TRANSITIONS ==================== */
+    .page {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .dashboard-page {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+
+    /* ==================== ROLE BADGES ==================== */
+    .role-admin {
+        color: #f472b6;
+    }
+
+    .role-body_measurement {
+        color: #60a5fa;
+    }
+
+    .role-medical_check {
+        color: #4ade80;
+    }
+
+    .role-running {
+        color: #facc15;
+    }
+
+    .role-push_up {
+        color: #f87171;
+    }
+
+    .role-sit_up {
+        color: #facc15;
+    }
+
+    .role-data_review {
+        color: #38bdf8;
+    }
+
+    .role-Add_application {
+        color: #34d399;
+    }
+
+    .role-data_processing {
+        color: #34d399;
+    }
+
+    .role-uniform {
+        color: #f59e0b;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+        .data-table {
+            font-size: 0.875rem;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 8px 12px;
+        }
+    }
+</style>
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .glass-card {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background: rgba(30, 41, 59, 0.92) !important;
+        }
+
+        #loadingOverlay,
+        #sizeEntryBackdrop {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        #entrySection {
+            overscroll-behavior: contain;
+        }
+    </style>
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+</head>
+
+<body class="bg-[#0f172a] min-h-screen text-slate-200">
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/35 z-50 flex items-center justify-center hidden">
+        <div class="loading-panel text-center">
+            <div class="spinner mb-3 mx-auto"></div>
+            <p class="text-white text-sm font-semibold">กำลังโหลด...</p>
+        </div>
+    </div>
+
+    <main id="loginPage" class="min-h-screen flex items-center justify-center px-4 py-10">
+        <section class="w-full max-w-md">
+            <div class="text-center mb-7">
+                <img src="https://lh5.googleusercontent.com/d/1zUERr8NL56Ing3CKjwBhX_wIuCQGhZon" alt="NST Logo"
+                    class="w-24 h-24 object-contain mx-auto mb-4">
+                <p class="text-sm font-semibold text-amber-300">ระบบคัดเลือกนักศึกษาวิชาทหาร</p>
+                <h1 class="text-3xl font-extrabold text-white mt-2">ข้อมูลเครื่องแต่งกาย</h1>
+            </div>
+
+            <div class="glass-card rounded-2xl p-7 border border-white/10">
+                <form id="loginForm">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">ชื่อผู้ใช้</label>
+                    <input id="loginUsername" type="text" autocomplete="username"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 mb-4"
+                        required>
+
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">รหัสผ่าน</label>
+                    <div class="relative mb-6">
+                        <input id="loginPassword" type="password" autocomplete="current-password"
+                            class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            required>
+                        <button type="button" onclick="togglePasswordVisibility('loginPassword', this)"
+                            class="absolute inset-y-0 right-3 text-slate-400 hover:text-white">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <label class="flex items-center gap-3 mb-6 text-sm text-slate-300 cursor-pointer">
+                        <input id="rememberCredentials" type="checkbox"
+                            class="w-4 h-4 rounded border-slate-600 bg-slate-900 text-amber-500 focus:ring-amber-500">
+                        <span>จดจำผู้ใช้และรหัสผ่านในเครื่องนี้</span>
+                    </label>
+
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <main id="sizeApp" class="hidden min-h-screen px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">
+        <nav class="flex items-center justify-between gap-4 mb-6">
+            <div>
+                <p class="text-sm font-semibold text-amber-300">NST Size Entry</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">ข้อมูลเครื่องแต่งกาย</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="navUserName" class="text-sm font-semibold text-white"></p>
+                    <p id="navUserRole" class="text-xs text-amber-300"></p>
+                </div>
+                <button id="logoutButton" class="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 hover:bg-red-500/30">
+                    <i class="fas fa-sign-out-alt mr-1"></i>ออก
+                </button>
+            </div>
+        </nav>
+
+        <div class="glass-card rounded-2xl p-2 border border-white/10 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button id="applicantModeButton" type="button"
+                class="px-4 py-3 rounded-xl font-bold transition-colors bg-amber-500 text-slate-950">
+                <i class="fas fa-id-card mr-2"></i>ข้อมูลรายบุคคล
+            </button>
+            <button id="schoolModeButton" type="button"
+                class="px-4 py-3 rounded-xl font-bold transition-colors bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fas fa-school mr-2"></i>ข้อมูลแต่ละสถานศึกษา
+            </button>
+            <button id="overviewModeButton" type="button"
+                class="px-4 py-3 rounded-xl font-bold transition-colors bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fas fa-chart-column mr-2"></i>ข้อมูลทั้งหมด
+            </button>
+        </div>
+
+        <section class="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 mb-6">
+            <label class="block text-sm font-semibold text-slate-300 mb-2">ประเภทผู้ผ่านการคัดเลือก</label>
+            <select id="sizeSourceFilter"
+                class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <option value="รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)">รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)</option>
+                <option value="รายชื่อผู้ผ่านการคัดเลือกห้วง2">รายชื่อผู้ผ่านการคัดเลือกห้วง2</option>
+                <option value="รายชื่อผู้ผ่านการคัดเลือกรอบ2">รายชื่อผู้ผ่านการคัดเลือกรอบ2</option>
+            </select>
+        </section>
+
+        <section id="applicantSearchSection" class="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-id-card mr-2 text-amber-400"></i>ค้นหารหัสใบสมัคร
+            </h2>
+            <form id="searchForm" class="flex flex-col md:flex-row gap-3 md:items-end">
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">รหัสใบสมัคร</label>
+                    <input id="appIdInput" type="text" autocomplete="off"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        placeholder="กรอกรหัสทีละคน เช่น 1001">
+                </div>
+                <button type="submit"
+                    class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold transition-colors">
+                    <i class="fas fa-search mr-2"></i>ค้นหา
+                </button>
+                <button id="newButton" type="button"
+                    class="px-5 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-colors">
+                    <i class="fas fa-rotate-left mr-2"></i>ล้าง
+                </button>
+            </form>
+            <div class="mt-5 pt-5 border-t border-white/10">
+                <label class="block text-sm font-semibold text-slate-300 mb-2">เลือกโรงเรียนเพื่อแสดงรายชื่อ</label>
+                <select id="applicantSchoolSelect"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="">เลือกโรงเรียน</option>
+                </select>
+                <div id="applicantStudentList" class="mt-4 rounded-xl border border-white/10 bg-slate-950/30 overflow-hidden hidden"></div>
+            </div>
+        </section>
+
+        <section id="schoolSearchSection" class="hidden glass-card rounded-2xl p-5 sm:p-6 border border-white/10 mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-school mr-2 text-sky-400"></i>ค้นหาโรงเรียน
+            </h2>
+            <form id="schoolSearchForm" class="flex flex-col md:flex-row gap-3 md:items-end">
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">สถานศึกษา</label>
+                    <select id="schoolSearchSelect"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="">เลือกโรงเรียน</option>
+                    </select>
+                </div>
+                <button type="submit"
+                    class="px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-extrabold transition-colors">
+                    <i class="fas fa-search mr-2"></i>ดูสรุป
+                </button>
+                <button id="printSchoolButton" type="button"
+                    class="px-5 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
+                    <i class="fas fa-print mr-2"></i>พิมพ์
+                </button>
+            </form>
+        </section>
+
+        <section id="schoolResultSection" class="hidden glass-card rounded-2xl p-5 sm:p-6 border border-sky-500/30 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+                <div>
+                    <p class="text-sm font-bold text-sky-300">สรุปโรงเรียน</p>
+                    <h2 id="schoolResultTitle" class="text-2xl font-extrabold text-white mt-1"></h2>
+                </div>
+                <button id="printSchoolButtonTop" type="button"
+                    class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-500 text-white font-semibold transition-colors">
+                    <i class="fas fa-print mr-2"></i>พิมพ์สรุป
+                </button>
+            </div>
+            <div id="schoolResultContent"></div>
+        </section>
+
+        <section id="overviewSection" class="hidden glass-card rounded-2xl p-5 sm:p-6 border border-white/10 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 class="text-xl font-bold text-white">
+                    <i class="fas fa-chart-column mr-2 text-indigo-400"></i>ข้อมูลทั้งหมด
+                </h2>
+                <button id="refreshSummaryButton" type="button"
+                    class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                </button>
+            </div>
+
+            <div id="overviewSummaryContent" class="rounded-xl border border-white/10 bg-white/5 p-5 text-gray-400">
+                กำลังโหลดสรุป...
+            </div>
+        </section>
+
+        <section id="emptyState" class="glass-card rounded-2xl p-8 border border-white/10 text-center text-gray-400">
+            <i class="fas fa-id-card text-4xl mb-3 text-gray-500"></i>
+            <p class="font-semibold text-white">กรอกรหัสใบสมัครเพื่อเริ่มบันทึก</p>
+            <p class="text-sm mt-1">ระบบอ้างอิงรายชื่อจากประเภทผู้ผ่านการคัดเลือกที่เลือก</p>
+        </section>
+
+        <section id="entrySection" class="hidden fixed inset-0 z-40 px-3 sm:px-6 py-5 overflow-y-auto bg-slate-950/70">
+            <div id="sizeEntryBackdrop" class="fixed inset-0 bg-slate-950/70"></div>
+            <div class="relative max-w-5xl mx-auto space-y-5">
+                <div class="glass-card rounded-2xl p-5 sm:p-6 border border-white/10">
+                    <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                        <div>
+                            <p id="studentAppId" class="text-sm font-bold text-amber-300"></p>
+                            <h2 id="studentName" class="text-2xl font-extrabold text-white mt-1"></h2>
+                            <p id="studentMeta" class="text-sm text-gray-400 mt-1"></p>
+                        </div>
+                        <button type="button" id="closeEntryButton"
+                            class="self-start px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-colors">
+                            <i class="fas fa-times mr-2"></i>ปิด
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+                        <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
+                            <p class="text-sm text-emerald-200">มัดจำ</p>
+                            <p id="depositTotal" class="text-2xl font-black text-white">0 บาท</p>
+                        </div>
+                        <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4">
+                            <p class="text-sm text-amber-200">ค้างชำระ</p>
+                            <p id="outstandingTotal" class="text-2xl font-black text-white">0 บาท</p>
+                        </div>
+                        <div class="rounded-xl bg-sky-500/10 border border-sky-500/30 p-4">
+                            <p class="text-sm text-sky-200">รวมทั้งหมด</p>
+                            <p id="grandTotal" class="text-2xl font-black text-white">0 บาท</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="sizeForm" class="space-y-5">
+                <section class="glass-card rounded-2xl p-5 sm:p-6 border border-white/10">
+                    <div class="flex items-center justify-between gap-3 mb-5">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">
+                                <i class="fas fa-box-open mr-2 text-emerald-400"></i>รายการเครื่องแต่งกายพื้นฐาน
+                            </h3>
+                            <p class="text-sm text-gray-400 mt-1">นักศึกษาที่บันทึกข้อมูลเครื่องแต่งกายต้องรับชุดพื้นฐาน มัดจำ 500 บาท</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="rounded-xl bg-slate-900/60 border border-white/10 p-4">
+                            <p class="text-sm text-gray-400">1. ชุดฝึก</p>
+                            <p class="text-xl font-extrabold text-white mt-1">1 ชุด</p>
+                        </div>
+
+                        <div class="rounded-xl bg-slate-900/60 border border-white/10 p-4">
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">2. เสื้อยืดชั้นใน 2 ตัว</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <select id="shirtSize" class="size-input"></select>
+                                <input id="shirtOther" type="text" class="size-input hidden" placeholder="ระบุไซต์เสื้อยืด">
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl bg-slate-900/60 border border-white/10 p-4">
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">3. หมวก 1 ใบ</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <select id="hatSize" class="size-input"></select>
+                                <input id="hatOther" type="text" class="size-input hidden" placeholder="ระบุไซต์หมวก">
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl bg-slate-900/60 border border-white/10 p-4">
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">4. เข็มขัด 1 เส้น</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <select id="beltSize" class="size-input"></select>
+                                <input id="beltOther" type="text" class="size-input hidden" placeholder="ระบุไซต์เข็มขัด">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-card rounded-2xl p-5 sm:p-6 border border-white/10">
+                    <h3 class="text-xl font-bold text-white mb-5">
+                        <i class="fas fa-plus-circle mr-2 text-sky-400"></i>รายการเพิ่มเติม
+                    </h3>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="rounded-xl bg-slate-900/60 border border-white/10 p-4">
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div>
+                                    <p class="font-bold text-white">รองเท้า</p>
+                                    <p class="text-xs text-gray-400">ราคา 550 บาท มัดจำ 300 บาทต่อคู่</p>
+                                </div>
+                                <label class="inline-flex items-center gap-2 text-sm text-sky-200 cursor-pointer">
+                                    <input id="shoeToggle" type="checkbox"
+                                        class="w-5 h-5 rounded border-white/20 bg-slate-800 text-sky-500 focus:ring-sky-500">
+                                    ต้องการ
+                                </label>
+                            </div>
+                            <div id="shoeFields" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <input id="shoeQty" type="number" min="0" step="1" class="size-input" placeholder="จำนวน">
+                                <select id="shoeSize" class="size-input"></select>
+                                <input id="shoeOther" type="text" class="size-input hidden" placeholder="ระบุไซต์รองเท้า">
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl bg-slate-900/60 border border-white/10 p-4">
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div>
+                                    <p class="font-bold text-white">ชุดฝึกเพิ่มเติม</p>
+                                    <p class="text-xs text-gray-400">ราคา 1,400 บาทต่อชุด ไม่ต้องมัดจำ</p>
+                                </div>
+                                <label class="inline-flex items-center gap-2 text-sm text-sky-200 cursor-pointer">
+                                    <input id="extraUniformToggle" type="checkbox"
+                                        class="w-5 h-5 rounded border-white/20 bg-slate-800 text-sky-500 focus:ring-sky-500">
+                                    ต้องการ
+                                </label>
+                            </div>
+                            <div id="extraUniformFields" class="hidden">
+                                <input id="extraUniformQty" type="number" min="0" step="1" class="size-input" placeholder="จำนวน">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="flex flex-col sm:flex-row justify-end gap-3">
+                    <button type="button" id="clearFormButton"
+                        class="px-5 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-colors">
+                        ล้างฟอร์ม
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold shadow-lg shadow-amber-500/20">
+                        <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
+                    </button>
+                </div>
+            </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const TOKEN_KEY = 'nst_size_token';
+        const USER_KEY = 'nst_size_user';
+        let sessionToken = null;
+        let currentUser = null;
+        let currentRecord = null;
+        let currentSchoolResult = null;
+        let currentMode = 'applicant';
+        let currentSummaries = [];
+        let currentGrandSummary = null;
+        let currentApplicantSchoolRecords = [];
+
+        const SIZE_RECRUITMENT_SCHEDULE_GROUPS = [
+            { date: '2569-05-19', label: '19 พ.ค. 69', location: 'โรงเรียนบ้านนา "นายกพิทยากร"' },
+            { date: '2569-05-20', label: '20 พ.ค. 69', location: 'โรงเรียนนครนายกวิทยาคม' },
+            { date: '2569-05-21', label: '21 พ.ค. 69', location: 'โรงเรียนนครนายกวิทยาคม' },
+            { date: '2569-05-22', label: '22 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-25', label: '25 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-26', label: '26 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-27', label: '27 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-28', label: '28 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-29', label: '29 พ.ค. 69', location: 'โรงเรียนเบญจมราชรังสฤษฏิ์' },
+            { date: '2569-06-04', label: '4 มิ.ย. 69', location: 'โรงเรียนกาญจนาวิทยาลัย ฉะเชิงเทรา' },
+            { date: '2569-06-05', label: '5 มิ.ย. 69', location: 'โรงเรียนกบินทร์วิทยา' },
+            { date: '2569-06-08', label: '8 มิ.ย. 69', location: 'โรงเรียนวัดใหม่กรงทอง ในพระราชูปถัมภ์' },
+            { date: '2569-06-09', label: '9 มิ.ย. 69', location: 'วิทยาลัยการอาชีพปราจีนบุรี' },
+            { date: '2569-06-10', label: '10 มิ.ย. 69', location: 'วิทยาลัยการอาชีพปราจีนบุรี' },
+            { date: '2569-06-11', label: '11 มิ.ย. 69', location: 'วิทยาลัยการอาชีพปราจีนบุรี' }
+        ];
+
+        const SIZE_SOURCE_OPTIONS = [
+            'รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)',
+            'รายชื่อผู้ผ่านการคัดเลือกห้วง2',
+            'รายชื่อผู้ผ่านการคัดเลือกรอบ2'
+        ];
+
+        const $ = (id) => document.getElementById(id);
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        function showLoading() {
+            $('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            $('loadingOverlay').classList.add('hidden');
+        }
+
+        function formatBaht(value) {
+            return (Number(value) || 0).toLocaleString('th-TH') + ' บาท';
+        }
+
+        function hasSavedMoney(value) {
+            return value !== undefined && value !== null && String(value).trim() !== '';
+        }
+
+        function formatBahtOrDash(value) {
+            return hasSavedMoney(value) ? formatBaht(value) : '-';
+        }
+
+        function roleName(role) {
+            return role === 'admin' ? 'ผู้ดูแลระบบ' : 'กรอกข้อมูลเครื่องแต่งกาย';
+        }
+
+        function inputClass() {
+            return 'w-full px-4 py-3 rounded-xl bg-slate-800 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500';
+        }
+
+        function populateSizeDateFilter() {
+            const select = $('sizeDateFilter');
+            if (!select) return;
+            select.innerHTML = '<option value="">เลือกวันที่รับสมัคร</option>' +
+                SIZE_RECRUITMENT_SCHEDULE_GROUPS.map(group =>
+                    `<option value="${escapeHtml(group.date)}">${escapeHtml(group.label)} - ${escapeHtml(group.location)}</option>`
+                ).join('') +
+                '<option value="ALL">ค้นหาทุกวันที่</option>';
+        }
+
+        function populateSizeSourceFilter() {
+            const select = $('sizeSourceFilter');
+            const currentValue = select.value || SIZE_SOURCE_OPTIONS[0];
+            select.innerHTML = SIZE_SOURCE_OPTIONS.map(source =>
+                `<option value="${escapeHtml(source)}">${escapeHtml(source)}</option>`
+            ).join('');
+            select.value = SIZE_SOURCE_OPTIONS.includes(currentValue) ? currentValue : SIZE_SOURCE_OPTIONS[0];
+        }
+
+        function getSelectedSizeSource() {
+            return $('sizeSourceFilter') ? $('sizeSourceFilter').value : SIZE_SOURCE_OPTIONS[0];
+        }
+
+        function getSelectedSizeSourceText() {
+            return getSelectedSizeSource() || SIZE_SOURCE_OPTIONS[0];
+        }
+
+        function getSelectedSizeDateFilter() {
+            return $('sizeDateFilter') ? $('sizeDateFilter').value : 'ALL';
+        }
+
+        function getSelectedSizeDateText() {
+            const filter = getSelectedSizeDateFilter();
+            if (filter === 'ALL') return 'ทุกวันที่';
+            const group = SIZE_RECRUITMENT_SCHEDULE_GROUPS.find(item => item.date === filter);
+            return group ? `${group.label} - ${group.location}` : '';
+        }
+
+        function requireSizeDateFilter() {
+            return true;
+        }
+
+        function showLogin() {
+            $('loginPage').classList.remove('hidden');
+            $('sizeApp').classList.add('hidden');
+        }
+
+        function showApp() {
+            $('loginPage').classList.add('hidden');
+            $('sizeApp').classList.remove('hidden');
+            $('navUserName').textContent = currentUser.name || currentUser.username || '';
+            $('navUserRole').textContent = roleName(currentUser.role);
+            populateSizeSourceFilter();
+            populateSizeDateFilter();
+            resetCurrentStudent();
+            loadSchoolSummaries(true);
+            setActiveMode('applicant');
+        }
+
+        function updateModeVisibility() {
+            const isApplicant = currentMode === 'applicant';
+            const isSchool = currentMode === 'school';
+            const isOverview = currentMode === 'overview';
+            $('applicantSearchSection').classList.toggle('hidden', !isApplicant);
+            $('schoolSearchSection').classList.toggle('hidden', !isSchool);
+            $('emptyState').classList.toggle('hidden', !isApplicant || Boolean(currentRecord));
+            $('entrySection').classList.toggle('hidden', !isApplicant || !currentRecord);
+            $('schoolResultSection').classList.toggle('hidden', !isSchool || !currentSchoolResult);
+            $('overviewSection').classList.toggle('hidden', !isOverview);
+            document.body.classList.toggle('overflow-hidden', isApplicant && Boolean(currentRecord));
+        }
+
+        function setModeButton(buttonId, active, activeClass) {
+            const button = $(buttonId);
+            button.className = active
+                ? `px-4 py-3 rounded-xl font-bold transition-colors ${activeClass}`
+                : 'px-4 py-3 rounded-xl font-bold transition-colors bg-slate-800 text-slate-300 hover:bg-slate-700';
+        }
+
+        function setActiveMode(mode) {
+            currentMode = mode;
+            setModeButton('applicantModeButton', mode === 'applicant', 'bg-amber-500 text-slate-950');
+            setModeButton('schoolModeButton', mode === 'school', 'bg-sky-500 text-white');
+            setModeButton('overviewModeButton', mode === 'overview', 'bg-indigo-500 text-white');
+            updateModeVisibility();
+            if (mode === 'applicant') {
+                setTimeout(() => $('appIdInput').focus(), 0);
+            }
+            if (mode === 'overview') {
+                if (getSelectedSizeDateFilter()) {
+                    renderOverviewSummaries(currentSummaries, currentGrandSummary);
+                } else {
+                    renderOverviewPrompt();
+                }
+            }
+        }
+
+        function clearSession() {
+            sessionStorage.removeItem(TOKEN_KEY);
+            sessionStorage.removeItem(USER_KEY);
+            sessionToken = null;
+            currentUser = null;
+        }
+
+        function handleApiError(result) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: result.message || 'ไม่สามารถทำรายการได้',
+                confirmButtonColor: '#f59e0b'
+            });
+        }
+
+        function handleError(error) {
+            hideLoading();
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: error.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+                confirmButtonColor: '#f59e0b'
+            });
+        }
+
+        function togglePasswordVisibility(inputId, button) {
+            const input = $(inputId);
+            if (!input) return;
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            const icon = button ? button.querySelector('i') : null;
+            if (icon) {
+                icon.classList.toggle('fa-eye', !isHidden);
+                icon.classList.toggle('fa-eye-slash', isHidden);
+            }
+        }
+
+        function loadRememberedCredentials() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('nst_remember_size') || 'null');
+                if (!saved) return;
+                $('loginUsername').value = saved.username || '';
+                $('loginPassword').value = saved.password || '';
+                $('rememberCredentials').checked = true;
+            } catch (error) {}
+        }
+
+        function saveRememberedCredentials(username, password) {
+            if ($('rememberCredentials').checked) {
+                localStorage.setItem('nst_remember_size', JSON.stringify({ username, password }));
+            } else {
+                localStorage.removeItem('nst_remember_size');
+            }
+        }
+
+        function checkSession() {
+            sessionToken = sessionStorage.getItem(TOKEN_KEY);
+            const userData = sessionStorage.getItem(USER_KEY);
+            if (!sessionToken || !userData) {
+                showLogin();
+                return;
+            }
+
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (result.valid && ['admin', 'uniform'].includes(result.user.role)) {
+                        currentUser = result.user;
+                        showApp();
+                    } else {
+                        clearSession();
+                        showLogin();
+                    }
+                })
+                .withFailureHandler(handleError)
+                .validateSession(sessionToken);
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const username = $('loginUsername').value.trim();
+            const password = $('loginPassword').value;
+            saveRememberedCredentials(username, password);
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) {
+                        handleApiError(result);
+                        return;
+                    }
+                    if (!['admin', 'uniform'].includes(result.user.role)) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'ไม่มีสิทธิ์เข้าใช้งานหน้านี้',
+                            text: 'กรุณาใช้บัญชีเจ้าหน้าที่กรอกไซส์',
+                            confirmButtonColor: '#f59e0b'
+                        });
+                        return;
+                    }
+                    sessionToken = result.token;
+                    currentUser = result.user;
+                    sessionStorage.setItem(TOKEN_KEY, sessionToken);
+                    sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                    showApp();
+                })
+                .withFailureHandler(handleError)
+                .login(username, password);
+        }
+
+        function logout() {
+            const token = sessionToken;
+            clearSession();
+            showLogin();
+            if (token) google.script.run.logout(token);
+        }
+
+        function renderOverviewPrompt() {
+            $('overviewSummaryContent').innerHTML = `
+                <div class="py-5 text-center text-gray-400">กำลังโหลดสรุป...</div>
+            `;
+        }
+
+        function loadSchoolSummaries(silent = false) {
+            const dateFilter = getSelectedSizeDateFilter();
+            if (!dateFilter) {
+                currentSummaries = [];
+                currentGrandSummary = null;
+                populateSchoolSearchOptions([]);
+                populateApplicantSchoolOptions([]);
+                renderApplicantStudentList([]);
+                renderOverviewPrompt();
+                return;
+            }
+            const sourceType = getSelectedSizeSource();
+            if (!silent) showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (!silent) hideLoading();
+                    if (result.success) {
+                        currentSummaries = result.summaries || [];
+                        currentGrandSummary = result.grandSummary || null;
+                        populateSchoolSearchOptions(currentSummaries);
+                        populateApplicantSchoolOptions(currentSummaries);
+                        renderOverviewSummaries(currentSummaries, currentGrandSummary);
+                    } else {
+                        currentSummaries = [];
+                        currentGrandSummary = null;
+                        populateSchoolSearchOptions([]);
+                        populateApplicantSchoolOptions([]);
+                        renderApplicantStudentList([]);
+                        renderOverviewError('โหลดสรุปไม่สำเร็จ');
+                    }
+                })
+                .withFailureHandler((error) => {
+                    if (!silent) hideLoading();
+                    currentSummaries = [];
+                    currentGrandSummary = null;
+                    populateSchoolSearchOptions([]);
+                    populateApplicantSchoolOptions([]);
+                    renderApplicantStudentList([]);
+                    renderOverviewError('โหลดสรุปไม่สำเร็จ');
+                })
+                .getSizeSchoolSummaries(sessionToken, dateFilter, sourceType);
+        }
+
+        function renderOverviewError(message) {
+            $('overviewSummaryContent').innerHTML = `
+                <div class="py-5 text-center text-red-300">${escapeHtml(message)}</div>
+            `;
+        }
+
+        function renderOverviewSummaries(summaries, grandSummary) {
+            if (!grandSummary || !summaries || !summaries.length) {
+                $('overviewSummaryContent').innerHTML = `
+                    <div class="py-5 text-center text-gray-400">ยังไม่มีรายชื่อนักศึกษาในชีท Size</div>
+                `;
+                return;
+            }
+
+            $('overviewSummaryContent').innerHTML = `
+                <div class="rounded-xl border border-indigo-400/30 bg-indigo-500/10 p-4 mb-5 text-indigo-100 font-semibold">
+                    ประเภท: ${escapeHtml(getSelectedSizeSourceText())}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
+                        <p class="text-sm text-emerald-200">จำนวนเงินมัดจำทั้งหมด</p>
+                        <p class="text-3xl font-black text-white mt-1">${formatBaht(grandSummary.deposit)}</p>
+                    </div>
+                    <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4">
+                        <p class="text-sm text-amber-200">ค้างชำระทั้งหมด</p>
+                        <p class="text-3xl font-black text-white mt-1">${formatBaht(grandSummary.outstanding)}</p>
+                    </div>
+                    <div class="rounded-xl bg-indigo-500/10 border border-indigo-500/30 p-4">
+                        <p class="text-sm text-indigo-200">รวมเป็นเงินทั้งสิ้น</p>
+                        <p class="text-3xl font-black text-white mt-1">${formatBaht(grandSummary.total)}</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-white/10 mb-6">
+                    <table class="w-full min-w-[980px] text-sm">
+                        <thead class="bg-slate-900/80 text-gray-200">
+                            <tr>
+                                <th class="py-3 px-3 text-left">สถานศึกษา</th>
+                                <th class="py-3 px-3 text-center">มัดจำ</th>
+                                <th class="py-3 px-3 text-center">ค้างชำระ</th>
+                                <th class="py-3 px-3 text-center">รวมเงิน</th>
+                                <th class="py-3 px-3 text-center">ชุดฝึก</th>
+                                <th class="py-3 px-3 text-left">เสื้อยืดชั้นใน</th>
+                                <th class="py-3 px-3 text-left">หมวก</th>
+                                <th class="py-3 px-3 text-left">เข็มขัด</th>
+                                <th class="py-3 px-3 text-left">รองเท้า</th>
+                                <th class="py-3 px-3 text-center">ชุดฝึกเพิ่มเติม</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10">
+                            ${summaries.map(summary => `
+                                <tr class="bg-white/5 hover:bg-white/10 transition-colors align-top">
+                                    <td class="py-3 px-3 text-white font-semibold">${escapeHtml(summary.school || '-')}</td>
+                                    <td class="py-3 px-3 text-right text-emerald-300 font-bold whitespace-nowrap">${formatBaht(summary.deposit)}</td>
+                                    <td class="py-3 px-3 text-right text-amber-300 font-bold whitespace-nowrap">${formatBaht(summary.outstanding)}</td>
+                                    <td class="py-3 px-3 text-right text-sky-300 font-bold whitespace-nowrap">${formatBaht(summary.total)}</td>
+                                    <td class="py-3 px-3 text-center text-gray-200 whitespace-nowrap">${escapeHtml(summary.basicUniforms || 0)} ชุด</td>
+                                    <td class="py-3 px-3 text-gray-200">${formatTotalWithBreakdown(summary.innerShirts, 'ตัว', summary.shirtSizes)}</td>
+                                    <td class="py-3 px-3 text-gray-200">${formatTotalWithBreakdown(summary.hats, 'ใบ', summary.hatSizes)}</td>
+                                    <td class="py-3 px-3 text-gray-200">${formatTotalWithBreakdown(summary.belts, 'เส้น', summary.beltSizes)}</td>
+                                    <td class="py-3 px-3 text-gray-200">${formatTotalWithBreakdown(summary.shoePairs, 'คู่', summary.shoeSizes)}</td>
+                                    <td class="py-3 px-3 text-center text-gray-200 whitespace-nowrap">${escapeHtml(summary.extraUniforms || 0)} ชุด</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot class="bg-slate-950/80 text-white font-bold">
+                            <tr class="align-top">
+                                <td class="py-3 px-3">รวมทั้งหมด</td>
+                                <td class="py-3 px-3 text-right text-emerald-300 whitespace-nowrap">${formatBaht(grandSummary.deposit)}</td>
+                                <td class="py-3 px-3 text-right text-amber-300 whitespace-nowrap">${formatBaht(grandSummary.outstanding)}</td>
+                                <td class="py-3 px-3 text-right text-sky-300 whitespace-nowrap">${formatBaht(grandSummary.total)}</td>
+                                <td class="py-3 px-3 text-center whitespace-nowrap">${escapeHtml(grandSummary.basicUniforms || 0)} ชุด</td>
+                                <td class="py-3 px-3">${formatTotalOnly(grandSummary.innerShirts, 'ตัว')}</td>
+                                <td class="py-3 px-3">${formatTotalOnly(grandSummary.hats, 'ใบ')}</td>
+                                <td class="py-3 px-3">${formatTotalOnly(grandSummary.belts, 'เส้น')}</td>
+                                <td class="py-3 px-3">${formatTotalOnly(grandSummary.shoePairs, 'คู่')}</td>
+                                <td class="py-3 px-3 text-center whitespace-nowrap">${formatTotalOnly(grandSummary.extraUniforms, 'ชุด')}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="rounded-xl bg-slate-900/50 border border-white/10 p-4">
+                        <p class="text-gray-400 text-sm">ชุดฝึก</p>
+                        <p class="text-2xl font-extrabold text-white mt-1">${escapeHtml(grandSummary.basicUniforms || 0)} ชุด</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-900/50 border border-white/10 p-4">
+                        <p class="text-gray-400 text-sm">ชุดฝึกเพิ่มเติม</p>
+                        <p class="text-2xl font-extrabold text-white mt-1">${escapeHtml(grandSummary.extraUniforms || 0)} ชุด</p>
+                    </div>
+                    ${summaryCountTags('เสื้อยืดชั้นใน', grandSummary.shirtSizes)}
+                    ${summaryCountTags('หมวก', grandSummary.hatSizes)}
+                    ${summaryCountTags('เข็มขัด', grandSummary.beltSizes)}
+                    ${summaryCountTags('รองเท้า', grandSummary.shoeSizes)}
+                </div>
+            `;
+        }
+
+        function formatCountSummary(counts, unit) {
+            const entries = Object.entries(counts || {}).filter(([, count]) => Number(count) > 0);
+            if (!entries.length) return '-';
+            return entries.map(([size, count]) =>
+                `<span class="inline-block mr-2 mb-1">${escapeHtml(size)}: <strong>${escapeHtml(count)}</strong> ${escapeHtml(unit)}</span>`
+            ).join('');
+        }
+
+        function formatTotalWithBreakdown(total, unit, counts) {
+            return `
+                <div class="font-bold text-white mb-1">รวม ${escapeHtml(total || 0)} ${escapeHtml(unit)}</div>
+                <div class="text-xs leading-relaxed">${formatCountSummary(counts, unit)}</div>
+            `;
+        }
+
+        function formatTotalOnly(total, unit) {
+            return `<div class="font-bold text-white">รวม ${escapeHtml(total || 0)} ${escapeHtml(unit)}</div>`;
+        }
+
+        function populateSchoolSearchOptions(summaries) {
+            const select = $('schoolSearchSelect');
+            const currentValue = select.value;
+            const options = (summaries || []).map(summary => summary.school).filter(Boolean);
+            select.innerHTML = '<option value="">เลือกโรงเรียน</option>' + options.map(school =>
+                `<option value="${escapeHtml(school)}">${escapeHtml(school)}</option>`
+            ).join('');
+            if (currentValue && options.includes(currentValue)) select.value = currentValue;
+        }
+
+        function populateApplicantSchoolOptions(summaries) {
+            const select = $('applicantSchoolSelect');
+            const currentValue = select.value;
+            const options = (summaries || []).map(summary => summary.school).filter(Boolean);
+            select.innerHTML = '<option value="">เลือกโรงเรียน</option>' + options.map(school =>
+                `<option value="${escapeHtml(school)}">${escapeHtml(school)}</option>`
+            ).join('');
+            if (currentValue && options.includes(currentValue)) {
+                select.value = currentValue;
+            } else {
+                select.value = '';
+                renderApplicantStudentList([]);
+            }
+        }
+
+        function hasSizeEntry(record) {
+            return String(record['ไซต์เสื้อยืดชั้นใน'] || '').trim() !== '' ||
+                String(record['มัดจำ'] || '').trim() !== '' ||
+                String(record['รวมเงินทั้งหมด'] || '').trim() !== '';
+        }
+
+        function renderApplicantStudentList(records, message = '') {
+            const container = $('applicantStudentList');
+            currentApplicantSchoolRecords = records || [];
+
+            if (message) {
+                container.classList.remove('hidden');
+                container.innerHTML = `<div class="py-5 px-4 text-center text-gray-400">${escapeHtml(message)}</div>`;
+                return;
+            }
+
+            if (!currentApplicantSchoolRecords.length) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="bg-slate-900/80 px-4 py-3 flex items-center justify-between gap-3">
+                    <p class="font-bold text-white">รายชื่อนักศึกษา</p>
+                    <p class="text-sm text-gray-400">${escapeHtml(currentApplicantSchoolRecords.length)} รายการ</p>
+                </div>
+                <div class="max-h-[360px] overflow-y-auto divide-y divide-white/10">
+                    ${currentApplicantSchoolRecords.map(record => {
+                        const appId = String(record['รหัสประจำตัว'] || '').trim();
+                        const name = `${record['ชื่อ'] || ''} ${record['นามสกุล'] || ''}`.trim() || '-';
+                        const saved = hasSizeEntry(record);
+                        return `
+                            <button type="button" data-app-id="${escapeHtml(appId)}"
+                                class="applicant-student-row w-full text-left px-4 py-3 bg-white/5 hover:bg-amber-500/10 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <span>
+                                    <span class="block font-bold text-white">${escapeHtml(name)}</span>
+                                    <span class="block text-sm text-gray-400">รหัส ${escapeHtml(appId || '-')} · ${escapeHtml(record['เพศ'] || '-')}</span>
+                                </span>
+                                <span class="inline-flex self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold ${saved ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-200 border border-amber-500/30'}">
+                                    ${saved ? 'บันทึกแล้ว' : 'ยังไม่กรอก'}
+                                </span>
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            container.querySelectorAll('.applicant-student-row').forEach(button => {
+                button.addEventListener('click', () => selectApplicantStudent(button.dataset.appId));
+            });
+        }
+
+        function loadApplicantStudentsBySchool(school, silent = false) {
+            if (!school) {
+                renderApplicantStudentList([]);
+                return;
+            }
+            if (!requireSizeDateFilter()) return;
+            renderApplicantStudentList([], 'กำลังโหลดรายชื่อ...');
+            const sourceType = getSelectedSizeSource();
+            if (!silent) showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (!silent) hideLoading();
+                    if (result.success) {
+                        renderApplicantStudentList(result.records || []);
+                    } else {
+                        renderApplicantStudentList([], 'โหลดรายชื่อไม่สำเร็จ');
+                        handleApiError(result);
+                    }
+                })
+                .withFailureHandler((error) => {
+                    if (!silent) hideLoading();
+                    renderApplicantStudentList([], 'โหลดรายชื่อไม่สำเร็จ');
+                    handleError(error);
+                })
+                .getSizeStudentsBySchool(sessionToken, school, getSelectedSizeDateFilter(), sourceType);
+        }
+
+        function selectApplicantStudent(appId) {
+            const record = currentApplicantSchoolRecords.find(item => String(item['รหัสประจำตัว'] || '').trim() === String(appId || '').trim());
+            if (!record) return;
+            currentRecord = record;
+            $('appIdInput').value = record['รหัสประจำตัว'] || '';
+            renderStudent(record);
+        }
+
+        function summaryCountTags(title, counts) {
+            const entries = Object.entries(counts || {}).filter(([, count]) => Number(count) > 0);
+            if (!entries.length) {
+                return `
+                    <div class="rounded-xl bg-slate-900/50 border border-white/10 p-3">
+                        <p class="text-gray-400 text-xs mb-1">${escapeHtml(title)}</p>
+                        <p class="text-gray-500">-</p>
+                    </div>
+                `;
+            }
+            return `
+                <div class="rounded-xl bg-slate-900/50 border border-white/10 p-3">
+                    <p class="text-gray-400 text-xs mb-2">${escapeHtml(title)}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${entries.map(([size, count]) => `
+                            <span class="px-2 py-1 rounded-lg bg-slate-800 border border-white/10 text-white text-xs">
+                                ${escapeHtml(size)}: <span class="font-bold">${escapeHtml(count)}</span>
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function schoolSizeText(record, sizeHeader, otherHeader) {
+            const size = String(record[sizeHeader] || '').trim();
+            const other = String(record[otherHeader] || '').trim();
+            if (size === 'อื่นๆ' && other) return `อื่นๆ: ${other}`;
+            return size || '-';
+        }
+
+        function loadSchoolResult(school, silent = false) {
+            if (!school) return;
+            const dateFilter = getSelectedSizeDateFilter();
+            if (!dateFilter) {
+                return;
+            }
+            const sourceType = getSelectedSizeSource();
+            if (!silent) showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (!silent) hideLoading();
+                    if (result.success) {
+                        currentSchoolResult = result;
+                        renderSchoolResult(result.school, result.summary, result.records || []);
+                    } else {
+                        handleApiError(result);
+                    }
+                })
+                .withFailureHandler((error) => {
+                    if (!silent) hideLoading();
+                    handleError(error);
+                })
+                .getSizeStudentsBySchool(sessionToken, school, dateFilter, sourceType);
+        }
+
+        function searchSchoolSummary(event) {
+            event.preventDefault();
+            if (!requireSizeDateFilter()) return;
+            const school = $('schoolSearchSelect').value;
+            if (!school) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาเลือกโรงเรียน', confirmButtonColor: '#0ea5e9' });
+                return;
+            }
+            loadSchoolResult(school);
+        }
+
+        function renderSchoolResult(school, summary, records) {
+            $('schoolResultSection').classList.toggle('hidden', currentMode !== 'school');
+            $('printSchoolButton').disabled = false;
+            $('schoolResultTitle').textContent = school || '-';
+            $('schoolResultContent').innerHTML = `
+                <div class="rounded-xl border border-sky-400/30 bg-sky-500/10 p-4 mb-5 text-sky-100 font-semibold">
+                    ประเภท: ${escapeHtml(getSelectedSizeSourceText())}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+                    <div class="rounded-xl bg-sky-500/10 border border-sky-500/30 p-4">
+                        <p class="text-sm text-sky-200">จำนวนนักศึกษา</p>
+                        <p class="text-2xl font-black text-white">${escapeHtml(summary.totalStudents || 0)} คน</p>
+                    </div>
+                    <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
+                        <p class="text-sm text-emerald-200">มัดจำ</p>
+                        <p class="text-2xl font-black text-white">${formatBaht(summary.deposit)}</p>
+                    </div>
+                    <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4">
+                        <p class="text-sm text-amber-200">ค้างชำระ</p>
+                        <p class="text-2xl font-black text-white">${formatBaht(summary.outstanding)}</p>
+                    </div>
+                    <div class="rounded-xl bg-indigo-500/10 border border-indigo-500/30 p-4">
+                        <p class="text-sm text-indigo-200">รวมเงิน</p>
+                        <p class="text-2xl font-black text-white">${formatBaht(summary.total)}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-5">
+                    <div class="rounded-xl bg-slate-900/50 border border-white/10 p-3">
+                        <p class="text-gray-400 text-xs mb-2">รายการพื้นฐาน</p>
+                        <div class="space-y-1 text-sm text-white">
+                            <p>ชุดฝึกพื้นฐาน: <span class="font-bold">${escapeHtml(summary.basicUniforms || 0)}</span> ชุด</p>
+                            <p>เสื้อยืดชั้นใน: <span class="font-bold">${escapeHtml(summary.innerShirts || 0)}</span> ตัว</p>
+                            <p>หมวก: <span class="font-bold">${escapeHtml(summary.hats || 0)}</span> ใบ</p>
+                            <p>เข็มขัด: <span class="font-bold">${escapeHtml(summary.belts || 0)}</span> เส้น</p>
+                            <p>รองเท้า: <span class="font-bold">${escapeHtml(summary.shoePairs || 0)}</span> คู่</p>
+                            <p>ชุดฝึกเพิ่ม: <span class="font-bold">${escapeHtml(summary.extraUniforms || 0)}</span> ชุด</p>
+                        </div>
+                    </div>
+                    ${summaryCountTags('เสื้อยืดชั้นใน', summary.shirtSizes)}
+                    ${summaryCountTags('หมวก', summary.hatSizes)}
+                    ${summaryCountTags('เข็มขัด', summary.beltSizes)}
+                </div>
+
+                <div class="mb-5">
+                    ${summaryCountTags('รองเท้า', summary.shoeSizes)}
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-white/10">
+                    <table class="w-full min-w-[1100px] text-sm">
+                        <thead class="bg-slate-900/80 text-gray-200">
+                            <tr>
+                                <th class="py-3 px-3 text-center">รหัส</th>
+                                <th class="py-3 px-3 text-left">ชื่อ-นามสกุล</th>
+                                <th class="py-3 px-3 text-center">เพศ</th>
+                                <th class="py-3 px-3 text-center">เสื้อยืด</th>
+                                <th class="py-3 px-3 text-center">หมวก</th>
+                                <th class="py-3 px-3 text-center">เข็มขัด</th>
+                                <th class="py-3 px-3 text-center">รองเท้า</th>
+                                <th class="py-3 px-3 text-center">ชุดฝึกเพิ่ม</th>
+                                <th class="py-3 px-3 text-right">มัดจำ</th>
+                                <th class="py-3 px-3 text-right">ค้างชำระ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10">
+                            ${records.map(record => {
+                                const money = {
+                                    deposit: record['มัดจำ'],
+                                    outstanding: record['ค้างชำระ']
+                                };
+                                const shoeQty = Number(record['รองเท้า จำนวน']) || 0;
+                                const shoeSize = schoolSizeText(record, 'ไซต์รองเท้า', 'รองเท้า อื่นๆ');
+                                return `
+                                    <tr class="bg-white/5">
+                                        <td class="py-3 px-3 text-center text-white font-bold">${escapeHtml(record['รหัสประจำตัว'] || '-')}</td>
+                                        <td class="py-3 px-3 text-white">${escapeHtml(`${record['ชื่อ'] || ''} ${record['นามสกุล'] || ''}`.trim() || '-')}</td>
+                                        <td class="py-3 px-3 text-center text-gray-200">${escapeHtml(record['เพศ'] || '-')}</td>
+                                        <td class="py-3 px-3 text-center text-gray-200">${escapeHtml(schoolSizeText(record, 'ไซต์เสื้อยืดชั้นใน', 'เสื้อยืดชั้นใน อื่นๆ'))}</td>
+                                        <td class="py-3 px-3 text-center text-gray-200">${escapeHtml(schoolSizeText(record, 'ไซต์หมวก', 'หมวก อื่นๆ'))}</td>
+                                        <td class="py-3 px-3 text-center text-gray-200">${escapeHtml(schoolSizeText(record, 'ไซต์เข็มขัด', 'เข็มขัด อื่นๆ'))}</td>
+                                        <td class="py-3 px-3 text-center text-gray-200">${shoeQty > 0 ? `${escapeHtml(shoeQty)} คู่ / ${escapeHtml(shoeSize)}` : '-'}</td>
+                                        <td class="py-3 px-3 text-center text-gray-200">${escapeHtml(record['ชุดฝึกเพิ่มเติม จำนวน'] || 0)} ชุด</td>
+                                        <td class="py-3 px-3 text-right text-emerald-300 font-bold">${formatBahtOrDash(money.deposit)}</td>
+                                        <td class="py-3 px-3 text-right text-amber-300 font-bold">${formatBahtOrDash(money.outstanding)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function buildSchoolPrintHtml(result) {
+            const school = result.school || '-';
+            const summary = result.summary || {};
+            const records = result.records || [];
+            const countLines = (counts) => Object.entries(counts || {})
+                .filter(([, count]) => Number(count) > 0)
+                .map(([size, count]) => `${escapeHtml(size)}: ${escapeHtml(count)}`)
+                .join(', ') || '-';
+
+            return `
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>สรุปเครื่องแต่งกาย ${escapeHtml(school)}</title>
+                    <style>
+                        body { font-family: sans-serif; color: #111827; margin: 24px; }
+                        h1 { font-size: 22px; margin: 0 0 8px; }
+                        h2 { font-size: 16px; margin: 18px 0 8px; }
+                        .meta { color: #4b5563; margin-bottom: 16px; }
+                        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+                        .card { border: 1px solid #d1d5db; padding: 8px; border-radius: 6px; }
+                        .card p { margin: 0; font-size: 12px; color: #4b5563; }
+                        .card strong { display: block; font-size: 16px; margin-top: 4px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+                        th, td { border: 1px solid #d1d5db; padding: 5px; }
+                        th { background: #e5e7eb; }
+                        .right { text-align: right; }
+                        .center { text-align: center; }
+                        @media print { body { margin: 12mm; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>สรุปเครื่องแต่งกาย</h1>
+                    <div class="meta">สถานศึกษา: <strong>${escapeHtml(school)}</strong></div>
+                    <div class="meta">ประเภท: <strong>${escapeHtml(getSelectedSizeSourceText())}</strong></div>
+                    <div class="cards">
+                        <div class="card"><p>จำนวนนักศึกษา</p><strong>${escapeHtml(summary.totalStudents || 0)} คน</strong></div>
+                        <div class="card"><p>มัดจำ</p><strong>${formatBaht(summary.deposit)}</strong></div>
+                        <div class="card"><p>ค้างชำระ</p><strong>${formatBaht(summary.outstanding)}</strong></div>
+                        <div class="card"><p>รวมเงิน</p><strong>${formatBaht(summary.total)}</strong></div>
+                    </div>
+
+                    <h2>สรุปรายการ</h2>
+                    <table>
+                        <tbody>
+                            <tr><th>ชุดฝึกพื้นฐาน</th><td>${escapeHtml(summary.basicUniforms || 0)} ชุด</td><th>เสื้อยืดชั้นใน</th><td>${escapeHtml(summary.innerShirts || 0)} ตัว</td></tr>
+                            <tr><th>หมวก</th><td>${escapeHtml(summary.hats || 0)} ใบ</td><th>เข็มขัด</th><td>${escapeHtml(summary.belts || 0)} เส้น</td></tr>
+                            <tr><th>รองเท้า</th><td>${escapeHtml(summary.shoePairs || 0)} คู่</td><th>ชุดฝึกเพิ่ม</th><td>${escapeHtml(summary.extraUniforms || 0)} ชุด</td></tr>
+                            <tr><th>เสื้อยืดแยกไซต์</th><td colspan="3">${countLines(summary.shirtSizes)}</td></tr>
+                            <tr><th>หมวกแยกไซต์</th><td colspan="3">${countLines(summary.hatSizes)}</td></tr>
+                            <tr><th>เข็มขัดแยกไซต์</th><td colspan="3">${countLines(summary.beltSizes)}</td></tr>
+                            <tr><th>รองเท้าแยกไซต์</th><td colspan="3">${countLines(summary.shoeSizes)}</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2>รายชื่อ</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>รหัส</th><th>ชื่อ-นามสกุล</th><th>เพศ</th><th>เสื้อยืด</th><th>หมวก</th><th>เข็มขัด</th><th>รองเท้า</th><th>ชุดฝึกเพิ่ม</th><th>มัดจำ</th><th>ค้างชำระ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${records.map(record => {
+                                const shoeQty = Number(record['รองเท้า จำนวน']) || 0;
+                                const shoeSize = schoolSizeText(record, 'ไซต์รองเท้า', 'รองเท้า อื่นๆ');
+                                return `
+                                    <tr>
+                                        <td class="center">${escapeHtml(record['รหัสประจำตัว'] || '-')}</td>
+                                        <td>${escapeHtml(`${record['ชื่อ'] || ''} ${record['นามสกุล'] || ''}`.trim() || '-')}</td>
+                                        <td class="center">${escapeHtml(record['เพศ'] || '-')}</td>
+                                        <td class="center">${escapeHtml(schoolSizeText(record, 'ไซต์เสื้อยืดชั้นใน', 'เสื้อยืดชั้นใน อื่นๆ'))}</td>
+                                        <td class="center">${escapeHtml(schoolSizeText(record, 'ไซต์หมวก', 'หมวก อื่นๆ'))}</td>
+                                        <td class="center">${escapeHtml(schoolSizeText(record, 'ไซต์เข็มขัด', 'เข็มขัด อื่นๆ'))}</td>
+                                        <td class="center">${shoeQty > 0 ? `${escapeHtml(shoeQty)} คู่ / ${escapeHtml(shoeSize)}` : '-'}</td>
+                                        <td class="center">${escapeHtml(record['ชุดฝึกเพิ่มเติม จำนวน'] || 0)} ชุด</td>
+                                        <td class="right">${formatBahtOrDash(record['มัดจำ'])}</td>
+                                        <td class="right">${formatBahtOrDash(record['ค้างชำระ'])}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+        }
+
+        function printSchoolSummary() {
+            if (!currentSchoolResult) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาค้นหาโรงเรียนก่อน', confirmButtonColor: '#0ea5e9' });
+                return;
+            }
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                Swal.fire({ icon: 'warning', title: 'เบราว์เซอร์บล็อกหน้าต่างพิมพ์', text: 'กรุณาอนุญาต pop-up แล้วลองใหม่', confirmButtonColor: '#0ea5e9' });
+                return;
+            }
+            printWindow.document.open();
+            printWindow.document.write(buildSchoolPrintHtml(currentSchoolResult));
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        function setOptions(selectId, options, selectedValue = '', placeholder = 'เลือกขนาด') {
+            const selected = String(selectedValue || '');
+            $(selectId).innerHTML = `<option value="">${placeholder}</option>` + options.map(option =>
+                `<option value="${escapeHtml(option)}" ${String(option) === selected ? 'selected' : ''}>${escapeHtml(option)}</option>`
+            ).join('');
+        }
+
+        function initOptions() {
+            setOptions('shirtSize', ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'อื่นๆ']);
+            setOptions('hatSize', makeRange(20, 25));
+            setOptions('beltSize', makeRange(25, 50));
+            setOptions('shoeSize', makeRange(2, 18));
+        }
+
+        function makeRange(start, end) {
+            const output = [];
+            for (let i = start; i <= end; i++) output.push(String(i));
+            output.push('อื่นๆ');
+            return output;
+        }
+
+        function toggleOtherInputs() {
+            toggleOtherInput('shirtSize', 'shirtOther');
+            toggleOtherInput('hatSize', 'hatOther');
+            toggleOtherInput('beltSize', 'beltOther');
+            toggleOtherInput('shoeSize', 'shoeOther');
+        }
+
+        function toggleOtherInput(selectId, inputId) {
+            const isOther = $(selectId).value === 'อื่นๆ';
+            $(inputId).classList.toggle('hidden', !isOther);
+            if (!isOther) $(inputId).value = '';
+        }
+
+        function toggleOptionalSections(clearHidden = true) {
+            const wantsShoes = $('shoeToggle').checked;
+            const wantsExtraUniform = $('extraUniformToggle').checked;
+
+            $('shoeFields').classList.toggle('hidden', !wantsShoes);
+            $('extraUniformFields').classList.toggle('hidden', !wantsExtraUniform);
+
+            if (clearHidden && !wantsShoes) {
+                $('shoeQty').value = '';
+                $('shoeSize').value = '';
+                $('shoeOther').value = '';
+            }
+            if (clearHidden && !wantsExtraUniform) {
+                $('extraUniformQty').value = '';
+            }
+
+            toggleOtherInputs();
+            updateMoney();
+        }
+
+        function isBasicSizeFormComplete() {
+            const shirtSize = $('shirtSize').value;
+            const hatSize = $('hatSize').value;
+            const beltSize = $('beltSize').value;
+            if (!shirtSize || !hatSize || !beltSize) return false;
+            if (shirtSize === 'อื่นๆ' && !$('shirtOther').value.trim()) return false;
+            if (hatSize === 'อื่นๆ' && !$('hatOther').value.trim()) return false;
+            if (beltSize === 'อื่นๆ' && !$('beltOther').value.trim()) return false;
+            return true;
+        }
+
+        function moneyFromForm() {
+            if (!isBasicSizeFormComplete()) {
+                return { deposit: 0, outstanding: 0, total: 0, isComplete: false };
+            }
+
+            const shoeQty = $('shoeToggle').checked ? Math.max(0, Number($('shoeQty').value) || 0) : 0;
+            const extraUniformQty = $('extraUniformToggle').checked ? Math.max(0, Number($('extraUniformQty').value) || 0) : 0;
+            const deposit = 500 + (shoeQty * 300);
+            const outstanding = 1300 + (shoeQty * 250) + (extraUniformQty * 1400);
+            return { deposit, outstanding, total: deposit + outstanding, isComplete: true };
+        }
+
+        function updateMoney() {
+            const money = moneyFromForm();
+            $('depositTotal').textContent = money.isComplete ? formatBaht(money.deposit) : '-';
+            $('outstandingTotal').textContent = money.isComplete ? formatBaht(money.outstanding) : '-';
+            $('grandTotal').textContent = money.isComplete ? formatBaht(money.total) : '-';
+        }
+
+        function resetCurrentStudent() {
+            currentRecord = null;
+            $('appIdInput').value = '';
+            resetFormFields();
+            updateModeVisibility();
+        }
+
+        function closeEntryModal() {
+            resetCurrentStudent();
+            setTimeout(() => $('applicantSchoolSelect').focus(), 0);
+        }
+
+        function resetFormFields() {
+            ['shirtSize', 'hatSize', 'beltSize', 'shoeSize'].forEach(id => $(id).value = '');
+            ['shirtOther', 'hatOther', 'beltOther', 'shoeOther', 'shoeQty', 'extraUniformQty'].forEach(id => $(id).value = '');
+            $('shoeToggle').checked = false;
+            $('extraUniformToggle').checked = false;
+            toggleOtherInputs();
+            toggleOptionalSections(false);
+            updateMoney();
+        }
+
+        function searchStudent(event) {
+            event.preventDefault();
+            if (!requireSizeDateFilter()) return;
+            const appId = $('appIdInput').value.trim();
+            if (!appId) {
+                Swal.fire({ icon: 'warning', title: 'กรุณากรอกรหัสใบสมัคร', confirmButtonColor: '#f59e0b' });
+                return;
+            }
+
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (result.success) {
+                        currentRecord = result.record;
+                        renderStudent(result.record);
+                    } else {
+                        resetCurrentStudent();
+                        $('appIdInput').value = appId;
+                        handleApiError(result);
+                    }
+                })
+                .withFailureHandler(handleError)
+                .getSizeStudentByAppId(sessionToken, appId, getSelectedSizeDateFilter(), getSelectedSizeSource());
+        }
+
+        function renderStudent(record) {
+            $('studentAppId').textContent = `รหัสใบสมัคร ${record['รหัสประจำตัว'] || '-'}`;
+            $('studentName').textContent = `${record['ชื่อ'] || ''} ${record['นามสกุล'] || ''}`.trim() || '-';
+            $('studentMeta').textContent = `${getSelectedSizeSourceText()} · ${record['เพศ'] || '-'} · ${record['สถานศึกษา'] || '-'}`;
+
+            setOptions('shirtSize', ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'อื่นๆ'], record['ไซต์เสื้อยืดชั้นใน']);
+            setOptions('hatSize', makeRange(20, 25), record['ไซต์หมวก']);
+            setOptions('beltSize', makeRange(25, 50), record['ไซต์เข็มขัด']);
+            setOptions('shoeSize', makeRange(2, 18), record['ไซต์รองเท้า']);
+
+            $('shirtOther').value = record['เสื้อยืดชั้นใน อื่นๆ'] || '';
+            $('hatOther').value = record['หมวก อื่นๆ'] || '';
+            $('beltOther').value = record['เข็มขัด อื่นๆ'] || '';
+            $('shoeQty').value = record['รองเท้า จำนวน'] || '';
+            $('shoeOther').value = record['รองเท้า อื่นๆ'] || '';
+            $('extraUniformQty').value = record['ชุดฝึกเพิ่มเติม จำนวน'] || '';
+            $('shoeToggle').checked = (Number(record['รองเท้า จำนวน']) || 0) > 0 || Boolean(record['ไซต์รองเท้า']);
+            $('extraUniformToggle').checked = (Number(record['ชุดฝึกเพิ่มเติม จำนวน']) || 0) > 0;
+
+            toggleOtherInputs();
+            toggleOptionalSections(false);
+            updateMoney();
+            updateModeVisibility();
+            setTimeout(() => $('shirtSize').focus(), 0);
+        }
+
+        function collectOrder() {
+            return {
+                appId: currentRecord['รหัสประจำตัว'],
+                dateFilter: getSelectedSizeDateFilter(),
+                sourceType: getSelectedSizeSource(),
+                school: currentRecord['สถานศึกษา'] || '',
+                name: `${currentRecord['ชื่อ'] || ''} ${currentRecord['นามสกุล'] || ''}`.trim(),
+                gender: currentRecord['เพศ'] || '',
+                shirtSize: $('shirtSize').value,
+                shirtOther: $('shirtOther').value.trim(),
+                hatSize: $('hatSize').value,
+                hatOther: $('hatOther').value.trim(),
+                beltSize: $('beltSize').value,
+                beltOther: $('beltOther').value.trim(),
+                wantsShoes: $('shoeToggle').checked,
+                shoeQty: $('shoeToggle').checked ? $('shoeQty').value : '',
+                shoeSize: $('shoeToggle').checked ? $('shoeSize').value : '',
+                shoeOther: $('shoeToggle').checked ? $('shoeOther').value.trim() : '',
+                wantsExtraUniform: $('extraUniformToggle').checked,
+                extraUniformQty: $('extraUniformToggle').checked ? $('extraUniformQty').value : ''
+            };
+        }
+
+        function validateOrder(order) {
+            if (!order.shirtSize) return 'กรุณาเลือกไซต์เสื้อยืดชั้นใน';
+            if (order.shirtSize === 'อื่นๆ' && !order.shirtOther) return 'กรุณาระบุไซต์เสื้อยืดชั้นใน';
+            if (!order.hatSize) return 'กรุณาเลือกไซต์หมวก';
+            if (order.hatSize === 'อื่นๆ' && !order.hatOther) return 'กรุณาระบุไซต์หมวก';
+            if (!order.beltSize) return 'กรุณาเลือกไซต์เข็มขัด';
+            if (order.beltSize === 'อื่นๆ' && !order.beltOther) return 'กรุณาระบุไซต์เข็มขัด';
+            const shoeQty = Number(order.shoeQty) || 0;
+            if (order.wantsShoes && shoeQty <= 0) return 'กรุณาระบุจำนวนรองเท้า';
+            if (shoeQty > 0 && !order.shoeSize) return 'กรุณาเลือกไซต์รองเท้า';
+            if (shoeQty > 0 && order.shoeSize === 'อื่นๆ' && !order.shoeOther) return 'กรุณาระบุไซต์รองเท้า';
+            if (order.wantsExtraUniform && (Number(order.extraUniformQty) || 0) <= 0) return 'กรุณาระบุจำนวนชุดฝึกเพิ่มเติม';
+            return '';
+        }
+
+        function saveOrder(event) {
+            event.preventDefault();
+            if (!currentRecord) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาค้นหารหัสใบสมัครก่อน', confirmButtonColor: '#f59e0b' });
+                return;
+            }
+
+            const order = collectOrder();
+            const warning = validateOrder(order);
+            if (warning) {
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลยังไม่ครบ', text: warning, confirmButtonColor: '#f59e0b' });
+                return;
+            }
+
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ',
+                        html: `รหัสใบสมัคร <strong>${escapeHtml(order.appId)}</strong><br>${escapeHtml(order.name || '')}`,
+                        confirmButtonColor: '#f59e0b'
+                    }).then(() => {
+                        resetCurrentStudent();
+                        $('appIdInput').focus();
+                    });
+                    const selectedSchool = $('applicantSchoolSelect').value;
+                    if (selectedSchool) loadApplicantStudentsBySchool(selectedSchool, true);
+                    currentSchoolResult = null;
+                    $('printSchoolButton').disabled = true;
+                    updateModeVisibility();
+                } else {
+                    handleApiError(result);
+                }
+                })
+                .withFailureHandler(handleError)
+                .saveSizeOrders(sessionToken, [order]);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRememberedCredentials();
+            document.querySelectorAll('.size-input').forEach(el => el.classList.add(...inputClass().split(' ')));
+            initOptions();
+            $('loginForm').addEventListener('submit', login);
+            $('logoutButton').addEventListener('click', logout);
+            $('applicantModeButton').addEventListener('click', () => setActiveMode('applicant'));
+            $('schoolModeButton').addEventListener('click', () => setActiveMode('school'));
+            $('overviewModeButton').addEventListener('click', () => setActiveMode('overview'));
+            if ($('sizeDateFilter')) {
+                $('sizeDateFilter').addEventListener('change', () => {
+                    resetCurrentStudent();
+                    $('applicantSchoolSelect').value = '';
+                    renderApplicantStudentList([]);
+                    currentSchoolResult = null;
+                    $('printSchoolButton').disabled = true;
+                    updateModeVisibility();
+                    loadSchoolSummaries(false);
+                });
+            }
+            $('sizeSourceFilter').addEventListener('change', () => {
+                resetCurrentStudent();
+                $('applicantSchoolSelect').value = '';
+                renderApplicantStudentList([]);
+                currentSchoolResult = null;
+                $('printSchoolButton').disabled = true;
+                updateModeVisibility();
+                loadSchoolSummaries(false);
+            });
+            $('searchForm').addEventListener('submit', searchStudent);
+            $('applicantSchoolSelect').addEventListener('change', () => loadApplicantStudentsBySchool($('applicantSchoolSelect').value));
+            $('schoolSearchForm').addEventListener('submit', searchSchoolSummary);
+            $('printSchoolButton').addEventListener('click', printSchoolSummary);
+            $('printSchoolButtonTop').addEventListener('click', printSchoolSummary);
+            $('newButton').addEventListener('click', resetCurrentStudent);
+            $('closeEntryButton').addEventListener('click', closeEntryModal);
+            $('sizeEntryBackdrop').addEventListener('click', closeEntryModal);
+            $('refreshSummaryButton').addEventListener('click', () => loadSchoolSummaries(false));
+            $('clearFormButton').addEventListener('click', resetFormFields);
+            $('sizeForm').addEventListener('submit', saveOrder);
+            ['shirtSize', 'hatSize', 'beltSize', 'shoeSize'].forEach(id => $(id).addEventListener('change', () => {
+                toggleOtherInputs();
+                updateMoney();
+            }));
+            ['shirtOther', 'hatOther', 'beltOther', 'shoeOther'].forEach(id => $(id).addEventListener('input', updateMoney));
+            ['shoeToggle', 'extraUniformToggle'].forEach(id => $(id).addEventListener('change', () => toggleOptionalSections(true)));
+            ['shoeQty', 'extraUniformQty'].forEach(id => $(id).addEventListener('input', updateMoney));
+            $('appIdInput').addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') searchStudent(event);
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && currentRecord) closeEntryModal();
+            });
+            checkSession();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจสอบผลการคัดเลือก</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+    /* ==================== CUSTOM FONTS ==================== */
+    .font-prompt {
+        font-family: 'Prompt', sans-serif;
+    }
+
+    /* ==================== GLASS MORPHISM ==================== */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-nav {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ==================== LOADING SPINNER ==================== */
+    .spinner {
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-panel {
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ==================== DATA TABLE ==================== */
+    .data-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        contain: layout paint;
+    }
+
+    #quotaDataTable *,
+    #nstDataTable *,
+    #failedDataTable * {
+        transition: none !important;
+        filter: none !important;
+    }
+
+    .data-table thead th {
+        background: rgba(30, 58, 138, 0.4);
+        color: #bfdbfe;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+
+    /* ... */
+    .data-table tbody td {
+        padding: 12px 16px;
+        color: #cbd5e1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(30, 58, 138, 0.2);
+    }
+
+    /* ==================== DASHBOARD PERFORMANCE MODE ==================== */
+    #adminDashboard,
+    #adminDashboard * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    #adminDashboard .glass-card,
+    #adminDashboard .modal-content,
+    #adminDashboard .modal-overlay,
+    #mainApp .glass-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+    }
+
+    #adminDashboard .glass-card {
+        background: rgba(30, 41, 59, 0.96) !important;
+    }
+
+    #mainApp .glass-nav {
+        background: #0f172a !important;
+    }
+
+    #adminDashboard .shadow-sm,
+    #adminDashboard .shadow,
+    #adminDashboard .shadow-lg,
+    #adminDashboard .shadow-xl,
+    #adminDashboard .shadow-2xl,
+    #adminDashboard [class*="shadow-"] {
+        box-shadow: none !important;
+    }
+
+    #adminDashboard [class*="bg-gradient"],
+    #adminDashboard [class*="from-"],
+    #adminDashboard [class*="to-"],
+    #adminDashboard [class*="via-"] {
+        background-image: none !important;
+    }
+
+    #adminDashboard .fa-spin,
+    #adminDashboard .spinner,
+    #mainApp .fa-spin,
+    #mainApp .spinner {
+        animation: spin 1s linear infinite !important;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    #quotaDataTable tbody tr:hover,
+    #nstDataTable tbody tr:hover,
+    #failedDataTable tbody tr:hover {
+        background: inherit !important;
+    }
+
+    #mainApp,
+    #mainApp * {
+        text-shadow: none !important;
+        filter: none !important;
+    }
+
+    #mainApp .glass-card,
+    #mainApp .modal-content,
+    #mainApp .modal-overlay,
+    #mainApp [class*="backdrop-blur"],
+    #mainApp [class*="drop-shadow"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        filter: none !important;
+    }
+
+    #mainApp button,
+    #mainApp input,
+    #mainApp select,
+    #mainApp textarea,
+    #mainApp .badge {
+        transition: none !important;
+        box-shadow: none !important;
+    }
+
+    #mainApp [class*="hover:"],
+    #mainApp [class*="focus:"],
+    #mainApp [class*="active:"],
+    #mainApp [class*="peer-checked:"],
+    #mainApp [class*="group-hover:"] {
+        transition: none !important;
+    }
+
+    .data-table tbody tr:last-child td:first-child {
+        border-radius: 0 0 0 12px;
+    }
+
+    .data-table tbody tr:last-child td:last-child {
+        border-radius: 0 0 12px 0;
+    }
+
+    /* ==================== STATUS BADGES ==================== */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-pass {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-fail {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* ==================== TAB BUTTONS ==================== */
+    .tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* ==================== ACTION BUTTONS ==================== */
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 1rem;
+    }
+
+    .modal-content {
+        animation: modalIn 0.3s ease-out;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* ==================== PAGE TRANSITIONS ==================== */
+    .page {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .dashboard-page {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+
+    /* ==================== ROLE BADGES ==================== */
+    .role-admin {
+        color: #f472b6;
+    }
+
+    .role-body_measurement {
+        color: #60a5fa;
+    }
+
+    .role-medical_check {
+        color: #4ade80;
+    }
+
+    .role-running {
+        color: #facc15;
+    }
+
+    .role-push_up {
+        color: #f87171;
+    }
+
+    .role-sit_up {
+        color: #facc15;
+    }
+
+    .role-data_review {
+        color: #38bdf8;
+    }
+
+    .role-Add_application {
+        color: #34d399;
+    }
+
+    .role-data_processing {
+        color: #34d399;
+    }
+
+    .role-uniform {
+        color: #f59e0b;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+        .data-table {
+            font-size: 0.875rem;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 8px 12px;
+        }
+    }
+</style>
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .result-card {
+            transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+        }
+
+        .result-card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+</head>
+
+<body class="bg-[#0f172a] min-h-screen text-slate-200">
+    <main class="min-h-screen flex items-center justify-center px-4 py-10">
+        <section class="w-full max-w-2xl">
+            <div class="mb-6">
+                <p class="text-sm font-semibold text-blue-300 mb-2">ระบบคัดเลือกนักศึกษาวิชาทหาร</p>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">ตรวจสอบผลการคัดเลือก</h1>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 sm:p-7 border border-white/10 shadow-2xl">
+                <form id="selectionSearchForm" class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1">
+                        <label for="selectionAppId" class="block text-sm font-semibold text-slate-300 mb-2">รหัสใบสมัคร</label>
+                        <input id="selectionAppId" type="text" inputmode="text" autocomplete="off"
+                            class="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
+                            placeholder="เช่น 1001">
+                    </div>
+                    <div class="sm:self-end">
+                        <button id="selectionSearchButton" type="submit"
+                            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-lg shadow-blue-950/40">
+                            <i class="fas fa-search mr-2"></i>ค้นหา
+                        </button>
+                    </div>
+                </form>
+
+                <div id="selectionMessage" class="mt-4 text-sm text-slate-400"></div>
+
+                <article id="selectionResult" class="result-card hidden mt-6 rounded-2xl border p-5 bg-slate-950/40">
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div>
+                        <p id="resultAppId" class="text-sm font-bold text-slate-400"></p>
+                        <h2 id="resultName" class="text-2xl font-extrabold text-white mt-1"></h2>
+                    </div>
+                        <div id="resultStatusBadge" class="inline-flex items-center justify-center px-6 py-3 rounded-2xl text-lg sm:text-xl font-extrabold"></div>
+                </div>
+            </article>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById('selectionSearchForm');
+        const input = document.getElementById('selectionAppId');
+        const button = document.getElementById('selectionSearchButton');
+        const message = document.getElementById('selectionMessage');
+        const resultCard = document.getElementById('selectionResult');
+        const resultAppId = document.getElementById('resultAppId');
+        const resultName = document.getElementById('resultName');
+        const resultBadge = document.getElementById('resultStatusBadge');
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function setLoading(isLoading) {
+            button.disabled = isLoading;
+            button.classList.toggle('opacity-70', isLoading);
+            button.innerHTML = isLoading
+                ? '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังค้นหา'
+                : '<i class="fas fa-search mr-2"></i>ค้นหา';
+        }
+
+        function getStatusClass(statusKey) {
+            if (statusKey === 'selected') return 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300';
+            if (statusKey === 'reserve') return 'bg-amber-500/15 border-amber-400/40 text-amber-300';
+            if (statusKey === 'failed') return 'bg-red-500/15 border-red-400/40 text-red-300';
+            return 'bg-slate-500/15 border-slate-400/30 text-slate-300';
+        }
+
+        function renderResult(data) {
+            const publicStatus = data.statusKey === 'selected' ? 'ผ่านการคัดเลือก' : 'เป็นกำลังใจให้';
+            const statusClass = getStatusClass(data.statusKey);
+            resultCard.className = `result-card visible mt-6 rounded-2xl border p-5 ${statusClass}`;
+            resultCard.classList.remove('hidden');
+            resultAppId.textContent = `รหัสใบสมัคร ${data.appId || '-'}`;
+            resultName.textContent = `ชื่อ ${data.name || '-'}`;
+            resultBadge.className = `inline-flex items-center justify-center px-6 py-3 rounded-2xl text-lg sm:text-xl font-extrabold border min-w-[160px] ${statusClass}`;
+            resultBadge.textContent = publicStatus;
+        }
+
+        function showError(text) {
+            resultCard.classList.add('hidden');
+            message.innerHTML = `<span class="text-red-300 font-semibold"><i class="fas fa-circle-exclamation mr-1"></i>${escapeHtml(text)}</span>`;
+        }
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const appId = input.value.trim();
+            message.textContent = '';
+
+            if (!appId) {
+                showError('กรุณากรอกรหัสใบสมัคร');
+                input.focus();
+                return;
+            }
+
+            setLoading(true);
+            google.script.run
+                .withSuccessHandler((result) => {
+                    setLoading(false);
+                    if (result && result.success) {
+                        message.textContent = '';
+                        renderResult(result);
+                    } else {
+                        showError(result && result.message ? result.message : 'ไม่สามารถค้นหาได้');
+                    }
+                })
+                .withFailureHandler((error) => {
+                    setLoading(false);
+                    showError(error && error.message ? error.message : 'เกิดข้อผิดพลาดในการค้นหา');
+                })
+                .getPublicSelectionStatus(appId);
+        });
+
+        input.focus();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นำเข้าข้อมูลผู้สมัคร</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+    /* ==================== CUSTOM FONTS ==================== */
+    .font-prompt {
+        font-family: 'Prompt', sans-serif;
+    }
+
+    /* ==================== GLASS MORPHISM ==================== */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-nav {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ==================== LOADING SPINNER ==================== */
+    .spinner {
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-panel {
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ==================== DATA TABLE ==================== */
+    .data-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        contain: layout paint;
+    }
+
+    #quotaDataTable *,
+    #nstDataTable *,
+    #failedDataTable * {
+        transition: none !important;
+        filter: none !important;
+    }
+
+    .data-table thead th {
+        background: rgba(30, 58, 138, 0.4);
+        color: #bfdbfe;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+
+    /* ... */
+    .data-table tbody td {
+        padding: 12px 16px;
+        color: #cbd5e1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(30, 58, 138, 0.2);
+    }
+
+    /* ==================== DASHBOARD PERFORMANCE MODE ==================== */
+    #adminDashboard,
+    #adminDashboard * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    #adminDashboard .glass-card,
+    #adminDashboard .modal-content,
+    #adminDashboard .modal-overlay,
+    #mainApp .glass-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+    }
+
+    #adminDashboard .glass-card {
+        background: rgba(30, 41, 59, 0.96) !important;
+    }
+
+    #mainApp .glass-nav {
+        background: #0f172a !important;
+    }
+
+    #adminDashboard .shadow-sm,
+    #adminDashboard .shadow,
+    #adminDashboard .shadow-lg,
+    #adminDashboard .shadow-xl,
+    #adminDashboard .shadow-2xl,
+    #adminDashboard [class*="shadow-"] {
+        box-shadow: none !important;
+    }
+
+    #adminDashboard [class*="bg-gradient"],
+    #adminDashboard [class*="from-"],
+    #adminDashboard [class*="to-"],
+    #adminDashboard [class*="via-"] {
+        background-image: none !important;
+    }
+
+    #adminDashboard .fa-spin,
+    #adminDashboard .spinner,
+    #mainApp .fa-spin,
+    #mainApp .spinner {
+        animation: spin 1s linear infinite !important;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    #quotaDataTable tbody tr:hover,
+    #nstDataTable tbody tr:hover,
+    #failedDataTable tbody tr:hover {
+        background: inherit !important;
+    }
+
+    #mainApp,
+    #mainApp * {
+        text-shadow: none !important;
+        filter: none !important;
+    }
+
+    #mainApp .glass-card,
+    #mainApp .modal-content,
+    #mainApp .modal-overlay,
+    #mainApp [class*="backdrop-blur"],
+    #mainApp [class*="drop-shadow"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        filter: none !important;
+    }
+
+    #mainApp button,
+    #mainApp input,
+    #mainApp select,
+    #mainApp textarea,
+    #mainApp .badge {
+        transition: none !important;
+        box-shadow: none !important;
+    }
+
+    #mainApp [class*="hover:"],
+    #mainApp [class*="focus:"],
+    #mainApp [class*="active:"],
+    #mainApp [class*="peer-checked:"],
+    #mainApp [class*="group-hover:"] {
+        transition: none !important;
+    }
+
+    .data-table tbody tr:last-child td:first-child {
+        border-radius: 0 0 0 12px;
+    }
+
+    .data-table tbody tr:last-child td:last-child {
+        border-radius: 0 0 12px 0;
+    }
+
+    /* ==================== STATUS BADGES ==================== */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-pass {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-fail {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* ==================== TAB BUTTONS ==================== */
+    .tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* ==================== ACTION BUTTONS ==================== */
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 1rem;
+    }
+
+    .modal-content {
+        animation: modalIn 0.3s ease-out;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* ==================== PAGE TRANSITIONS ==================== */
+    .page {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .dashboard-page {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+
+    /* ==================== ROLE BADGES ==================== */
+    .role-admin {
+        color: #f472b6;
+    }
+
+    .role-body_measurement {
+        color: #60a5fa;
+    }
+
+    .role-medical_check {
+        color: #4ade80;
+    }
+
+    .role-running {
+        color: #facc15;
+    }
+
+    .role-push_up {
+        color: #f87171;
+    }
+
+    .role-sit_up {
+        color: #facc15;
+    }
+
+    .role-data_review {
+        color: #38bdf8;
+    }
+
+    .role-Add_application {
+        color: #34d399;
+    }
+
+    .role-data_processing {
+        color: #34d399;
+    }
+
+    .role-uniform {
+        color: #f59e0b;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+        .data-table {
+            font-size: 0.875rem;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 8px 12px;
+        }
+    }
+</style>
+
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+</head>
+
+<body class="bg-[#0f172a] min-h-screen text-slate-200">
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/35 z-50 flex items-center justify-center hidden">
+        <div class="loading-panel text-center">
+            <div class="spinner mb-3 mx-auto"></div>
+            <p class="text-white text-sm font-semibold">กำลังโหลด...</p>
+        </div>
+    </div>
+
+    <main id="loginPage" class="min-h-screen flex items-center justify-center px-4 py-10">
+        <section class="w-full max-w-md">
+            <div class="text-center mb-7">
+                <img src="https://lh5.googleusercontent.com/d/1mmlbDDbGib4Ds-S-3YOaL7JcfKJKHWj7" alt="NST Logo"
+                    class="w-24 h-24 object-contain mx-auto mb-4">
+                <p class="text-sm font-semibold text-emerald-300">NST Applicant Import</p>
+                <h1 class="text-3xl font-extrabold text-white mt-2">นำเข้าข้อมูลผู้สมัคร</h1>
+            </div>
+
+            <div class="glass-card rounded-2xl p-7 border border-white/10">
+                <form id="loginForm">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">ชื่อผู้ใช้</label>
+                    <input id="loginUsername" type="text" autocomplete="username"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-4"
+                        required>
+
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">รหัสผ่าน</label>
+                    <div class="relative mb-6">
+                        <input id="loginPassword" type="password" autocomplete="current-password"
+                            class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            required>
+                        <button type="button" onclick="togglePasswordVisibility('loginPassword', this)"
+                            class="absolute inset-y-0 right-3 text-slate-400 hover:text-white">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <label class="flex items-center gap-3 mb-6 text-sm text-slate-300 cursor-pointer">
+                        <input id="rememberCredentials" type="checkbox"
+                            class="w-4 h-4 rounded border-slate-600 bg-slate-900 text-emerald-500 focus:ring-emerald-500">
+                        <span>จดจำผู้ใช้และรหัสผ่านในเครื่องนี้</span>
+                    </label>
+
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <main id="inputApp" class="hidden min-h-screen px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
+        <nav class="flex items-center justify-between gap-4 mb-6">
+            <div>
+                <p class="text-sm font-semibold text-emerald-300">NST Applicant Data</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">นำเข้า/ส่งออกข้อมูลผู้สมัคร</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="navUserName" class="text-sm font-semibold text-white"></p>
+                    <p id="navUserRole" class="text-xs text-emerald-300"></p>
+                </div>
+                <button id="logoutButton" class="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 hover:bg-red-500/30">
+                    <i class="fas fa-sign-out-alt mr-1"></i>ออก
+                </button>
+            </div>
+        </nav>
+
+        <section class="glass-card rounded-2xl p-2 border border-white/10 mb-6 flex flex-col sm:flex-row gap-2">
+            <button id="importTabButton" type="button"
+                class="flex-1 px-4 py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold transition-colors">
+                <i class="fas fa-file-import mr-2"></i>นำเข้า .xlsx
+            </button>
+            <button id="exportTabButton" type="button"
+                class="flex-1 px-4 py-3 rounded-xl bg-slate-800 text-slate-200 font-extrabold hover:bg-slate-700 transition-colors">
+                <i class="fas fa-file-excel mr-2"></i>ส่งออก .xlsx
+            </button>
+        </section>
+
+        <div id="importTab">
+        <section class="glass-card rounded-2xl p-6 border border-white/10 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">สถานศึกษา</label>
+                    <select id="schoolSelect"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">เลือกสถานศึกษา</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">ไฟล์ .xlsx</label>
+                    <input id="fileInput" type="file" accept=".xlsx,.xls"
+                        class="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-white/10 text-slate-200 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-500 file:px-4 file:py-2 file:font-bold file:text-slate-950">
+                </div>
+                <button id="importButton" type="button" disabled
+                    class="px-6 py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-400 transition-colors">
+                    <i class="fas fa-file-import mr-2"></i>นำเข้า
+                </button>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">อ่านจากไฟล์</p>
+                <p id="totalCount" class="text-3xl font-extrabold text-white mt-1">0</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">พร้อมนำเข้า</p>
+                <p id="validCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">มีข้อควรตรวจ</p>
+                <p id="warningCount" class="text-3xl font-extrabold text-amber-300 mt-1">0</p>
+            </div>
+        </section>
+
+        <section class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+                <h2 class="font-bold text-white">ตัวอย่างข้อมูล</h2>
+                <p id="schoolMeta" class="text-sm text-slate-400"></p>
+            </div>
+            <div class="overflow-auto max-h-[60vh]">
+                <table class="w-full text-sm">
+                    <thead class="sticky top-0 bg-slate-900 text-slate-300">
+                        <tr>
+                            <th class="py-3 px-3 text-left">แถว</th>
+                            <th class="py-3 px-3 text-left">ลำดับ</th>
+                            <th class="py-3 px-3 text-left">เลข ปชช.</th>
+                            <th class="py-3 px-3 text-left">คำนำหน้า</th>
+                            <th class="py-3 px-3 text-left">ชื่อ</th>
+                            <th class="py-3 px-3 text-left">สกุล</th>
+                            <th class="py-3 px-3 text-left">พ.ศ.เกิด</th>
+                            <th class="py-3 px-3 text-left">อายุ</th>
+                            <th class="py-3 px-3 text-left">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </section>
+        </div>
+
+        <div id="exportTab" class="hidden">
+        <section class="glass-card rounded-2xl p-6 border border-white/10 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">สถานศึกษา</label>
+                    <select id="exportSchoolSelect"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">ทั้งหมด</option>
+                    </select>
+                </div>
+                <button id="refreshExportButton" type="button"
+                    class="px-5 py-3 rounded-xl bg-slate-700 text-white font-bold hover:bg-slate-600 transition-colors">
+                    <i class="fas fa-rotate mr-2"></i>รีเฟรช
+                </button>
+                <button id="exportButton" type="button"
+                    class="px-6 py-3 rounded-xl bg-indigo-500 text-white font-extrabold hover:bg-indigo-400 transition-colors">
+                    <i class="fas fa-file-excel mr-2"></i>ส่งออก .xlsx
+                </button>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">ข้อมูลทั้งหมด</p>
+                <p id="exportTotalCount" class="text-3xl font-extrabold text-white mt-1">0</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">ตามเงื่อนไขที่เลือก</p>
+                <p id="exportFilteredCount" class="text-3xl font-extrabold text-indigo-300 mt-1">0</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">จำนวนสถานศึกษา</p>
+                <p id="exportSchoolCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
+            </div>
+        </section>
+
+        <section class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+                <h2 class="font-bold text-white">ตัวอย่างข้อมูลที่จะส่งออก</h2>
+                <p id="exportMeta" class="text-sm text-slate-400"></p>
+            </div>
+            <div class="overflow-auto max-h-[60vh]">
+                <table class="w-full text-sm">
+                    <thead class="sticky top-0 bg-slate-900 text-slate-300">
+                        <tr>
+                            <th class="py-3 px-3 text-left">รหัสนักศึกษา</th>
+                            <th class="py-3 px-3 text-left">ชื่อ</th>
+                            <th class="py-3 px-3 text-left">สกุล</th>
+                            <th class="py-3 px-3 text-left">โรงเรียน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exportPreviewBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </section>
+        </div>
+    </main>
+
+    <script>
+        let sessionToken = null;
+        let currentUser = null;
+        let parsedRows = [];
+        let fileSchoolName = '';
+        let fileProvinceName = '';
+        let exportRowsData = [];
+        let exportLoaded = false;
+        let loadingTimer = null;
+
+        const $ = (id) => document.getElementById(id);
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        function showLoading() {
+            const overlay = $('loadingOverlay');
+            if (overlay) overlay.classList.remove('hidden');
+            if (loadingTimer) clearTimeout(loadingTimer);
+            loadingTimer = setTimeout(() => {
+                hideLoading();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ใช้เวลานานผิดปกติ',
+                    text: 'ระบบยกเลิกหน้ากำลังโหลดให้แล้ว กรุณาตรวจสอบข้อมูลซ้ำแล้วลองอีกครั้ง',
+                    confirmButtonColor: '#10b981'
+                });
+            }, 90000);
+        }
+
+        function hideLoading() {
+            if (loadingTimer) {
+                clearTimeout(loadingTimer);
+                loadingTimer = null;
+            }
+            const overlay = $('loadingOverlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
+        function setImportBusy(isBusy) {
+            const button = $('importButton');
+            if (!button) return;
+            button.dataset.busy = isBusy ? 'true' : '';
+            button.disabled = isBusy || !($('schoolSelect')?.value) || parsedRows.filter(row => validateRow(row).length === 0).length === 0;
+            button.innerHTML = isBusy
+                ? '<i class="fas fa-circle-notch fa-spin mr-2"></i>กำลังนำเข้า'
+                : '<i class="fas fa-file-import mr-2"></i>นำเข้า';
+            if (!isBusy) delete button.dataset.busy;
+        }
+
+        function handleError(error) {
+            hideLoading();
+            setImportBusy(false);
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message || String(error), confirmButtonColor: '#10b981' });
+        }
+
+        function togglePasswordVisibility(inputId, button) {
+            const input = $(inputId);
+            if (!input) return;
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            const icon = button ? button.querySelector('i') : null;
+            if (icon) {
+                icon.classList.toggle('fa-eye', !isHidden);
+                icon.classList.toggle('fa-eye-slash', isHidden);
+            }
+        }
+
+        function loadRememberedCredentials() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('nst_remember_input') || 'null');
+                if (!saved) return;
+                $('loginUsername').value = saved.username || '';
+                $('loginPassword').value = saved.password || '';
+                $('rememberCredentials').checked = true;
+            } catch (error) {}
+        }
+
+        function saveRememberedCredentials(username, password) {
+            if ($('rememberCredentials').checked) {
+                localStorage.setItem('nst_remember_input', JSON.stringify({ username, password }));
+            } else {
+                localStorage.removeItem('nst_remember_input');
+            }
+        }
+
+        function roleName(role) {
+            return { data_processing: 'นำเข้า/ส่งออกไฟล์ Excel' }[role] || role;
+        }
+
+        function login(event) {
+            event.preventDefault();
+            saveRememberedCredentials($('loginUsername').value.trim(), $('loginPassword').value);
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) {
+                        Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', text: result.message, confirmButtonColor: '#10b981' });
+                        return;
+                    }
+                    if (result.user.role !== 'data_processing') {
+                        Swal.fire({ icon: 'error', title: 'ไม่มีสิทธิ์เข้าถึง', confirmButtonColor: '#10b981' });
+                        return;
+                    }
+                    sessionToken = result.token;
+                    currentUser = result.user;
+                    sessionStorage.setItem('nst_token', sessionToken);
+                    sessionStorage.setItem('nst_user', JSON.stringify(currentUser));
+                    showApp();
+                })
+                .withFailureHandler(handleError)
+                .login($('loginUsername').value.trim(), $('loginPassword').value);
+        }
+
+        function checkSession() {
+            sessionToken = sessionStorage.getItem('nst_token');
+            const userText = sessionStorage.getItem('nst_user');
+            if (!sessionToken || !userText) return showLogin();
+
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.valid || result.user.role !== 'data_processing') {
+                        return showLogin();
+                    }
+                    currentUser = result.user;
+                    showApp();
+                })
+                .withFailureHandler(() => {
+                    hideLoading();
+                    showLogin();
+                })
+                .validateSession(sessionToken);
+        }
+
+        function showLogin() {
+            $('loginPage').classList.remove('hidden');
+            $('inputApp').classList.add('hidden');
+        }
+
+        function showApp() {
+            $('loginPage').classList.add('hidden');
+            $('inputApp').classList.remove('hidden');
+            $('navUserName').textContent = currentUser.name || '';
+            $('navUserRole').textContent = roleName(currentUser.role);
+            loadSchools();
+        }
+
+        function setActiveTab(tabName) {
+            const isImport = tabName === 'import';
+            $('importTab').classList.toggle('hidden', !isImport);
+            $('exportTab').classList.toggle('hidden', isImport);
+            $('importTabButton').className = isImport
+                ? 'flex-1 px-4 py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold transition-colors'
+                : 'flex-1 px-4 py-3 rounded-xl bg-slate-800 text-slate-200 font-extrabold hover:bg-slate-700 transition-colors';
+            $('exportTabButton').className = isImport
+                ? 'flex-1 px-4 py-3 rounded-xl bg-slate-800 text-slate-200 font-extrabold hover:bg-slate-700 transition-colors'
+                : 'flex-1 px-4 py-3 rounded-xl bg-indigo-500 text-white font-extrabold transition-colors';
+            if (!isImport && !exportLoaded) loadExportData();
+        }
+
+        function logout() {
+            if (!sessionToken) return showLogin();
+            google.script.run.logout(sessionToken);
+            sessionStorage.removeItem('nst_token');
+            sessionStorage.removeItem('nst_user');
+            sessionToken = null;
+            currentUser = null;
+            showLogin();
+        }
+
+        function loadSchools() {
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) return handleError(new Error(result.message));
+                    $('schoolSelect').innerHTML = '<option value="">เลือกสถานศึกษา</option>' + (result.schools || []).map(school => (
+                        `<option value="${escapeHtml(school.code)}" data-name="${escapeHtml(school.name)}" data-province="${escapeHtml(school.province)}">${escapeHtml(school.code)} - ${escapeHtml(school.name)}</option>`
+                    )).join('');
+                })
+                .withFailureHandler(handleError)
+                .getMissingApplicantOptions(sessionToken);
+        }
+
+        function calculateAge(birthYear) {
+            const year = Number(String(birthYear || '').replace(/\D/g, ''));
+            if (!Number.isInteger(year) || year < 2400 || year > 2700) return '';
+            const age = (new Date().getFullYear() + 543) - year;
+            return age >= 0 && age <= 120 ? age : '';
+        }
+
+        function isThaiText(value) {
+            return /^[ก-๙\s.\-]+$/.test(String(value || '').trim());
+        }
+
+        function normalizePrefix(prefix) {
+            const text = String(prefix || '').replace(/\s+/g, '').trim();
+            if (text === 'ด.ช.') return 'เด็กชาย';
+            if (text === 'ด.ญ.') return 'เด็กหญิง';
+            if (text === 'น.ส.') return 'นางสาว';
+            return text;
+        }
+
+        function validateRow(row) {
+            const problems = [];
+            const prefix = normalizePrefix(row.prefix);
+            if (!/^\d{13}$/.test(row.nationalId)) problems.push('เลข ปชช. ไม่ครบ 13 หลัก');
+            if (!['นาย', 'เด็กชาย', 'นางสาว', 'เด็กหญิง', 'หญิง'].includes(prefix)) problems.push('คำนำหน้าไม่ถูกต้อง');
+            if (!isThaiText(row.firstName) || !isThaiText(row.lastName)) problems.push('ชื่อ/สกุลต้องเป็นภาษาไทย');
+            if (calculateAge(row.birthYear) === '') problems.push('พ.ศ.เกิดไม่ถูกต้อง');
+            return problems;
+        }
+
+        function normalizeSchoolText(value) {
+            return String(value || '').replace(/\s+/g, '').replace(/[“”]/g, '"').trim();
+        }
+
+        function selectSchoolFromFile(schoolName, provinceName) {
+            const normalizedName = normalizeSchoolText(schoolName);
+            if (!normalizedName) return;
+
+            const options = Array.from($('schoolSelect').options);
+            const matched = options.find(option =>
+                normalizeSchoolText(option.dataset.name) === normalizedName ||
+                normalizeSchoolText(option.textContent).includes(normalizedName)
+            );
+            if (matched) {
+                $('schoolSelect').value = matched.value;
+                return;
+            }
+
+            const normalizedProvince = normalizeSchoolText(provinceName);
+            const provinceMatched = options.find(option =>
+                normalizedProvince &&
+                normalizeSchoolText(option.dataset.province) === normalizedProvince &&
+                normalizeSchoolText(option.dataset.name).includes(normalizedName)
+            );
+            if (provinceMatched) $('schoolSelect').value = provinceMatched.value;
+        }
+
+        function isSheetRowHidden(sheet, zeroBasedIndex) {
+            const rowInfo = sheet && sheet['!rows'] ? sheet['!rows'][zeroBasedIndex] : null;
+            return Boolean(rowInfo && rowInfo.hidden);
+        }
+
+        function parseWorkbookRows(sheetRows, sheet) {
+            fileSchoolName = String((sheetRows[1] || [])[5] || '').trim();
+            fileProvinceName = String((sheetRows[2] || [])[5] || '').trim();
+            const headerIndex = sheetRows.findIndex(row =>
+                String(row[0] || '').includes('ลำดับ') ||
+                String(row[1] || '').replace(/\s+/g, '').includes('เลขปชช')
+            );
+            const startIndex = headerIndex >= 0 ? headerIndex + 1 : 4;
+            const rows = [];
+
+            for (let i = startIndex; i < sheetRows.length; i++) {
+                if (isSheetRowHidden(sheet, i)) continue;
+                const row = sheetRows[i] || [];
+                const hasData = [row[1], row[3], row[4], row[5], row[6]].some(value => String(value || '').trim());
+                if (!hasData) continue;
+                rows.push({
+                    sourceRow: i + 1,
+                    sequence: String(row[0] || '').trim(),
+                    nationalId: String(row[1] || '').replace(/\D/g, ''),
+                    prefix: normalizePrefix(row[3]),
+                    firstName: String(row[4] || '').trim(),
+                    lastName: String(row[5] || '').trim(),
+                    birthYear: String(row[6] || '').replace(/\D/g, '').slice(0, 4)
+                });
+            }
+            return rows;
+        }
+
+        function renderPreview() {
+            const selected = $('schoolSelect').selectedOptions[0];
+            const schoolCode = $('schoolSelect').value;
+            const fileName = $('fileInput')?.files?.[0]?.name || '';
+            const fileMeta = fileName ? `ไฟล์: ${fileName}` : '';
+            const selectedMeta = schoolCode ? `นำเข้าเป็น: ${schoolCode} - ${selected.dataset.name} (${selected.dataset.province})` : '';
+            $('schoolMeta').textContent = [fileMeta, selectedMeta].filter(Boolean).join(' | ');
+
+            let valid = 0;
+            let warnings = 0;
+            $('previewBody').innerHTML = parsedRows.map(row => {
+                const problems = validateRow(row);
+                if (problems.length) warnings += 1; else valid += 1;
+                const age = calculateAge(row.birthYear);
+                return `
+                    <tr class="hover:bg-white/5">
+                        <td class="py-3 px-3 text-slate-400">${escapeHtml(row.sourceRow)}</td>
+                        <td class="py-3 px-3">${escapeHtml(row.sequence)}</td>
+                        <td class="py-3 px-3 font-mono">${escapeHtml(row.nationalId)}</td>
+                        <td class="py-3 px-3">${escapeHtml(row.prefix)}</td>
+                        <td class="py-3 px-3">${escapeHtml(row.firstName)}</td>
+                        <td class="py-3 px-3">${escapeHtml(row.lastName)}</td>
+                        <td class="py-3 px-3">${escapeHtml(row.birthYear)}</td>
+                        <td class="py-3 px-3">${escapeHtml(age)}</td>
+                        <td class="py-3 px-3 ${problems.length ? 'text-amber-300' : 'text-emerald-300'}">${escapeHtml(problems.join(', ') || 'พร้อมนำเข้า')}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            $('totalCount').textContent = parsedRows.length;
+            $('validCount').textContent = valid;
+            $('warningCount').textContent = warnings;
+            const importButton = $('importButton');
+            if (importButton && importButton.dataset.busy !== 'true') {
+                importButton.disabled = !schoolCode || parsedRows.length === 0 || valid === 0;
+            }
+        }
+
+        async function handleFileChange() {
+            const file = $('fileInput').files[0];
+            parsedRows = [];
+            if (!file) return renderPreview();
+
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data, { type: 'array', cellDates: false, cellStyles: true });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const sheetRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+            parsedRows = parseWorkbookRows(sheetRows, sheet);
+            renderPreview();
+        }
+
+        function importRows() {
+            const schoolCode = $('schoolSelect').value;
+            const validRows = parsedRows.filter(row => validateRow(row).length === 0);
+            if (!schoolCode || validRows.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'ยังไม่มีข้อมูลพร้อมนำเข้า', confirmButtonColor: '#10b981' });
+                return;
+            }
+
+            showLoading();
+            setImportBusy(true);
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    setImportBusy(false);
+                    if (!result.success) {
+                        Swal.fire({ icon: 'error', title: 'นำเข้าไม่สำเร็จ', text: result.message, confirmButtonColor: '#10b981' });
+                        return;
+                    }
+                    const skippedCount = (result.skipped || []).length;
+                    const summary = Object.entries(result.skippedSummary || {})
+                        .map(([reason, count]) => `${escapeHtml(reason)}: <strong>${escapeHtml(count)}</strong>`)
+                        .join('<br>');
+                    const icon = Number(result.imported || 0) > 0 ? 'success' : 'warning';
+                    Swal.fire({
+                        icon,
+                        title: Number(result.imported || 0) > 0 ? 'นำเข้าสำเร็จ' : 'ยังไม่นำเข้าข้อมูล',
+                        html: `นำเข้าสำเร็จ <strong>${escapeHtml(result.imported || 0)}</strong> รายการ${skippedCount ? `<br>ข้าม <strong>${escapeHtml(skippedCount)}</strong> รายการ${summary ? `<div class="mt-3 text-sm text-left">${summary}</div>` : ''}` : ''}`,
+                        confirmButtonColor: '#10b981'
+                    });
+                    if (Number(result.imported || 0) === 0 && result.skippedSummary && result.skippedSummary['เลขประจำตัวประชาชนมีอยู่ในระบบแล้ว']) {
+                        diagnoseImport(validRows);
+                    }
+                    parsedRows = [];
+                    $('fileInput').value = '';
+                    renderPreview();
+                })
+                .withFailureHandler((err) => {
+                    hideLoading();
+                    setImportBusy(false);
+                    handleError(err);
+                })
+                .importNSTApplicantRows(sessionToken, { schoolCode, rows: validRows });
+        }
+
+        function diagnoseImport(rows) {
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (!result.success) return;
+                    const examples = (result.matches || []).map(match =>
+                        `<div class="text-left text-sm">${escapeHtml(match.nationalId)} พบที่แถว ${escapeHtml(match.row)}${match.appId ? ` รหัส ${escapeHtml(match.appId)}` : ''}${match.name ? ` - ${escapeHtml(match.name)}` : ''}</div>`
+                    ).join('');
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'พบเลขซ้ำใน Data_NST',
+                        html: `ตรวจ ${escapeHtml(result.checked)} รายการ พบซ้ำ ${escapeHtml(result.matched)} รายการ<br>Data_NST มีข้อมูลถึงแถว ${escapeHtml(result.sheetLastRow)}${examples ? `<div class="mt-3">${examples}</div>` : ''}`,
+                        confirmButtonColor: '#10b981'
+                    });
+                })
+                .withFailureHandler(() => {})
+                .diagnoseNSTApplicantImport(sessionToken, { rows });
+        }
+
+        function loadExportData() {
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) return handleError(new Error(result.message));
+                    exportRowsData = result.records || [];
+                    exportLoaded = true;
+                    $('exportSchoolSelect').innerHTML = '<option value="">ทั้งหมด</option>' + (result.schools || []).map(school => (
+                        `<option value="${escapeHtml(getExportSchoolName(school))}">${escapeHtml(getExportSchoolLabel(school))}</option>`
+                    )).join('');
+                    renderExportPreview();
+                })
+                .withFailureHandler(handleError)
+                .getNSTApplicantExportData(sessionToken);
+        }
+
+        function getExportSchoolName(school) {
+            return typeof school === 'string' ? school : String((school && school.name) || '');
+        }
+
+        function getExportSchoolLabel(school) {
+            if (typeof school === 'string') return school;
+            const name = String((school && school.name) || '').trim();
+            const code = String((school && school.code) || '').trim();
+            return code ? `${code} - ${name}` : name;
+        }
+
+        function getFilteredExportRows() {
+            const school = $('exportSchoolSelect').value;
+            return school ? exportRowsData.filter(row => row.school === school) : exportRowsData.slice();
+        }
+
+        function renderExportPreview() {
+            const rows = getFilteredExportRows();
+            $('exportTotalCount').textContent = exportRowsData.length;
+            $('exportFilteredCount').textContent = rows.length;
+            $('exportSchoolCount').textContent = new Set(exportRowsData.map(row => row.school).filter(Boolean)).size;
+            $('exportMeta').textContent = $('exportSchoolSelect').selectedOptions[0]?.textContent || 'ทั้งหมด';
+            $('exportPreviewBody').innerHTML = rows.slice(0, 300).map(row => `
+                <tr class="hover:bg-white/5">
+                    <td class="py-3 px-3 font-mono">${escapeHtml(row.appId)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.firstName)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.lastName)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.school)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportRows() {
+            if (typeof XLSX === 'undefined') {
+                Swal.fire({ icon: 'error', title: 'ไม่พบตัวสร้างไฟล์ Excel', confirmButtonColor: '#6366f1' });
+                return;
+            }
+
+            const rows = getFilteredExportRows().map(row => ({
+                'รหัสนักศึกษา': row.appId || '',
+                'ชื่อ': row.firstName || '',
+                'สกุล': row.lastName || '',
+                'โรงเรียน': row.school || ''
+            }));
+
+            if (rows.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูลสำหรับส่งออก', confirmButtonColor: '#6366f1' });
+                return;
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(rows, {
+                header: ['รหัสนักศึกษา', 'ชื่อ', 'สกุล', 'โรงเรียน']
+            });
+            worksheet['!cols'] = [{ wch: 16 }, { wch: 24 }, { wch: 24 }, { wch: 48 }];
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'รายชื่อผู้สมัคร');
+
+            const scope = $('exportSchoolSelect').value ? $('exportSchoolSelect').value.replace(/[\\/:*?"<>|]/g, '').slice(0, 60) : 'ทั้งหมด';
+            const dateText = new Date().toLocaleDateString('th-TH-u-nu-latn').replace(/\//g, '-');
+            XLSX.writeFile(workbook, `รายชื่อผู้สมัคร_${scope}_${dateText}.xlsx`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRememberedCredentials();
+            $('loginForm').addEventListener('submit', login);
+            $('logoutButton').addEventListener('click', logout);
+            $('importTabButton').addEventListener('click', () => setActiveTab('import'));
+            $('exportTabButton').addEventListener('click', () => setActiveTab('export'));
+            $('schoolSelect').addEventListener('change', renderPreview);
+            $('fileInput').addEventListener('change', handleFileChange);
+            $('importButton').addEventListener('click', importRows);
+            $('exportSchoolSelect').addEventListener('change', renderExportPreview);
+            $('refreshExportButton').addEventListener('click', loadExportData);
+            $('exportButton').addEventListener('click', exportRows);
+            checkSession();
+        });
+
+        window.addEventListener('error', () => {
+            hideLoading();
+            setImportBusy(false);
+        });
+
+        window.addEventListener('unhandledrejection', () => {
+            hideLoading();
+            setImportBusy(false);
+        });
+    </script>
+</body>
+
+</html>

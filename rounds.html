@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คัดเลือกรอบเพิ่มเติม</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+    /* ==================== CUSTOM FONTS ==================== */
+    .font-prompt {
+        font-family: 'Prompt', sans-serif;
+    }
+
+    /* ==================== GLASS MORPHISM ==================== */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-nav {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ==================== LOADING SPINNER ==================== */
+    .spinner {
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-panel {
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ==================== DATA TABLE ==================== */
+    .data-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        contain: layout paint;
+    }
+
+    #quotaDataTable *,
+    #nstDataTable *,
+    #failedDataTable * {
+        transition: none !important;
+        filter: none !important;
+    }
+
+    .data-table thead th {
+        background: rgba(30, 58, 138, 0.4);
+        color: #bfdbfe;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+
+    /* ... */
+    .data-table tbody td {
+        padding: 12px 16px;
+        color: #cbd5e1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(30, 58, 138, 0.2);
+    }
+
+    /* ==================== DASHBOARD PERFORMANCE MODE ==================== */
+    #adminDashboard,
+    #adminDashboard * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    #adminDashboard .glass-card,
+    #adminDashboard .modal-content,
+    #adminDashboard .modal-overlay,
+    #mainApp .glass-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+    }
+
+    #adminDashboard .glass-card {
+        background: rgba(30, 41, 59, 0.96) !important;
+    }
+
+    #mainApp .glass-nav {
+        background: #0f172a !important;
+    }
+
+    #adminDashboard .shadow-sm,
+    #adminDashboard .shadow,
+    #adminDashboard .shadow-lg,
+    #adminDashboard .shadow-xl,
+    #adminDashboard .shadow-2xl,
+    #adminDashboard [class*="shadow-"] {
+        box-shadow: none !important;
+    }
+
+    #adminDashboard [class*="bg-gradient"],
+    #adminDashboard [class*="from-"],
+    #adminDashboard [class*="to-"],
+    #adminDashboard [class*="via-"] {
+        background-image: none !important;
+    }
+
+    #adminDashboard .fa-spin,
+    #adminDashboard .spinner,
+    #mainApp .fa-spin,
+    #mainApp .spinner {
+        animation: spin 1s linear infinite !important;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    #quotaDataTable tbody tr:hover,
+    #nstDataTable tbody tr:hover,
+    #failedDataTable tbody tr:hover {
+        background: inherit !important;
+    }
+
+    #mainApp,
+    #mainApp * {
+        text-shadow: none !important;
+        filter: none !important;
+    }
+
+    #mainApp .glass-card,
+    #mainApp .modal-content,
+    #mainApp .modal-overlay,
+    #mainApp [class*="backdrop-blur"],
+    #mainApp [class*="drop-shadow"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        filter: none !important;
+    }
+
+    #mainApp button,
+    #mainApp input,
+    #mainApp select,
+    #mainApp textarea,
+    #mainApp .badge {
+        transition: none !important;
+        box-shadow: none !important;
+    }
+
+    #mainApp [class*="hover:"],
+    #mainApp [class*="focus:"],
+    #mainApp [class*="active:"],
+    #mainApp [class*="peer-checked:"],
+    #mainApp [class*="group-hover:"] {
+        transition: none !important;
+    }
+
+    .data-table tbody tr:last-child td:first-child {
+        border-radius: 0 0 0 12px;
+    }
+
+    .data-table tbody tr:last-child td:last-child {
+        border-radius: 0 0 12px 0;
+    }
+
+    /* ==================== STATUS BADGES ==================== */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-pass {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-fail {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* ==================== TAB BUTTONS ==================== */
+    .tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* ==================== ACTION BUTTONS ==================== */
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 1rem;
+    }
+
+    .modal-content {
+        animation: modalIn 0.3s ease-out;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* ==================== PAGE TRANSITIONS ==================== */
+    .page {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .dashboard-page {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+
+    /* ==================== ROLE BADGES ==================== */
+    .role-admin {
+        color: #f472b6;
+    }
+
+    .role-body_measurement {
+        color: #60a5fa;
+    }
+
+    .role-medical_check {
+        color: #4ade80;
+    }
+
+    .role-running {
+        color: #facc15;
+    }
+
+    .role-push_up {
+        color: #f87171;
+    }
+
+    .role-sit_up {
+        color: #facc15;
+    }
+
+    .role-data_review {
+        color: #38bdf8;
+    }
+
+    .role-Add_application {
+        color: #34d399;
+    }
+
+    .role-data_processing {
+        color: #34d399;
+    }
+
+    .role-uniform {
+        color: #f59e0b;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+        .data-table {
+            font-size: 0.875rem;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 8px 12px;
+        }
+    }
+</style>
+
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+</head>
+
+<body class="bg-[#0f172a] min-h-screen text-slate-200">
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/35 z-50 flex items-center justify-center hidden">
+        <div class="loading-panel text-center">
+            <div class="spinner mb-3 mx-auto"></div>
+            <p class="text-white text-sm font-semibold">กำลังโหลด...</p>
+        </div>
+    </div>
+
+    <main id="loginPage" class="min-h-screen flex items-center justify-center px-4 py-10">
+        <section class="w-full max-w-md">
+            <div class="text-center mb-7">
+                <p class="text-sm font-semibold text-violet-300">NST Extra Selection</p>
+                <h1 class="text-3xl font-extrabold text-white mt-2">คัดเลือกรอบเพิ่มเติม</h1>
+            </div>
+
+            <div class="glass-card rounded-2xl p-7 border border-white/10">
+                <form id="loginForm">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">ชื่อผู้ใช้</label>
+                    <input id="loginUsername" type="text" autocomplete="username"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 mb-4"
+                        required>
+
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">รหัสผ่าน</label>
+                    <input id="loginPassword" type="password" autocomplete="current-password"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 mb-6"
+                        required>
+
+                    <label class="flex items-center gap-3 text-sm font-semibold text-slate-300 mb-6">
+                        <input id="rememberLogin" type="checkbox"
+                            class="w-4 h-4 rounded border-white/20 bg-slate-950 text-violet-500 focus:ring-violet-500">
+                        จำรหัสผ่านบนเครื่องนี้
+                    </label>
+
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-violet-500 hover:bg-violet-400 text-white font-extrabold transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <main id="roundsApp" class="hidden min-h-screen px-4 sm:px-6 lg:px-8 py-6 max-w-[1500px] mx-auto">
+        <nav class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <p class="text-sm font-semibold text-violet-300">NST Extra Selection</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">คัดเลือกรอบเพิ่มเติม</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="navUserName" class="text-sm font-semibold text-white"></p>
+                    <p class="text-xs text-violet-300">ผู้ดูแลระบบ</p>
+                </div>
+                <button id="logoutButton" class="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 hover:bg-red-500/30">
+                    <i class="fas fa-sign-out-alt mr-1"></i>ออก
+                </button>
+            </div>
+        </nav>
+
+        <section class="glass-card rounded-2xl p-5 border border-white/10 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">รอบ</label>
+                    <select id="roundSelect" class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white">
+                        <option value="รายชื่อผู้ผ่านการคัดเลือกห้วง2">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</option>
+                        <option value="รายชื่อผู้ผ่านการคัดเลือกรอบ2">รายชื่อผู้ผ่านการคัดเลือกรอบ 2</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">จังหวัด</label>
+                    <select id="provinceSelect" class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white">
+                        <option value="__ALL__">ทุกจังหวัด</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">โรงเรียน</label>
+                    <select id="schoolSelect" class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white">
+                        <option value="">ทุกโรงเรียน</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">เพศ</label>
+                    <select id="genderSelect" class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white">
+                        <option value="">ทั้งหมด</option>
+                        <option value="ชาย">ชาย</option>
+                        <option value="หญิง">หญิง</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">เรียงตาม</label>
+                    <select id="sortSelect" disabled class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white opacity-80">
+                        <option value="scoreDesc">คะแนนมากไปน้อย</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                <button id="previewButton" type="button"
+                    class="px-5 py-3 rounded-xl bg-violet-500 text-white font-extrabold hover:bg-violet-400">
+                    <i class="fas fa-cogs mr-2"></i>ประมวลผล
+                </button>
+                <button id="saveButton" type="button" disabled
+                    class="px-5 py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-save mr-2"></i>บันทึกรอบเพิ่มเติม
+                </button>
+                <div class="text-sm text-slate-300 sm:ml-auto">
+                    ติ๊กเลือกจากตาราง ระบบจะบันทึกลงชีท <span id="nominationSheetName" class="font-bold text-violet-300">คัดเลือกรอบเพิ่มเติม</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-6">
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">% ผู้ผ่านการคัดเลือก</p>
+                <div class="mt-1 flex items-end gap-2">
+                    <p id="passPercent" class="text-3xl font-extrabold text-amber-300">0.00%</p>
+                    <p id="poolCount" class="pb-1 text-sm text-slate-400">0 คน</p>
+                </div>
+                <p id="passRateDetail" class="mt-2 text-sm text-slate-300">ตัวจริง 0 คน / สำรอง 0 คน</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p id="allocationTitle" class="text-sm text-slate-400">ยอดจัดสรรเพิ่ม</p>
+                <p id="allocationCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
+                <p id="allocationMeta" class="mt-2 text-sm text-slate-300">คิด ช.33% / ญ.75%</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">ยอดจัดสรรห้วงที่ 2</p>
+                <div id="period2QuotaSummary" class="mt-2 space-y-1 text-sm text-slate-300">
+                    <p>ชาย 0/146 คงเหลือ 146</p>
+                    <p>หญิง 0/39 คงเหลือ 39</p>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">รายการทั้งหมด</p>
+                <p id="totalCount" class="text-3xl font-extrabold text-white mt-1">0</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 border border-white/10">
+                <p class="text-sm text-slate-400">พร้อมบันทึก</p>
+                <p id="selectedCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
+            </div>
+        </section>
+
+        <section class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+                <h2 id="previewTitle" class="font-bold text-white">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</h2>
+                <p id="resultMeta" class="text-sm text-slate-400"></p>
+            </div>
+            <div class="overflow-auto max-h-[62vh]">
+                <table class="w-full min-w-[1100px] text-sm">
+                    <thead class="sticky top-0 bg-slate-900 text-slate-300">
+                        <tr>
+                            <th class="py-3 px-3 text-left">เลือก</th>
+                            <th class="py-3 px-3 text-left">ลำดับสำรอง</th>
+                            <th class="py-3 px-3 text-left">คะแนน</th>
+                            <th class="py-3 px-3 text-left">คะแนนเพิ่ม</th>
+                            <th class="py-3 px-3 text-left">รหัส</th>
+                            <th class="py-3 px-3 text-left">ชื่อ-นามสกุล</th>
+                            <th class="py-3 px-3 text-left">เลข ปชช.</th>
+                            <th class="py-3 px-3 text-left">โรงเรียน</th>
+                            <th class="py-3 px-3 text-left">เพศ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let sessionToken = null;
+        let currentUser = null;
+        let schoolsByProvince = {};
+        let previewRows = [];
+        let period2Quota = null;
+        let enforcePeriod2Quota = true;
+        let currentOutputSheetName = 'รายชื่อผู้ผ่านการคัดเลือกห้วง2';
+
+        const $ = (id) => document.getElementById(id);
+        const rememberedLoginKey = 'nst_rounds_remembered_login';
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        function showLoading() { $('loadingOverlay').classList.remove('hidden'); }
+        function hideLoading() { $('loadingOverlay').classList.add('hidden'); }
+        function formatDateLabel(dateText) {
+            const match = String(dateText || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!match) return dateText || '';
+            const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            return `${Number(match[3])} ${monthNames[Number(match[2])]} ${Number(match[1])}`;
+        }
+        function handleError(error) {
+            hideLoading();
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message || String(error), confirmButtonColor: '#8b5cf6' });
+        }
+
+        function loadRememberedLogin() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(rememberedLoginKey) || 'null');
+                if (!saved) return;
+                $('loginUsername').value = saved.username || '';
+                $('loginPassword').value = saved.password || '';
+                $('rememberLogin').checked = Boolean(saved.username || saved.password);
+            } catch (error) {
+                localStorage.removeItem(rememberedLoginKey);
+            }
+        }
+
+        function saveRememberedLogin() {
+            if (!$('rememberLogin').checked) {
+                localStorage.removeItem(rememberedLoginKey);
+                return;
+            }
+            localStorage.setItem(rememberedLoginKey, JSON.stringify({
+                username: $('loginUsername').value.trim(),
+                password: $('loginPassword').value
+            }));
+        }
+
+        function login(event) {
+            event.preventDefault();
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) {
+                        Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', text: result.message, confirmButtonColor: '#8b5cf6' });
+                        return;
+                    }
+                    if (result.user.role !== 'admin') {
+                        Swal.fire({ icon: 'error', title: 'ไม่มีสิทธิ์เข้าถึง', text: 'หน้านี้ใช้ได้เฉพาะ Admin', confirmButtonColor: '#8b5cf6' });
+                        return;
+                    }
+                    sessionToken = result.token;
+                    currentUser = result.user;
+                    sessionStorage.setItem('nst_token', sessionToken);
+                    sessionStorage.setItem('nst_user', JSON.stringify(currentUser));
+                    saveRememberedLogin();
+                    showApp();
+                })
+                .withFailureHandler(handleError)
+                .login($('loginUsername').value.trim(), $('loginPassword').value);
+        }
+
+        function checkSession() {
+            sessionToken = sessionStorage.getItem('nst_token');
+            const userText = sessionStorage.getItem('nst_user');
+            if (!sessionToken || !userText) return showLogin();
+
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.valid || result.user.role !== 'admin') return showLogin();
+                    currentUser = result.user;
+                    showApp();
+                })
+                .withFailureHandler(() => {
+                    hideLoading();
+                    showLogin();
+                })
+                .validateSession(sessionToken);
+        }
+
+        function showLogin() {
+            $('loginPage').classList.remove('hidden');
+            $('roundsApp').classList.add('hidden');
+        }
+
+        function showApp() {
+            $('loginPage').classList.add('hidden');
+            $('roundsApp').classList.remove('hidden');
+            $('navUserName').textContent = currentUser.name || '';
+            loadOptions();
+        }
+
+        function logout() {
+            if (sessionToken) google.script.run.logout(sessionToken);
+            sessionStorage.removeItem('nst_token');
+            sessionStorage.removeItem('nst_user');
+            sessionToken = null;
+            currentUser = null;
+            showLogin();
+        }
+
+        function loadOptions() {
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) return handleError(new Error(result.message));
+                    schoolsByProvince = result.schoolsByProvince || {};
+                    $('provinceSelect').innerHTML = '<option value="__ALL__">ทุกจังหวัด</option>' + (result.provinces || [])
+                        .map(province => `<option value="${escapeHtml(province)}">${escapeHtml(province)}</option>`)
+                        .join('');
+                    updateRoundSheetLabel();
+                    refreshSchools();
+                })
+                .withFailureHandler(handleError)
+                .getExtraSelectionOptions(sessionToken);
+        }
+
+        function refreshSchools() {
+            const province = $('provinceSelect').value;
+            const schools = province === '__ALL__'
+                ? [...new Set(Object.values(schoolsByProvince).flat())].sort((a, b) => a.localeCompare(b, 'th'))
+                : (schoolsByProvince[province] || []);
+            $('schoolSelect').innerHTML = '<option value="">ทุกโรงเรียน</option>' + schools
+                .map(school => `<option value="${escapeHtml(school)}">${escapeHtml(school)}</option>`)
+                .join('');
+        }
+
+        function getPayload() {
+            return {
+                round: $('roundSelect').value,
+                mode: 'รอบเพิ่มเติม',
+                province: $('provinceSelect').value,
+                school: $('schoolSelect').value,
+                gender: $('genderSelect').value,
+                sortBy: $('sortSelect').value,
+                splitGender: false
+            };
+        }
+
+        function statusClass(status) {
+            if (status === 'ผ่านเงื่อนไข' || status === 'เลือกได้' || status === 'เลือกไว้แล้ว') return 'text-emerald-300';
+            if (status === 'บันทึกแล้ว') return 'text-slate-400';
+            return 'text-amber-300';
+        }
+
+        function percentValue(value) {
+            const number = Number(String(value ?? '').replace('%', '').trim());
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function passPercentClass(value) {
+            return percentValue(value) >= 40 ? 'text-emerald-300' : 'text-amber-300';
+        }
+
+        function renderAllocationSummary(result) {
+            const status = result.allocationStatus || 'match';
+            const count = Number(result.allocationAbs || 0);
+            const title = status === 'over' ? 'เกินยอดจัดสรร' : (count > 0 ? 'ยอดจัดสรรเพิ่ม' : 'ตรงตามยอดจัดสรร');
+            $('allocationTitle').textContent = title;
+            $('allocationCount').textContent = count;
+            $('allocationCount').classList.remove('text-emerald-300', 'text-amber-300', 'text-sky-300');
+            $('allocationCount').classList.add(status === 'over' ? 'text-amber-300' : (count > 0 ? 'text-emerald-300' : 'text-sky-300'));
+            $('allocationMeta').textContent = `เป้า ${result.targetPassCount || 0} คน / คิด ช.33% ญ.75%`;
+        }
+
+        function getPeriod2QuotaItem(gender) {
+            const fallbackLimits = { 'ชาย': 146, 'หญิง': 39 };
+            const item = period2Quota?.byGender?.[gender] || {};
+            const limit = Number(item.limit || fallbackLimits[gender] || 0);
+            const saved = Number(item.saved || 0);
+            return { limit, saved };
+        }
+
+        function getSelectedGenderCounts() {
+            return previewRows.reduce((counts, row) => {
+                if (!row || !row.selected) return counts;
+                const gender = String(row.gender || '').trim();
+                if (!gender) return counts;
+                counts[gender] = (counts[gender] || 0) + 1;
+                return counts;
+            }, {});
+        }
+
+        function getPeriod2QuotaOverflow(selectedCounts = getSelectedGenderCounts()) {
+            if (!enforcePeriod2Quota) return '';
+            return ['ชาย', 'หญิง'].find(gender => {
+                const quota = getPeriod2QuotaItem(gender);
+                return quota.limit > 0 && quota.saved + (selectedCounts[gender] || 0) > quota.limit;
+            }) || '';
+        }
+
+        function renderPeriod2QuotaSummary(selectedCounts = getSelectedGenderCounts()) {
+            const lines = ['ชาย', 'หญิง'].map(gender => {
+                const quota = getPeriod2QuotaItem(gender);
+                const adding = Number(selectedCounts[gender] || 0);
+                const used = quota.saved + adding;
+                const remaining = Math.max(0, quota.limit - used);
+                const colorClass = remaining > 0 ? 'text-emerald-300' : 'text-amber-300';
+                const addText = adding ? ` <span class="text-sky-300">(+${adding})</span>` : '';
+                return `<p>${gender} <span class="${colorClass} font-bold">${used}/${quota.limit}</span>${addText} คงเหลือ <span class="${colorClass} font-bold">${remaining}</span></p>`;
+            });
+            $('period2QuotaSummary').innerHTML = lines.join('');
+        }
+
+        function getSelectedRoundSheetName() {
+            return $('roundSelect').value || 'รายชื่อผู้ผ่านการคัดเลือกห้วง2';
+        }
+
+        function updateRoundSheetLabel() {
+            currentOutputSheetName = getSelectedRoundSheetName();
+            $('nominationSheetName').textContent = currentOutputSheetName;
+        }
+
+        function allocationText(value) {
+            const number = Number(value || 0);
+            if (number > 0) return `เพิ่ม ${number}`;
+            if (number < 0) return `เกิน ${Math.abs(number)}`;
+            return 'พอดี';
+        }
+
+        function renderPreview(result) {
+            previewRows = result.rows || [];
+            period2Quota = result.period2Quota || null;
+            enforcePeriod2Quota = result.enforcePeriod2Quota !== false;
+            currentOutputSheetName = result.outputSheetName || currentOutputSheetName;
+            $('nominationSheetName').textContent = currentOutputSheetName;
+            $('previewTitle').textContent = result.round || $('roundSelect').selectedOptions[0]?.textContent || 'รายชื่อผู้ผ่านการคัดเลือก';
+            $('totalCount').textContent = result.total || 0;
+            $('selectedCount').textContent = result.selectedCount || 0;
+            $('passPercent').textContent = result.passPercent || '0.00%';
+            $('passPercent').classList.remove('text-emerald-300', 'text-amber-300');
+            $('passPercent').classList.add(passPercentClass(result.passPercent));
+            $('poolCount').textContent = `${result.totalPool || 0} คน`;
+            $('passRateDetail').textContent = `ตัวจริง ${result.passedCount || 0} คน / สำรอง ${result.reserveCount || 0} คน`;
+            renderAllocationSummary(result);
+            $('resultMeta').textContent = `${result.round || ''} / ${result.mode || ''} / สำรอง ${result.reserveCount || 0} คน`;
+            $('saveButton').disabled = (result.selectedCount || 0) === 0;
+            renderPeriod2QuotaSummary();
+
+            if (!previewRows.length) {
+                $('previewBody').innerHTML = `
+                    <tr>
+                        <td colspan="9" class="py-10 px-3 text-center text-slate-400">
+                            ไม่พบรายชื่อในเงื่อนไขที่เลือก
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            $('previewBody').innerHTML = previewRows.map((row, index) => `
+                <tr class="hover:bg-white/5">
+                    <td class="py-3 px-3">
+                        <input type="checkbox" data-index="${index}" ${row.selected ? 'checked' : ''} ${(row.status === 'บันทึกแล้ว' || row.canSelect === false) ? 'disabled' : ''}>
+                    </td>
+                    <td class="py-3 px-3">${escapeHtml(row.reserveRank)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.score)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.extraScore || '-')}</td>
+                    <td class="py-3 px-3 font-mono">${escapeHtml(row.appId)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.name)}</td>
+                    <td class="py-3 px-3 font-mono">${escapeHtml(row.citizenIdMasked || '-')}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.school)}</td>
+                    <td class="py-3 px-3">${escapeHtml(row.gender)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function clearPreview() {
+            previewRows = [];
+            enforcePeriod2Quota = true;
+            updateRoundSheetLabel();
+            $('previewTitle').textContent = $('roundSelect').selectedOptions[0]?.textContent || 'รายชื่อผู้ผ่านการคัดเลือก';
+            $('totalCount').textContent = 0;
+            $('selectedCount').textContent = 0;
+            $('resultMeta').textContent = '';
+            $('saveButton').disabled = true;
+            renderPeriod2QuotaSummary();
+            $('previewBody').innerHTML = `
+                <tr>
+                    <td colspan="9" class="py-10 px-3 text-center text-slate-400">
+                        กดประมวลผลเพื่อแสดงรายชื่อ
+                    </td>
+                </tr>
+            `;
+        }
+
+        function updateSelectedSummary(event) {
+            document.querySelectorAll('#previewBody input[type="checkbox"]').forEach(input => {
+                const index = Number(input.dataset.index);
+                if (previewRows[index]) previewRows[index].selected = input.checked;
+            });
+            let selectedCounts = getSelectedGenderCounts();
+            const overflowGender = getPeriod2QuotaOverflow(selectedCounts);
+            if (overflowGender && event?.target?.matches?.('input[type="checkbox"]') && event.target.checked) {
+                const index = Number(event.target.dataset.index);
+                event.target.checked = false;
+                if (previewRows[index]) previewRows[index].selected = false;
+                selectedCounts = getSelectedGenderCounts();
+                const quota = getPeriod2QuotaItem(overflowGender);
+                Swal.fire({
+                    icon: 'warning',
+                    title: `ยอดจัดสรรห้วงที่ 2 ${overflowGender} เต็มแล้ว`,
+                    text: `กำหนดไว้ไม่เกิน ${quota.limit} คน ตอนนี้บันทึกแล้ว ${quota.saved} คน`,
+                    confirmButtonColor: '#8b5cf6'
+                });
+            }
+            const selectedCount = previewRows.filter(row => row.selected).length;
+            const stillOverflow = getPeriod2QuotaOverflow(selectedCounts);
+            $('selectedCount').textContent = selectedCount;
+            $('saveButton').disabled = selectedCount === 0 || Boolean(stillOverflow);
+            renderPeriod2QuotaSummary(selectedCounts);
+        }
+
+        function loadPreview() {
+            const payload = getPayload();
+            if (!payload.province) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาเลือกจังหวัด', confirmButtonColor: '#8b5cf6' });
+                return;
+            }
+            showLoading();
+            google.script.run
+                .withSuccessHandler((result) => {
+                    hideLoading();
+                    if (!result.success) return handleError(new Error(result.message));
+                    renderPreview(result);
+                })
+                .withFailureHandler(handleError)
+                .getExtraSelectionPreview(sessionToken, payload);
+        }
+
+        function savePreview() {
+            document.querySelectorAll('#previewBody input[type="checkbox"]').forEach(input => {
+                const index = Number(input.dataset.index);
+                if (previewRows[index]) previewRows[index].selected = input.checked;
+            });
+            const rows = previewRows.filter(row => row.selected);
+            if (!rows.length) {
+                Swal.fire({ icon: 'warning', title: 'ไม่มีรายการที่เลือก', confirmButtonColor: '#8b5cf6' });
+                return;
+            }
+            const selectedCounts = getSelectedGenderCounts();
+            const overflowGender = getPeriod2QuotaOverflow(selectedCounts);
+            if (overflowGender) {
+                const quota = getPeriod2QuotaItem(overflowGender);
+                Swal.fire({
+                    icon: 'warning',
+                    title: `ยอดจัดสรรห้วงที่ 2 ${overflowGender} เกินกำหนด`,
+                    text: `กำหนดไว้ไม่เกิน ${quota.limit} คน ตอนนี้บันทึกแล้ว ${quota.saved} คน`,
+                    confirmButtonColor: '#8b5cf6'
+                });
+                return;
+            }
+
+            Swal.fire({
+                icon: 'question',
+                title: 'บันทึกรอบเพิ่มเติม?',
+                text: `ระบบจะบันทึก ${rows.length} รายการลงชีท ${currentOutputSheetName}`,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#10b981'
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                showLoading();
+                google.script.run
+                    .withSuccessHandler((res) => {
+                        hideLoading();
+                        if (!res.success) return handleError(new Error(res.message));
+                        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', text: res.message, confirmButtonColor: '#10b981' });
+                        loadPreview();
+                    })
+                    .withFailureHandler(handleError)
+                    .saveExtraSelection(sessionToken, {
+                        round: $('roundSelect').value,
+                        rows,
+                        sortBy: $('sortSelect').value,
+                        splitGender: false
+                    });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            $('loginForm').addEventListener('submit', login);
+            $('logoutButton').addEventListener('click', logout);
+            $('roundSelect').addEventListener('change', clearPreview);
+            $('provinceSelect').addEventListener('change', refreshSchools);
+            $('previewButton').addEventListener('click', loadPreview);
+            $('saveButton').addEventListener('click', savePreview);
+            $('previewBody').addEventListener('change', updateSelectedSummary);
+            loadRememberedLogin();
+            checkSession();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>รายชื่อผู้ผ่านการคัดเลือก</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+    /* ==================== CUSTOM FONTS ==================== */
+    .font-prompt {
+        font-family: 'Prompt', sans-serif;
+    }
+
+    /* ==================== GLASS MORPHISM ==================== */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-nav {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ==================== LOADING SPINNER ==================== */
+    .spinner {
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-panel {
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ==================== DATA TABLE ==================== */
+    .data-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        contain: layout paint;
+    }
+
+    #quotaDataTable *,
+    #nstDataTable *,
+    #failedDataTable * {
+        transition: none !important;
+        filter: none !important;
+    }
+
+    .data-table thead th {
+        background: rgba(30, 58, 138, 0.4);
+        color: #bfdbfe;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+
+    /* ... */
+    .data-table tbody td {
+        padding: 12px 16px;
+        color: #cbd5e1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(30, 58, 138, 0.2);
+    }
+
+    /* ==================== DASHBOARD PERFORMANCE MODE ==================== */
+    #adminDashboard,
+    #adminDashboard * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    #adminDashboard .glass-card,
+    #adminDashboard .modal-content,
+    #adminDashboard .modal-overlay,
+    #mainApp .glass-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+    }
+
+    #adminDashboard .glass-card {
+        background: rgba(30, 41, 59, 0.96) !important;
+    }
+
+    #mainApp .glass-nav {
+        background: #0f172a !important;
+    }
+
+    #adminDashboard .shadow-sm,
+    #adminDashboard .shadow,
+    #adminDashboard .shadow-lg,
+    #adminDashboard .shadow-xl,
+    #adminDashboard .shadow-2xl,
+    #adminDashboard [class*="shadow-"] {
+        box-shadow: none !important;
+    }
+
+    #adminDashboard [class*="bg-gradient"],
+    #adminDashboard [class*="from-"],
+    #adminDashboard [class*="to-"],
+    #adminDashboard [class*="via-"] {
+        background-image: none !important;
+    }
+
+    #adminDashboard .fa-spin,
+    #adminDashboard .spinner,
+    #mainApp .fa-spin,
+    #mainApp .spinner {
+        animation: spin 1s linear infinite !important;
+    }
+
+    #quotaDataTable,
+    #nstDataTable,
+    #failedDataTable {
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    #quotaDataTable tbody tr:hover,
+    #nstDataTable tbody tr:hover,
+    #failedDataTable tbody tr:hover {
+        background: inherit !important;
+    }
+
+    #mainApp,
+    #mainApp * {
+        text-shadow: none !important;
+        filter: none !important;
+    }
+
+    #mainApp .glass-card,
+    #mainApp .modal-content,
+    #mainApp .modal-overlay,
+    #mainApp [class*="backdrop-blur"],
+    #mainApp [class*="drop-shadow"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        filter: none !important;
+    }
+
+    #mainApp button,
+    #mainApp input,
+    #mainApp select,
+    #mainApp textarea,
+    #mainApp .badge {
+        transition: none !important;
+        box-shadow: none !important;
+    }
+
+    #mainApp [class*="hover:"],
+    #mainApp [class*="focus:"],
+    #mainApp [class*="active:"],
+    #mainApp [class*="peer-checked:"],
+    #mainApp [class*="group-hover:"] {
+        transition: none !important;
+    }
+
+    .data-table tbody tr:last-child td:first-child {
+        border-radius: 0 0 0 12px;
+    }
+
+    .data-table tbody tr:last-child td:last-child {
+        border-radius: 0 0 12px 0;
+    }
+
+    /* ==================== STATUS BADGES ==================== */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-pass {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-fail {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* ==================== TAB BUTTONS ==================== */
+    .tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* ==================== ACTION BUTTONS ==================== */
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 1rem;
+    }
+
+    .modal-content {
+        animation: modalIn 0.3s ease-out;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* ==================== PAGE TRANSITIONS ==================== */
+    .page {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .dashboard-page {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+
+    /* ==================== ROLE BADGES ==================== */
+    .role-admin {
+        color: #f472b6;
+    }
+
+    .role-body_measurement {
+        color: #60a5fa;
+    }
+
+    .role-medical_check {
+        color: #4ade80;
+    }
+
+    .role-running {
+        color: #facc15;
+    }
+
+    .role-push_up {
+        color: #f87171;
+    }
+
+    .role-sit_up {
+        color: #facc15;
+    }
+
+    .role-data_review {
+        color: #38bdf8;
+    }
+
+    .role-Add_application {
+        color: #34d399;
+    }
+
+    .role-data_processing {
+        color: #34d399;
+    }
+
+    .role-uniform {
+        color: #f59e0b;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+        .data-table {
+            font-size: 0.875rem;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 8px 12px;
+        }
+    }
+</style>
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .table-wrap {
+            scrollbar-color: rgba(148, 163, 184, 0.5) rgba(15, 23, 42, 0.9);
+        }
+    </style>
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+    <main class="min-h-screen px-4 py-8 sm:py-10">
+        <section class="mx-auto w-full max-w-5xl">
+            <header class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-emerald-300">ระบบคัดเลือกนักศึกษาวิชาทหาร</p>
+                    <h1 class="mt-1 text-3xl font-extrabold leading-tight text-white sm:text-4xl">รายชื่อผู้ผ่านการคัดเลือก</h1>
+                </div>
+                <div class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-200">
+                    <i class="fas fa-shield-halved mr-2"></i>แสดงเฉพาะรหัส ชื่อ และโรงเรียน
+                </div>
+            </header>
+
+            <section class="glass-card rounded-2xl border border-white/10 p-4 shadow-2xl sm:p-6">
+                <form id="schoolForm" class="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                    <div>
+                        <label for="dateSelect" class="mb-2 block text-sm font-semibold text-slate-300">เลือกวันที่รับสมัคร</label>
+                        <select id="dateSelect"
+                            class="w-full rounded-xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="">เลือกวันที่รับสมัคร</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="schoolSelect" class="mb-2 block text-sm font-semibold text-slate-300">เลือกโรงเรียน</label>
+                        <select id="schoolSelect"
+                            class="w-full rounded-xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="">เลือกวันที่ก่อน</option>
+                        </select>
+                    </div>
+                    <button id="loadButton" type="submit"
+                        class="inline-flex h-[50px] items-center justify-center rounded-xl bg-emerald-600 px-6 font-bold text-white shadow-lg shadow-emerald-950/40 transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60">
+                        <i class="fas fa-list-check mr-2"></i>แสดงรายชื่อ
+                    </button>
+                </form>
+
+                <div id="message" class="mt-4 text-sm text-slate-400" aria-live="polite"></div>
+            </section>
+
+            <section id="resultSection" class="mt-6 hidden">
+                <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-emerald-300">โรงเรียน</p>
+                        <h2 id="schoolTitle" class="text-2xl font-extrabold text-white"></h2>
+                    </div>
+                    <p id="totalText" class="text-sm font-semibold text-slate-300"></p>
+                </div>
+
+                <div class="table-wrap overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/70 shadow-2xl">
+                    <table class="data-table w-full min-w-[680px]">
+                        <thead>
+                            <tr>
+                                <th class="w-16 text-center">ลำดับ</th>
+                                <th>รหัส</th>
+                                <th>ชื่อ</th>
+                                <th>โรงเรียน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const schoolForm = document.getElementById('schoolForm');
+        const dateSelect = document.getElementById('dateSelect');
+        const schoolSelect = document.getElementById('schoolSelect');
+        const loadButton = document.getElementById('loadButton');
+        const message = document.getElementById('message');
+        const resultSection = document.getElementById('resultSection');
+        const schoolTitle = document.getElementById('schoolTitle');
+        const totalText = document.getElementById('totalText');
+        const studentTableBody = document.getElementById('studentTableBody');
+        const CONGRAT_LAST_DATE_KEY = 'nst_congrat_last_date';
+        const CONGRAT_LAST_SCHOOL_KEY = 'nst_congrat_last_school';
+        const CONGRAT_LOAD_TIMEOUT_MS = 25000;
+        let congratSchoolRequestId = 0;
+
+        const RECRUITMENT_DATES = [
+            { date: '2569-05-19', label: '19 พ.ค. 69', location: 'โรงเรียนบ้านนา "นายกพิทยากร"' },
+            { date: '2569-05-20', label: '20 พ.ค. 69', location: 'โรงเรียนนครนายกวิทยาคม' },
+            { date: '2569-05-21', label: '21 พ.ค. 69', location: 'โรงเรียนนครนายกวิทยาคม' },
+            { date: '2569-05-22', label: '22 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-25', label: '25 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-26', label: '26 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-27', label: '27 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-28', label: '28 พ.ค. 69', location: 'สนามกีฬาจังหวัดฉะเชิงเทรา' },
+            { date: '2569-05-29', label: '29 พ.ค. 69', location: 'โรงเรียนเบญจมราชรังสฤษฏิ์' },
+            { date: '2569-06-04', label: '4 มิ.ย. 69', location: 'โรงเรียนกาญจนาวิทยาลัย ฉะเชิงเทรา' },
+            { date: '2569-06-05', label: '5 มิ.ย. 69', location: 'โรงเรียนกบินทร์วิทยา' },
+            { date: '2569-06-08', label: '8 มิ.ย. 69', location: 'โรงเรียนวัดใหม่กรงทอง ในพระราชูปถัมภ์' },
+            { date: '2569-06-09', label: '9 มิ.ย. 69', location: 'วิทยาลัยการอาชีพปราจีนบุรี' },
+            { date: '2569-06-10', label: '10 มิ.ย. 69', location: 'วิทยาลัยการอาชีพปราจีนบุรี' },
+            { date: '2569-06-11', label: '11 มิ.ย. 69', location: 'วิทยาลัยการอาชีพปราจีนบุรี' }
+        ];
+
+        function setMessage(text, tone = 'muted') {
+            const colors = {
+                muted: 'text-slate-400',
+                error: 'text-red-300',
+                success: 'text-emerald-300'
+            };
+            message.className = `mt-4 text-sm font-semibold ${colors[tone] || colors.muted}`;
+            message.textContent = text || '';
+        }
+
+        function setLoading(isLoading) {
+            loadButton.disabled = isLoading;
+            loadButton.innerHTML = isLoading
+                ? '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังโหลด'
+                : '<i class="fas fa-list-check mr-2"></i>แสดงรายชื่อ';
+        }
+
+        function clearSelect(label) {
+            schoolSelect.replaceChildren(new Option(label, ''));
+        }
+
+        function populateDates() {
+            dateSelect.replaceChildren(new Option('เลือกวันที่รับสมัคร', ''));
+            RECRUITMENT_DATES.forEach(item => {
+                dateSelect.add(new Option(`${item.label} - ${item.location}`, item.date));
+            });
+        }
+
+        function renderSchools(schools) {
+            clearSelect('เลือกโรงเรียน');
+            const savedSchool = localStorage.getItem(CONGRAT_LAST_SCHOOL_KEY) || '';
+
+            schools.forEach(item => {
+                const option = new Option(`${item.school} (${item.count} คน)`, item.school);
+                schoolSelect.add(option);
+            });
+
+            if (savedSchool && schools.some(item => item.school === savedSchool)) {
+                schoolSelect.value = savedSchool;
+            }
+
+            schoolSelect.disabled = schools.length === 0;
+            loadButton.disabled = schools.length === 0;
+            setMessage(schools.length ? `พบรายชื่อผู้ผ่านทั้งหมด ${schools.reduce((sum, item) => sum + Number(item.count || 0), 0)} คน` : 'ยังไม่มีรายชื่อผู้ผ่านการคัดเลือก', schools.length ? 'success' : 'muted');
+        }
+
+        function addCell(row, text, className) {
+            const cell = document.createElement('td');
+            cell.textContent = text || '-';
+            if (className) cell.className = className;
+            row.appendChild(cell);
+        }
+
+        function renderStudents(result) {
+            studentTableBody.replaceChildren();
+
+            result.students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                addCell(row, String(index + 1), 'text-center text-slate-400');
+                addCell(row, student.appId);
+                addCell(row, student.name, 'font-semibold text-white');
+                addCell(row, student.school);
+                studentTableBody.appendChild(row);
+            });
+
+            schoolTitle.textContent = result.school || '-';
+            totalText.textContent = `จำนวน ${result.count || 0} คน`;
+            resultSection.classList.remove('hidden');
+            setMessage('โหลดรายชื่อเรียบร้อย', 'success');
+        }
+
+        function loadSchools() {
+            const selectedDate = dateSelect.value;
+            const requestId = ++congratSchoolRequestId;
+            resultSection.classList.add('hidden');
+            if (!selectedDate) {
+                clearSelect('เลือกวันที่ก่อน');
+                schoolSelect.disabled = true;
+                loadButton.disabled = true;
+                setMessage('กรุณาเลือกวันที่รับสมัครก่อน');
+                return;
+            }
+
+            localStorage.setItem(CONGRAT_LAST_DATE_KEY, selectedDate);
+            clearSelect('กำลังโหลดรายชื่อโรงเรียน...');
+            schoolSelect.disabled = true;
+            loadButton.disabled = true;
+            setMessage('กำลังโหลดรายชื่อโรงเรียน...');
+            const timeoutId = setTimeout(() => {
+                if (requestId !== congratSchoolRequestId) return;
+                clearSelect('โหลดรายชื่อโรงเรียนไม่สำเร็จ');
+                schoolSelect.disabled = true;
+                loadButton.disabled = false;
+                setMessage('โหลดรายชื่อโรงเรียนช้าเกินไป กดปุ่มอีกครั้งเพื่อโหลดใหม่', 'error');
+            }, CONGRAT_LOAD_TIMEOUT_MS);
+
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (requestId !== congratSchoolRequestId) return;
+                    clearTimeout(timeoutId);
+                    if (result && result.success) {
+                        renderSchools(result.schools || []);
+                    } else {
+                        clearSelect('โหลดรายชื่อโรงเรียนไม่สำเร็จ');
+                        setMessage(result && result.message ? result.message : 'ไม่สามารถโหลดรายชื่อโรงเรียนได้', 'error');
+                    }
+                })
+                .withFailureHandler((error) => {
+                    if (requestId !== congratSchoolRequestId) return;
+                    clearTimeout(timeoutId);
+                    clearSelect('โหลดรายชื่อโรงเรียนไม่สำเร็จ');
+                    setMessage(error && error.message ? error.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+                })
+                .getPublicCongratSchools(selectedDate);
+        }
+
+        dateSelect.addEventListener('change', loadSchools);
+        schoolSelect.addEventListener('change', () => {
+            if (schoolSelect.value) {
+                localStorage.setItem(CONGRAT_LAST_SCHOOL_KEY, schoolSelect.value);
+            }
+        });
+
+        schoolForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const selectedDate = dateSelect.value;
+            const school = schoolSelect.value;
+            resultSection.classList.add('hidden');
+
+            if (!selectedDate) {
+                setMessage('กรุณาเลือกวันที่รับสมัคร', 'error');
+                dateSelect.focus();
+                return;
+            }
+
+            if (!school) {
+                if (selectedDate && schoolSelect.options.length <= 1) {
+                    loadSchools();
+                    return;
+                }
+                setMessage('กรุณาเลือกโรงเรียน', 'error');
+                schoolSelect.focus();
+                return;
+            }
+
+            localStorage.setItem(CONGRAT_LAST_DATE_KEY, selectedDate);
+            localStorage.setItem(CONGRAT_LAST_SCHOOL_KEY, school);
+            setLoading(true);
+            setMessage('กำลังโหลดรายชื่อผู้ผ่าน...');
+
+            google.script.run
+                .withSuccessHandler((result) => {
+                    setLoading(false);
+                    if (result && result.success) {
+                        renderStudents(result);
+                    } else {
+                        setMessage(result && result.message ? result.message : 'ไม่สามารถโหลดรายชื่อได้', 'error');
+                    }
+                })
+                .withFailureHandler((error) => {
+                    setLoading(false);
+                    setMessage(error && error.message ? error.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+                })
+                .getPublicCongratStudentsBySchool(school, selectedDate);
+        });
+
+        populateDates();
+        const savedDate = localStorage.getItem(CONGRAT_LAST_DATE_KEY);
+        if (savedDate && RECRUITMENT_DATES.some(item => item.date === savedDate)) {
+            dateSelect.value = savedDate;
+        }
+        loadSchools();
+    </script>
+</body>
+
+</html>
