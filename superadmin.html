@@ -85,9 +85,7 @@
 
             <div class="panel rounded-2xl p-2 mb-5 grid grid-cols-2 md:grid-cols-5 xl:grid-cols-10 gap-2">
                 <button class="btn btn-soft tab tab-active" data-tab="users"><i class="fas fa-users-gear"></i>ผู้ใช้</button>
-                <button class="btn btn-soft tab" data-tab="quotas"><i class="fas fa-table-list"></i>ยอดจัดสรร</button>
-                <button class="btn btn-soft tab" data-tab="schools"><i class="fas fa-school"></i>สถานศึกษา</button>
-                <button class="btn btn-soft tab" data-tab="schedules"><i class="fas fa-calendar-days"></i>วันรับสมัคร</button>
+                <button class="btn btn-soft tab" data-tab="schools"><i class="fas fa-school"></i>สถานศึกษา/ยอดจัดสรร</button>
                 <button class="btn btn-soft tab" data-tab="actualExams"><i class="fas fa-calendar-check"></i>วันสอบจริง</button>
                 <button class="btn btn-soft tab" data-tab="body"><i class="fas fa-weight-scale"></i>เกณฑ์ร่างกาย</button>
                 <button class="btn btn-soft tab" data-tab="physical"><i class="fas fa-person-running"></i>เกณฑ์สถานี</button>
@@ -148,31 +146,15 @@
             <section id="schoolsTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
                 <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-xl font-bold text-white">สถานศึกษา</h2>
-                        <p class="text-sm text-slate-400">จัดการรหัสสถานศึกษา ชื่อโรงเรียน จังหวัด และสถานะใช้งาน</p>
+                        <h2 class="text-xl font-bold text-white">สถานศึกษาและยอดจัดสรร</h2>
+                        <p class="text-sm text-slate-400">จัดการโรงเรียน ยอดจัดสรร และกำหนดวันรับสมัครในหน้าเดียว</p>
                     </div>
-                    <button class="btn btn-primary" onclick="openCatalogModal('schools')"><i class="fas fa-plus"></i>เพิ่มสถานศึกษา</button>
+                    <button class="btn btn-primary" onclick="openCatalogModal('schools')"><i class="fas fa-plus"></i>เพิ่มสถานศึกษา/ยอดจัดสรร</button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[860px]">
-                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">รหัส</th><th class="px-4 py-3">โรงเรียน</th><th class="px-4 py-3">จังหวัด</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                    <table class="w-full min-w-[1280px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">รหัส</th><th class="px-4 py-3">โรงเรียน</th><th class="px-4 py-3">จังหวัด</th><th class="px-4 py-3 text-center">ชาย</th><th class="px-4 py-3 text-center">หญิง</th><th class="px-4 py-3 text-center">รวม</th><th class="px-4 py-3">วันที่รับสมัคร</th><th class="px-4 py-3">ป้ายวันที่</th><th class="px-4 py-3">สถานที่</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
                         <tbody id="schoolsBody"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="schedulesTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
-                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                    <div>
-                        <h2 class="text-xl font-bold text-white">กำหนดวันรับสมัคร</h2>
-                        <p class="text-sm text-slate-400">กำหนดวันที่ ป้ายวันที่ สถานที่ และรหัสสถานศึกษาที่เข้าสมัครในวันนั้น</p>
-                    </div>
-                    <button class="btn btn-primary" onclick="openCatalogModal('schedules')"><i class="fas fa-plus"></i>เพิ่มวันรับสมัคร</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[980px]">
-                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">วันที่รับสมัคร</th><th class="px-4 py-3">ป้ายวันที่</th><th class="px-4 py-3">สถานที่</th><th class="px-4 py-3">รหัสสถานศึกษา</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
-                        <tbody id="schedulesBody"></tbody>
                     </table>
                 </div>
             </section>
@@ -500,24 +482,26 @@
                 </tr>`;
             }).join('');
 
-            $('schoolsBody').innerHTML = state.schools.map(row => `
+            $('schoolsBody').innerHTML = state.schools.map(row => {
+                const quota = quotaForSchool(row);
+                const schedule = scheduleForSchool(row);
+                const male = Number(quota?.['ยอดจัดสรรชาย'] || 0) || 0;
+                const female = Number(quota?.['ยอดจัดสรรหญิง'] || 0) || 0;
+                return `
                 <tr>
                     <td class="px-4 font-bold text-sky-200">${escapeHtml(row['รหัสสถานศึกษา'])}</td>
                     <td class="px-4 font-bold text-white">${escapeHtml(row['โรงเรียน'])}</td>
                     <td class="px-4">${escapeHtml(row['จังหวัด'])}</td>
+                    <td class="px-4 text-center">${male}</td>
+                    <td class="px-4 text-center">${female}</td>
+                    <td class="px-4 text-center font-bold text-emerald-200">${male + female}</td>
+                    <td class="px-4 font-bold text-white">${escapeHtml(schedule?.['วันที่รับสมัคร'] || '-')}</td>
+                    <td class="px-4">${escapeHtml(schedule?.['ป้ายวันที่'] || '-')}</td>
+                    <td class="px-4">${escapeHtml(schedule?.['สถานที่'] || '-')}</td>
                     <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
                     <td class="px-4">${catalogActions('schools', row)}</td>
-                </tr>`).join('');
-
-            $('schedulesBody').innerHTML = state.schedules.map(row => `
-                <tr>
-                    <td class="px-4 font-bold text-white">${escapeHtml(row['วันที่รับสมัคร'])}</td>
-                    <td class="px-4">${escapeHtml(row['ป้ายวันที่'])}</td>
-                    <td class="px-4">${escapeHtml(row['สถานที่'])}</td>
-                    <td class="px-4 font-bold text-sky-200">${escapeHtml(row['รหัสสถานศึกษา'])}</td>
-                    <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
-                    <td class="px-4">${catalogActions('schedules', row)}</td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
 
             $('actualExamsBody').innerHTML = state.actualExamDates.map(row => `
                 <tr>
@@ -578,6 +562,19 @@
                 <button class="btn btn-danger !px-3 !py-2" onclick="removeCatalog('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-trash"></i></button>
             </div>`;
         }
+        function quotaForSchool(schoolRow) {
+            const code = String(schoolRow?.['รหัสสถานศึกษา'] || '').trim();
+            const school = String(schoolRow?.['โรงเรียน'] || '').trim();
+            return state.quotas.find(row => {
+                const quotaCode = String(row['รหัสสถานศึกษา'] || '').trim();
+                const quotaSchool = String(row['โรงเรียน'] || '').trim();
+                return (code && quotaCode === code) || (school && quotaSchool === school);
+            }) || null;
+        }
+        function scheduleForSchool(schoolRow) {
+            const code = String(schoolRow?.['รหัสสถานศึกษา'] || '').trim();
+            return state.schedules.find(row => String(row['รหัสสถานศึกษา'] || '').trim() === code) || null;
+        }
         function renderAuditLogs() {
             $('auditBody').innerHTML = (state.auditLogs || []).map(row => `
                 <tr>
@@ -631,11 +628,20 @@
             $('catalogRowId').value = row?._rowId || '';
             const isEdit = Boolean(row);
             if (group === 'schools') {
-                $('catalogTitle').textContent = isEdit ? 'แก้ไขสถานศึกษา' : 'เพิ่มสถานศึกษา';
+                const quota = quotaForSchool(row);
+                const schedule = scheduleForSchool(row);
+                $('catalogTitle').textContent = isEdit ? 'แก้ไขสถานศึกษา/ยอดจัดสรร' : 'เพิ่มสถานศึกษา/ยอดจัดสรร';
                 $('catalogFields').innerHTML =
+                    `<input id="catalogQuotaRowId" type="hidden" value="${escapeHtml(quota?._rowId || '')}">` +
+                    `<input id="catalogScheduleRowId" type="hidden" value="${escapeHtml(schedule?._rowId || '')}">` +
                     fieldInput('catalogSchoolCode', 'รหัสสถานศึกษา', row?.['รหัสสถานศึกษา'] || '') +
                     fieldInput('catalogSchool', 'โรงเรียน', row?.['โรงเรียน'] || '') +
                     fieldInput('catalogProvince', 'จังหวัด', row?.['จังหวัด'] || '') +
+                    fieldInput('catalogQuotaMale', 'ยอดจัดสรรชาย', quota?.['ยอดจัดสรรชาย'] || '0', 'number') +
+                    fieldInput('catalogQuotaFemale', 'ยอดจัดสรรหญิง', quota?.['ยอดจัดสรรหญิง'] || '0', 'number') +
+                    fieldInput('catalogDate', 'วันที่รับสมัคร', schedule?.['วันที่รับสมัคร'] || '') +
+                    fieldInput('catalogLabel', 'ป้ายวันที่', schedule?.['ป้ายวันที่'] || '') +
+                    fieldInput('catalogLocation', 'สถานที่รับสมัคร', schedule?.['สถานที่'] || '') +
                     selectInput('catalogActive', 'สถานะใช้งาน', row?.['สถานะใช้งาน'] || 'TRUE', ['TRUE', 'FALSE']);
             } else if (group === 'schedules') {
                 $('catalogTitle').textContent = isEdit ? 'แก้ไขกำหนดวันรับสมัคร' : 'เพิ่มกำหนดวันรับสมัคร';
@@ -779,9 +785,26 @@
             const group = $('catalogGroup').value;
             let action = '';
             let payload = { _rowId: $('catalogRowId').value };
+            let quotaPayload = null;
+            let schedulePayload = null;
             if (group === 'schools') {
                 action = 'saveSchoolRow';
                 payload = { ...payload, schoolCode: $('catalogSchoolCode').value.trim(), school: $('catalogSchool').value.trim(), province: $('catalogProvince').value.trim(), active: $('catalogActive').value };
+                quotaPayload = {
+                    _rowId: $('catalogQuotaRowId')?.value || '',
+                    schoolCode: $('catalogSchoolCode').value.trim(),
+                    school: $('catalogSchool').value.trim(),
+                    male: $('catalogQuotaMale').value,
+                    female: $('catalogQuotaFemale').value
+                };
+                schedulePayload = {
+                    _rowId: $('catalogScheduleRowId')?.value || '',
+                    date: $('catalogDate').value.trim(),
+                    label: $('catalogLabel').value.trim(),
+                    location: $('catalogLocation').value.trim(),
+                    schoolCode: $('catalogSchoolCode').value.trim(),
+                    active: $('catalogActive').value
+                };
             } else if (group === 'schedules') {
                 action = 'saveScheduleRow';
                 payload = { ...payload, date: $('catalogDate').value.trim(), label: $('catalogLabel').value.trim(), location: $('catalogLocation').value.trim(), schoolCode: $('catalogSchoolCode').value.trim(), active: $('catalogActive').value };
@@ -793,6 +816,14 @@
             try {
                 const result = await api(action, [token(), payload]);
                 if (!result.success) throw new Error(result.message);
+                if (quotaPayload) {
+                    const quotaResult = await api('saveQuotaRow', [token(), quotaPayload]);
+                    if (!quotaResult.success) throw new Error(quotaResult.message);
+                }
+                if (schedulePayload && schedulePayload.date) {
+                    const scheduleResult = await api('saveScheduleRow', [token(), schedulePayload]);
+                    if (!scheduleResult.success) throw new Error(scheduleResult.message);
+                }
                 closeModal('catalogModal');
                 await loadAll();
                 Swal.fire({ icon: 'success', title: 'สำเร็จ', text: result.message, timer: 1300, showConfirmButton: false });
@@ -871,8 +902,23 @@
             if (!confirm.isConfirmed) return;
             showLoading();
             try {
+                let linkedQuota = null;
+                let linkedSchedule = null;
+                if (group === 'schools') {
+                    const schoolRow = state.schools.find(row => row._rowId === rowId);
+                    linkedQuota = quotaForSchool(schoolRow);
+                    linkedSchedule = scheduleForSchool(schoolRow);
+                }
                 const result = await api(actionMap[group], [token(), rowId]);
                 if (!result.success) throw new Error(result.message);
+                if (linkedQuota?._rowId) {
+                    const quotaResult = await api('deleteQuotaRow', [token(), linkedQuota._rowId]);
+                    if (!quotaResult.success) throw new Error(quotaResult.message);
+                }
+                if (linkedSchedule?._rowId) {
+                    const scheduleResult = await api('deleteScheduleRow', [token(), linkedSchedule._rowId]);
+                    if (!scheduleResult.success) throw new Error(scheduleResult.message);
+                }
                 await loadAll();
                 Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
             } catch (error) {
