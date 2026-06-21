@@ -83,12 +83,17 @@
                 </div>
             </header>
 
-            <div class="panel rounded-2xl p-2 mb-5 grid grid-cols-2 md:grid-cols-5 gap-2">
+            <div class="panel rounded-2xl p-2 mb-5 grid grid-cols-2 md:grid-cols-5 xl:grid-cols-10 gap-2">
                 <button class="btn btn-soft tab tab-active" data-tab="users"><i class="fas fa-users-gear"></i>ผู้ใช้</button>
                 <button class="btn btn-soft tab" data-tab="quotas"><i class="fas fa-table-list"></i>ยอดจัดสรร</button>
+                <button class="btn btn-soft tab" data-tab="schools"><i class="fas fa-school"></i>สถานศึกษา</button>
+                <button class="btn btn-soft tab" data-tab="schedules"><i class="fas fa-calendar-days"></i>วันรับสมัคร</button>
+                <button class="btn btn-soft tab" data-tab="actualExams"><i class="fas fa-calendar-check"></i>วันสอบจริง</button>
                 <button class="btn btn-soft tab" data-tab="body"><i class="fas fa-weight-scale"></i>เกณฑ์ร่างกาย</button>
                 <button class="btn btn-soft tab" data-tab="physical"><i class="fas fa-person-running"></i>เกณฑ์สถานี</button>
                 <button class="btn btn-soft tab" data-tab="settings"><i class="fas fa-sliders"></i>ตั้งค่าทดสอบ</button>
+                <button class="btn btn-soft tab" data-tab="export"><i class="fas fa-download"></i>สำรอง</button>
+                <button class="btn btn-soft tab" data-tab="audit"><i class="fas fa-clock-rotate-left"></i>ประวัติ</button>
             </div>
 
             <section id="usersTab" class="tab-page panel rounded-2xl overflow-hidden">
@@ -140,6 +145,54 @@
                 </div>
             </section>
 
+            <section id="schoolsTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">สถานศึกษา</h2>
+                        <p class="text-sm text-slate-400">จัดการรหัสสถานศึกษา ชื่อโรงเรียน จังหวัด และสถานะใช้งาน</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCatalogModal('schools')"><i class="fas fa-plus"></i>เพิ่มสถานศึกษา</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[860px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">รหัส</th><th class="px-4 py-3">โรงเรียน</th><th class="px-4 py-3">จังหวัด</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                        <tbody id="schoolsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="schedulesTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">กำหนดวันรับสมัคร</h2>
+                        <p class="text-sm text-slate-400">กำหนดวันที่ ป้ายวันที่ สถานที่ และรหัสสถานศึกษาที่เข้าสมัครในวันนั้น</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCatalogModal('schedules')"><i class="fas fa-plus"></i>เพิ่มวันรับสมัคร</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[980px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">วันที่รับสมัคร</th><th class="px-4 py-3">ป้ายวันที่</th><th class="px-4 py-3">สถานที่</th><th class="px-4 py-3">รหัสสถานศึกษา</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                        <tbody id="schedulesBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="actualExamsTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">วันเข้าสอบจริง</h2>
+                        <p class="text-sm text-slate-400">บันทึกผู้สมัครที่มีวัน/สถานที่เข้าสอบจริงต่างจากกำหนดหลัก</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCatalogModal('actualExams')"><i class="fas fa-plus"></i>เพิ่มวันสอบจริง</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[1040px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">รหัสใบสมัคร</th><th class="px-4 py-3">วันที่เข้าสอบจริง</th><th class="px-4 py-3">สถานที่</th><th class="px-4 py-3">ประเภท</th><th class="px-4 py-3">หมายเหตุ</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
+                        <tbody id="actualExamsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <section id="bodyTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
                 <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div>
@@ -184,6 +237,37 @@
                     <table class="w-full min-w-[680px]">
                         <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">รายการ</th><th class="px-4 py-3">ค่า</th><th class="px-4 py-3 text-right">จัดการ</th></tr></thead>
                         <tbody id="settingsCriteriaBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="exportTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5">
+                    <h2 class="text-xl font-bold text-white">สำรอง / Export ตารางสำคัญ</h2>
+                    <p class="text-sm text-slate-400 mt-1">ส่งออกข้อมูลตั้งค่าที่ควรสำรองก่อนแก้ไขใหญ่ หรือก่อนเริ่มรอบรับสมัครใหม่</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-5">
+                        <button class="btn btn-green" onclick="downloadBackupJson()"><i class="fas fa-file-code"></i>สำรองทั้งหมด JSON</button>
+                        <button class="btn btn-soft" onclick="downloadTableCsv('quotas')"><i class="fas fa-file-csv"></i>Export ยอดจัดสรร</button>
+                        <button class="btn btn-soft" onclick="downloadTableCsv('schools')"><i class="fas fa-file-csv"></i>Export สถานศึกษา</button>
+                        <button class="btn btn-soft" onclick="downloadTableCsv('schedules')"><i class="fas fa-file-csv"></i>Export วันรับสมัคร</button>
+                        <button class="btn btn-soft" onclick="downloadTableCsv('actualExamDates')"><i class="fas fa-file-csv"></i>Export วันสอบจริง</button>
+                        <button class="btn btn-soft" onclick="downloadTableCsv('users')"><i class="fas fa-file-csv"></i>Export ผู้ใช้</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="auditTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">ประวัติการแก้ไข</h2>
+                        <p class="text-sm text-slate-400">เก็บว่า admin คนไหนทำอะไร เวลาใด ในตารางสำคัญ</p>
+                    </div>
+                    <button class="btn btn-soft" onclick="refreshAuditLogs()"><i class="fas fa-rotate"></i>รีเฟรช</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[960px]">
+                        <thead><tr class="bg-slate-900/80"><th class="px-4 py-3">เวลา</th><th class="px-4 py-3">ผู้แก้ไข</th><th class="px-4 py-3">Action</th><th class="px-4 py-3">ตาราง</th><th class="px-4 py-3">รายละเอียด</th></tr></thead>
+                        <tbody id="auditBody"></tbody>
                     </table>
                 </div>
             </section>
@@ -261,6 +345,19 @@
         </form>
     </div>
 
+    <div id="catalogModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm p-4 items-center justify-center">
+        <form id="catalogForm" class="panel w-full max-w-2xl rounded-2xl p-6 shadow-2xl">
+            <input id="catalogGroup" type="hidden">
+            <input id="catalogRowId" type="hidden">
+            <h3 id="catalogTitle" class="text-xl font-bold text-white mb-5">เพิ่มข้อมูล</h3>
+            <div id="catalogFields" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" class="btn btn-soft" onclick="closeModal('catalogModal')">ยกเลิก</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i>บันทึก</button>
+            </div>
+        </form>
+    </div>
+
     <div id="criteriaModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm p-4 items-center justify-center">
         <form id="criteriaForm" class="panel w-full max-w-2xl rounded-2xl p-6 shadow-2xl">
             <input id="criteriaGroup" type="hidden">
@@ -276,7 +373,16 @@
 
     <script>
         const API_URL = window.NST_API_URL || '/api';
-        const state = { users: [], quotas: [], criteria: { body: [], physical: [], settings: [] }, currentUser: null };
+        const state = {
+            users: [],
+            quotas: [],
+            schools: [],
+            schedules: [],
+            actualExamDates: [],
+            auditLogs: [],
+            criteria: { body: [], physical: [], settings: [] },
+            currentUser: null
+        };
         const roleNames = {
             admin: 'ผู้ดูแลระบบ',
             body_measurement: 'สถานีวัดร่างกาย',
@@ -346,6 +452,10 @@
                 if (!result.success) throw new Error(result.message);
                 state.users = result.users || [];
                 state.quotas = result.quotas || [];
+                state.schools = result.schools || [];
+                state.schedules = result.schedules || [];
+                state.actualExamDates = result.actualExamDates || [];
+                state.auditLogs = result.auditLogs || [];
                 state.criteria = result.criteria || { body: [], physical: [], settings: [] };
                 renderAll();
             } catch (error) {
@@ -365,6 +475,7 @@
                     <td class="px-4">
                         <div class="flex justify-end gap-2">
                             <button class="btn btn-soft !px-3 !py-2" onclick="openUserModal('${escapeHtml(user.username)}')" title="แก้ไข"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-green !px-3 !py-2" onclick="resetPassword('${escapeHtml(user.username)}')" title="Reset รหัสผ่าน"><i class="fas fa-key"></i></button>
                             <button class="btn btn-danger !px-3 !py-2" onclick="removeUser('${escapeHtml(user.username)}')" title="ลบ"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
@@ -388,6 +499,36 @@
                     </td>
                 </tr>`;
             }).join('');
+
+            $('schoolsBody').innerHTML = state.schools.map(row => `
+                <tr>
+                    <td class="px-4 font-bold text-sky-200">${escapeHtml(row['รหัสสถานศึกษา'])}</td>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['โรงเรียน'])}</td>
+                    <td class="px-4">${escapeHtml(row['จังหวัด'])}</td>
+                    <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
+                    <td class="px-4">${catalogActions('schools', row)}</td>
+                </tr>`).join('');
+
+            $('schedulesBody').innerHTML = state.schedules.map(row => `
+                <tr>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['วันที่รับสมัคร'])}</td>
+                    <td class="px-4">${escapeHtml(row['ป้ายวันที่'])}</td>
+                    <td class="px-4">${escapeHtml(row['สถานที่'])}</td>
+                    <td class="px-4 font-bold text-sky-200">${escapeHtml(row['รหัสสถานศึกษา'])}</td>
+                    <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
+                    <td class="px-4">${catalogActions('schedules', row)}</td>
+                </tr>`).join('');
+
+            $('actualExamsBody').innerHTML = state.actualExamDates.map(row => `
+                <tr>
+                    <td class="px-4 font-bold text-sky-200">${escapeHtml(row['รหัสใบสมัคร'])}</td>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['วันที่เข้าสอบจริง'])}</td>
+                    <td class="px-4">${escapeHtml(row['สถานที่เข้าสอบจริง'])}</td>
+                    <td class="px-4">${escapeHtml(row['ประเภท'])}</td>
+                    <td class="px-4">${escapeHtml(row['หมายเหตุ'])}</td>
+                    <td class="px-4">${statusBadge(row['สถานะใช้งาน'])}</td>
+                    <td class="px-4">${catalogActions('actualExams', row)}</td>
+                </tr>`).join('');
 
             $('bodyCriteriaBody').innerHTML = state.criteria.body.map(row => `
                 <tr>
@@ -417,6 +558,8 @@
                     <td class="px-4">${escapeHtml(row['ค่า'])}</td>
                     <td class="px-4">${criteriaActions('settings', row)}</td>
                 </tr>`).join('');
+
+            renderAuditLogs();
         }
 
         function statusBadge(value) {
@@ -428,6 +571,26 @@
                 <button class="btn btn-soft !px-3 !py-2" onclick="openCriteriaModal('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-pen"></i></button>
                 <button class="btn btn-danger !px-3 !py-2" onclick="removeCriteria('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-trash"></i></button>
             </div>`;
+        }
+        function catalogActions(group, row) {
+            return `<div class="flex justify-end gap-2">
+                <button class="btn btn-soft !px-3 !py-2" onclick="openCatalogModal('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger !px-3 !py-2" onclick="removeCatalog('${group}', '${escapeHtml(row._rowId)}')"><i class="fas fa-trash"></i></button>
+            </div>`;
+        }
+        function renderAuditLogs() {
+            $('auditBody').innerHTML = (state.auditLogs || []).map(row => `
+                <tr>
+                    <td class="px-4 text-slate-300">${escapeHtml(formatAuditTime(row.created_at))}</td>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row.actor_name || row.actor_username || '-')}</td>
+                    <td class="px-4"><span class="rounded-full bg-indigo-500/15 text-indigo-200 px-3 py-1 text-xs font-bold">${escapeHtml(row.action || '-')}</span></td>
+                    <td class="px-4 text-sky-200">${escapeHtml(row.entity || '-')}</td>
+                    <td class="px-4">${escapeHtml(row.summary || '-')}</td>
+                </tr>`).join('') || '<tr><td class="px-4 text-slate-400" colspan="5">ยังไม่มีประวัติการแก้ไข</td></tr>';
+        }
+        function formatAuditTime(value) {
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? (value || '-') : date.toLocaleString('th-TH');
         }
 
         function openUserModal(username = '') {
@@ -453,6 +616,46 @@
             $('quotaMale').value = row?.['ยอดจัดสรรชาย'] || '0';
             $('quotaFemale').value = row?.['ยอดจัดสรรหญิง'] || '0';
             openModal('quotaModal');
+        }
+
+        function catalogRows(group) {
+            if (group === 'schools') return state.schools;
+            if (group === 'schedules') return state.schedules;
+            if (group === 'actualExams') return state.actualExamDates;
+            return [];
+        }
+
+        function openCatalogModal(group, rowId = '') {
+            const row = rowId ? catalogRows(group).find(item => item._rowId === rowId) : null;
+            $('catalogGroup').value = group;
+            $('catalogRowId').value = row?._rowId || '';
+            const isEdit = Boolean(row);
+            if (group === 'schools') {
+                $('catalogTitle').textContent = isEdit ? 'แก้ไขสถานศึกษา' : 'เพิ่มสถานศึกษา';
+                $('catalogFields').innerHTML =
+                    fieldInput('catalogSchoolCode', 'รหัสสถานศึกษา', row?.['รหัสสถานศึกษา'] || '') +
+                    fieldInput('catalogSchool', 'โรงเรียน', row?.['โรงเรียน'] || '') +
+                    fieldInput('catalogProvince', 'จังหวัด', row?.['จังหวัด'] || '') +
+                    selectInput('catalogActive', 'สถานะใช้งาน', row?.['สถานะใช้งาน'] || 'TRUE', ['TRUE', 'FALSE']);
+            } else if (group === 'schedules') {
+                $('catalogTitle').textContent = isEdit ? 'แก้ไขกำหนดวันรับสมัคร' : 'เพิ่มกำหนดวันรับสมัคร';
+                $('catalogFields').innerHTML =
+                    fieldInput('catalogDate', 'วันที่รับสมัคร', row?.['วันที่รับสมัคร'] || '') +
+                    fieldInput('catalogLabel', 'ป้ายวันที่', row?.['ป้ายวันที่'] || '') +
+                    fieldInput('catalogLocation', 'สถานที่', row?.['สถานที่'] || '') +
+                    fieldInput('catalogSchoolCode', 'รหัสสถานศึกษา', row?.['รหัสสถานศึกษา'] || '') +
+                    selectInput('catalogActive', 'สถานะใช้งาน', row?.['สถานะใช้งาน'] || 'TRUE', ['TRUE', 'FALSE']);
+            } else if (group === 'actualExams') {
+                $('catalogTitle').textContent = isEdit ? 'แก้ไขวันเข้าสอบจริง' : 'เพิ่มวันเข้าสอบจริง';
+                $('catalogFields').innerHTML =
+                    fieldInput('catalogAppId', 'รหัสใบสมัคร', row?.['รหัสใบสมัคร'] || '') +
+                    fieldInput('catalogExamDate', 'วันที่เข้าสอบจริง', row?.['วันที่เข้าสอบจริง'] || '') +
+                    fieldInput('catalogLocation', 'สถานที่เข้าสอบจริง', row?.['สถานที่เข้าสอบจริง'] || '') +
+                    fieldInput('catalogType', 'ประเภท', row?.['ประเภท'] || '') +
+                    fieldInput('catalogNote', 'หมายเหตุ', row?.['หมายเหตุ'] || '') +
+                    selectInput('catalogActive', 'สถานะใช้งาน', row?.['สถานะใช้งาน'] || 'TRUE', ['TRUE', 'FALSE']);
+            }
+            openModal('catalogModal');
         }
 
         function fieldInput(id, label, value = '', type = 'text') {
@@ -571,6 +774,35 @@
             }
         });
 
+        $('catalogForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const group = $('catalogGroup').value;
+            let action = '';
+            let payload = { _rowId: $('catalogRowId').value };
+            if (group === 'schools') {
+                action = 'saveSchoolRow';
+                payload = { ...payload, schoolCode: $('catalogSchoolCode').value.trim(), school: $('catalogSchool').value.trim(), province: $('catalogProvince').value.trim(), active: $('catalogActive').value };
+            } else if (group === 'schedules') {
+                action = 'saveScheduleRow';
+                payload = { ...payload, date: $('catalogDate').value.trim(), label: $('catalogLabel').value.trim(), location: $('catalogLocation').value.trim(), schoolCode: $('catalogSchoolCode').value.trim(), active: $('catalogActive').value };
+            } else if (group === 'actualExams') {
+                action = 'saveActualExamRow';
+                payload = { ...payload, appId: $('catalogAppId').value.trim(), examDate: $('catalogExamDate').value.trim(), location: $('catalogLocation').value.trim(), type: $('catalogType').value.trim(), note: $('catalogNote').value.trim(), active: $('catalogActive').value };
+            }
+            showLoading();
+            try {
+                const result = await api(action, [token(), payload]);
+                if (!result.success) throw new Error(result.message);
+                closeModal('catalogModal');
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'สำเร็จ', text: result.message, timer: 1300, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('บันทึกไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
         $('criteriaForm').addEventListener('submit', async event => {
             event.preventDefault();
             const group = $('criteriaGroup').value;
@@ -619,6 +851,126 @@
                 Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
             } catch (error) {
                 Swal.fire('ลบไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function removeCatalog(group, rowId) {
+            const actionMap = {
+                schools: 'deleteSchoolRow',
+                schedules: 'deleteScheduleRow',
+                actualExams: 'deleteActualExamRow'
+            };
+            const labelMap = {
+                schools: 'สถานศึกษา',
+                schedules: 'กำหนดวันรับสมัคร',
+                actualExams: 'วันเข้าสอบจริง'
+            };
+            const confirm = await Swal.fire({ icon: 'warning', title: `ลบ${labelMap[group]}?`, text: 'ข้อมูลแถวนี้จะถูกลบออกจาก Supabase', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#dc2626' });
+            if (!confirm.isConfirmed) return;
+            showLoading();
+            try {
+                const result = await api(actionMap[group], [token(), rowId]);
+                if (!result.success) throw new Error(result.message);
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('ลบไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function resetPassword(username) {
+            const result = await Swal.fire({
+                title: `Reset รหัสผ่าน ${username}`,
+                input: 'password',
+                inputLabel: 'รหัสผ่านใหม่',
+                inputPlaceholder: 'กรอกรหัสผ่านใหม่',
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: value => !value ? 'กรุณากรอกรหัสผ่านใหม่' : undefined
+            });
+            if (!result.isConfirmed) return;
+            showLoading();
+            try {
+                const res = await api('resetUserPassword', [token(), username, result.value]);
+                if (!res.success) throw new Error(res.message);
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'สำเร็จ', text: res.message, timer: 1300, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('Reset ไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function refreshAuditLogs() {
+            showLoading();
+            try {
+                const result = await api('getAuditLogs', [token(), 100]);
+                if (!result.success) throw new Error(result.message);
+                state.auditLogs = result.logs || [];
+                renderAuditLogs();
+            } catch (error) {
+                Swal.fire('โหลดประวัติไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function cleanExportRows(rows) {
+            return (rows || []).map(row => {
+                const copy = { ...row };
+                delete copy._rowId;
+                delete copy._rowNumber;
+                return copy;
+            });
+        }
+
+        function csvEscape(value) {
+            const textValue = String(value ?? '');
+            return /[",\n\r]/.test(textValue) ? `"${textValue.replace(/"/g, '""')}"` : textValue;
+        }
+
+        function rowsToCsv(rows) {
+            const cleanRows = cleanExportRows(rows);
+            const headers = [...new Set(cleanRows.flatMap(row => Object.keys(row)))];
+            return [headers.map(csvEscape).join(','), ...cleanRows.map(row => headers.map(header => csvEscape(row[header])).join(','))].join('\r\n');
+        }
+
+        function downloadBlob(filename, content, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadTableCsv(key) {
+            const map = {
+                users: state.users,
+                quotas: state.quotas,
+                schools: state.schools,
+                schedules: state.schedules,
+                actualExamDates: state.actualExamDates
+            };
+            downloadBlob(`nst-${key}-${new Date().toISOString().slice(0, 10)}.csv`, '\ufeff' + rowsToCsv(map[key] || []), 'text/csv;charset=utf-8');
+        }
+
+        async function downloadBackupJson() {
+            showLoading();
+            try {
+                const result = await api('getSuperAdminBackup', [token()]);
+                if (!result.success) throw new Error(result.message);
+                downloadBlob(`nst-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(result, null, 2), 'application/json;charset=utf-8');
+                await refreshAuditLogs();
+            } catch (error) {
+                Swal.fire('สำรองไม่ได้', error.message, 'error');
             } finally {
                 hideLoading();
             }
