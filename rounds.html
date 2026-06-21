@@ -641,6 +641,13 @@
             }));
         }
 
+        function hasPageAccess(user, pageId) {
+            if (!user) return false;
+            if (user.role === 'superadmin') return true;
+            const permissions = Array.isArray(user.pagePermissions) ? user.pagePermissions : [];
+            return !permissions.length || permissions.includes(pageId);
+        }
+
         function login(event) {
             event.preventDefault();
             showLoading();
@@ -651,7 +658,7 @@
                         Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', text: result.message, confirmButtonColor: '#8b5cf6' });
                         return;
                     }
-                    if (result.user.role !== 'admin') {
+                    if (!['superadmin', 'admin'].includes(result.user.role) || !hasPageAccess(result.user, 'rounds')) {
                         Swal.fire({ icon: 'error', title: 'ไม่มีสิทธิ์เข้าถึง', text: 'หน้านี้ใช้ได้เฉพาะ Admin', confirmButtonColor: '#8b5cf6' });
                         return;
                     }
@@ -675,7 +682,7 @@
             google.script.run
                 .withSuccessHandler((result) => {
                     hideLoading();
-                    if (!result.valid || result.user.role !== 'admin') return showLogin();
+                    if (!result.valid || !['superadmin', 'admin'].includes(result.user.role) || !hasPageAccess(result.user, 'rounds')) return showLogin();
                     currentUser = result.user;
                     showApp();
                 })

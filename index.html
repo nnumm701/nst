@@ -1483,6 +1483,7 @@
                     <label class="block text-gray-300 text-sm font-medium mb-2">บทบาท</label>
                     <select id="userFormRole"
                         class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <option value="superadmin">superadmin - ผู้ดูแลสูงสุด</option>
                         <option value="admin">Admin - ผู้ดูแลระบบ</option>
                         <option value="body_measurement">body_measurement - สถานีวัดขนาดร่างกาย</option>
                         <option value="medical_check">medical_check - สถานีตรวจร่างกายโดยแพทย์</option>
@@ -2022,6 +2023,12 @@
                 .withSuccessHandler((result) => {
                     hideLoading();
                     if (result.valid) {
+                        if (!hasPageAccess(result.user, 'main')) {
+                            clearSession();
+                            showLoginPage();
+                            Swal.fire({ icon: 'warning', title: 'ไม่มีสิทธิ์เข้าใช้งานหน้านี้', confirmButtonColor: '#2563eb' });
+                            return;
+                        }
                         currentUser = result.user;
                         showMainApp();
                     } else {
@@ -2053,6 +2060,13 @@
         sessionStorage.removeItem('nst_user');
         sessionToken = null;
         currentUser = null;
+    }
+
+    function hasPageAccess(user, pageId) {
+        if (!user) return false;
+        if (user.role === 'superadmin') return true;
+        const permissions = Array.isArray(user.pagePermissions) ? user.pagePermissions : [];
+        return !permissions.length || permissions.includes(pageId);
     }
 
     function togglePasswordVisibility(inputId, button) {
@@ -2111,6 +2125,7 @@
         hideAllDashboards();
 
         switch (currentUser.role) {
+            case 'superadmin':
             case 'admin':
                 document.getElementById('adminDashboard').classList.remove('hidden');
                 loadNSTDataTable();
@@ -2392,6 +2407,7 @@
 
     function getRoleDisplayName(role) {
         const roles = {
+            'superadmin': 'ผู้ดูแลสูงสุด',
             'admin': 'ผู้ดูแลระบบ',
             'body_measurement': 'สถานีวัดขนาดร่างกาย',
             'medical_check': 'สถานีตรวจร่างกายโดยแพทย์',
@@ -2429,6 +2445,10 @@
             .withSuccessHandler((result) => {
                 hideLoading();
                 if (result.success) {
+                    if (!hasPageAccess(result.user, 'main')) {
+                        Swal.fire({ icon: 'warning', title: 'ไม่มีสิทธิ์เข้าใช้งานหน้านี้', confirmButtonColor: '#2563eb' });
+                        return;
+                    }
                     sessionToken = result.token;
                     currentUser = result.user;
                     sessionStorage.setItem('nst_token', result.token);

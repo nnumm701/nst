@@ -27,7 +27,8 @@
         td { border-top: 1px solid rgba(148, 163, 184, .14); padding: .85rem .7rem; vertical-align: middle; }
     </style>
     <script src="config.js"></script>
-    <script src="api-client.js"></script>
+    <script src="config.js"></script>
+<script src="api-client.js"></script>
 </head>
 
 <body class="min-h-screen bg-[#080d19] text-slate-200">
@@ -272,6 +273,7 @@
                 <div>
                     <label class="block text-sm text-slate-300 mb-2">บทบาท</label>
                     <select id="userRole" class="field">
+                        <option value="superadmin">superadmin - ผู้ดูแลสูงสุด</option>
                         <option value="admin">admin - ผู้ดูแลระบบ</option>
                         <option value="body_measurement">body_measurement - สถานีวัดร่างกาย</option>
                         <option value="medical_check">medical_check - สถานีแพทย์</option>
@@ -288,6 +290,11 @@
                     <label class="block text-sm text-slate-300 mb-2">รหัสผ่าน</label>
                     <input id="userPassword" type="password" class="field">
                 </div>
+            </div>
+            <div class="mt-5">
+                <label class="block text-sm text-slate-300 mb-2">อนุญาตให้เข้าเฉพาะหน้า</label>
+                <div id="userPagePermissions" class="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950/50 p-3"></div>
+                <p class="text-xs text-slate-500 mt-2">ถ้าไม่เลือกเลย ระบบจะใช้สิทธิ์ตาม role เดิม แต่ถ้าเลือก ระบบจะให้เข้าเฉพาะหน้าที่เลือกไว้</p>
             </div>
             <p class="text-xs text-slate-500 mt-3">ตอนแก้ไขผู้ใช้ เว้นรหัสผ่านว่างไว้ถ้าไม่ต้องการเปลี่ยน ระบบจะเข้ารหัสก่อนบันทึกทุกครั้ง</p>
             <div class="flex justify-end gap-3 mt-6">
@@ -366,6 +373,7 @@
             currentUser: null
         };
         const roleNames = {
+            superadmin: 'ผู้ดูแลสูงสุด',
             admin: 'ผู้ดูแลระบบ',
             body_measurement: 'สถานีวัดร่างกาย',
             medical_check: 'สถานีแพทย์',
@@ -377,6 +385,13 @@
             data_processing: 'นำเข้า/ส่งออกข้อมูล',
             uniform: 'เครื่องแต่งกาย'
         };
+        const pageOptions = [
+            { id: 'main', label: 'หน้าหลัก / คัดเลือก' },
+            { id: 'input', label: 'นำเข้า-ส่งออกข้อมูล' },
+            { id: 'size', label: 'เครื่องแต่งกาย' },
+            { id: 'rounds', label: 'คัดเลือกรอบเพิ่มเติม' },
+            { id: 'superadmin', label: 'Super Admin' }
+        ];
 
         function $(id) { return document.getElementById(id); }
         function showLoading() { $('loading').classList.remove('hidden'); $('loading').classList.add('flex'); }
@@ -409,7 +424,7 @@
             showLoading();
             try {
                 const result = await api('validateSession', [token()]);
-                if (!result.valid || result.user.role !== 'admin') throw new Error(result.message || 'ไม่มีสิทธิ์เข้าถึง');
+                if (!result.valid || result.user.role !== 'superadmin') throw new Error(result.message || 'เฉพาะ superadmin เท่านั้น');
                 state.currentUser = result.user;
                 await enterApp();
             } catch (error) {
@@ -601,7 +616,30 @@
             $('userPassword').value = '';
             $('userPassword').required = !user;
             $('userPassword').placeholder = user ? 'เว้นว่างไว้ถ้าไม่เปลี่ยนรหัสผ่าน' : 'กำหนดรหัสผ่าน';
+            renderUserPagePermissions(user?.pagePermissions || defaultPagePermissionsForRole(user?.role || 'body_measurement'));
             openModal('userModal');
+        }
+
+        function defaultPagePermissionsForRole(role) {
+            if (role === 'superadmin') return ['main', 'superadmin'];
+            if (role === 'data_processing') return ['input'];
+            if (role === 'uniform') return ['size'];
+            if (role === 'admin') return ['main', 'rounds', 'size'];
+            return ['main'];
+        }
+
+        function renderUserPagePermissions(selected = []) {
+            const selectedSet = new Set(selected || []);
+            $('userPagePermissions').innerHTML = pageOptions.map(page => `
+                <label class="flex items-center gap-3 rounded-lg bg-slate-900/80 border border-slate-700/70 px-3 py-2 text-sm text-slate-200">
+                    <input type="checkbox" class="user-page-permission w-4 h-4" value="${escapeHtml(page.id)}" ${selectedSet.has(page.id) ? 'checked' : ''}>
+                    <span>${escapeHtml(page.label)}</span>
+                </label>
+            `).join('');
+        }
+
+        function selectedPagePermissions() {
+            return [...document.querySelectorAll('.user-page-permission:checked')].map(input => input.value);
         }
 
         function openQuotaModal(rowId = '') {
@@ -722,7 +760,7 @@
             try {
                 const result = await api('login', [username, password]);
                 if (!result.success) throw new Error(result.message);
-                if (result.user.role !== 'admin') throw new Error('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ');
+                if (result.user.role !== 'superadmin') throw new Error('บัญชีนี้ไม่มีสิทธิ์เข้า Super Admin');
                 state.currentUser = result.user;
                 sessionStorage.setItem('nst_token', result.token);
                 sessionStorage.setItem('nst_user', JSON.stringify(result.user));
@@ -740,7 +778,8 @@
                 username: $('userUsername').value.trim(),
                 name: $('userName').value.trim(),
                 role: $('userRole').value,
-                password: $('userPassword').value
+                password: $('userPassword').value,
+                pagePermissions: selectedPagePermissions()
             };
             const action = $('userMode').value === 'edit' ? 'updateUser' : 'createUser';
             showLoading();

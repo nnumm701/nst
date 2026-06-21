@@ -709,7 +709,14 @@
         }
 
         function roleName(role) {
-            return { data_processing: 'นำเข้า/ส่งออกไฟล์ Excel' }[role] || role;
+            return { superadmin: 'ผู้ดูแลสูงสุด', data_processing: 'นำเข้า/ส่งออกไฟล์ Excel' }[role] || role;
+        }
+
+        function hasPageAccess(user, pageId) {
+            if (!user) return false;
+            if (user.role === 'superadmin') return true;
+            const permissions = Array.isArray(user.pagePermissions) ? user.pagePermissions : [];
+            return !permissions.length || permissions.includes(pageId);
         }
 
         function login(event) {
@@ -723,7 +730,7 @@
                         Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', text: result.message, confirmButtonColor: '#10b981' });
                         return;
                     }
-                    if (result.user.role !== 'data_processing') {
+                    if (!['superadmin', 'data_processing'].includes(result.user.role) || !hasPageAccess(result.user, 'input')) {
                         Swal.fire({ icon: 'error', title: 'ไม่มีสิทธิ์เข้าถึง', confirmButtonColor: '#10b981' });
                         return;
                     }
@@ -746,7 +753,7 @@
             google.script.run
                 .withSuccessHandler((result) => {
                     hideLoading();
-                    if (!result.valid || result.user.role !== 'data_processing') {
+                    if (!result.valid || !['superadmin', 'data_processing'].includes(result.user.role) || !hasPageAccess(result.user, 'input')) {
                         return showLogin();
                     }
                     currentUser = result.user;
