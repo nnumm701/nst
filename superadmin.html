@@ -83,8 +83,9 @@
                 </div>
             </header>
 
-            <div class="panel rounded-2xl p-2 mb-5 grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div class="panel rounded-2xl p-2 mb-5 grid grid-cols-2 md:grid-cols-5 gap-2">
                 <button class="btn btn-soft tab tab-active" data-tab="users"><i class="fas fa-users-gear"></i>ผู้ใช้</button>
+                <button class="btn btn-soft tab" data-tab="quotas"><i class="fas fa-table-list"></i>ยอดจัดสรร</button>
                 <button class="btn btn-soft tab" data-tab="body"><i class="fas fa-weight-scale"></i>เกณฑ์ร่างกาย</button>
                 <button class="btn btn-soft tab" data-tab="physical"><i class="fas fa-person-running"></i>เกณฑ์สถานี</button>
                 <button class="btn btn-soft tab" data-tab="settings"><i class="fas fa-sliders"></i>ตั้งค่าทดสอบ</button>
@@ -110,6 +111,31 @@
                             </tr>
                         </thead>
                         <tbody id="usersBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="quotasTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">ยอดจัดสรรตามสถานศึกษา</h2>
+                        <p class="text-sm text-slate-400">กำหนดยอดรับชาย/หญิงของแต่ละโรงเรียน เพื่อใช้ในการคัดเลือกและเลื่อนสำรอง</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openQuotaModal()"><i class="fas fa-plus"></i>เพิ่มยอดจัดสรร</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[860px]">
+                        <thead>
+                            <tr class="bg-slate-900/80">
+                                <th class="px-4 py-3">รหัสสถานศึกษา</th>
+                                <th class="px-4 py-3">โรงเรียน</th>
+                                <th class="px-4 py-3 text-center">ยอดจัดสรรชาย</th>
+                                <th class="px-4 py-3 text-center">ยอดจัดสรรหญิง</th>
+                                <th class="px-4 py-3 text-center">รวม</th>
+                                <th class="px-4 py-3 text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quotasBody"></tbody>
                     </table>
                 </div>
             </section>
@@ -205,6 +231,36 @@
         </form>
     </div>
 
+    <div id="quotaModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm p-4 items-center justify-center">
+        <form id="quotaForm" class="panel w-full max-w-2xl rounded-2xl p-6 shadow-2xl">
+            <input id="quotaRowId" type="hidden">
+            <h3 id="quotaModalTitle" class="text-xl font-bold text-white mb-5">เพิ่มยอดจัดสรร</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">รหัสสถานศึกษา</label>
+                    <input id="quotaSchoolCode" class="field" placeholder="เช่น 001">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">โรงเรียน</label>
+                    <input id="quotaSchool" class="field" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">ยอดจัดสรรชาย</label>
+                    <input id="quotaMale" type="number" min="0" step="1" class="field" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">ยอดจัดสรรหญิง</label>
+                    <input id="quotaFemale" type="number" min="0" step="1" class="field" required>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-3">ยอดนี้ใช้กับหน้าคัดเลือกและการเลื่อนรายชื่อสำรอง ควรตรวจชื่อโรงเรียนให้ตรงกับข้อมูลผู้สมัคร</p>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" class="btn btn-soft" onclick="closeModal('quotaModal')">ยกเลิก</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i>บันทึก</button>
+            </div>
+        </form>
+    </div>
+
     <div id="criteriaModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm p-4 items-center justify-center">
         <form id="criteriaForm" class="panel w-full max-w-2xl rounded-2xl p-6 shadow-2xl">
             <input id="criteriaGroup" type="hidden">
@@ -220,7 +276,7 @@
 
     <script>
         const API_URL = window.NST_API_URL || '/api';
-        const state = { users: [], criteria: { body: [], physical: [], settings: [] }, currentUser: null };
+        const state = { users: [], quotas: [], criteria: { body: [], physical: [], settings: [] }, currentUser: null };
         const roleNames = {
             admin: 'ผู้ดูแลระบบ',
             body_measurement: 'สถานีวัดร่างกาย',
@@ -289,6 +345,7 @@
                 const result = await api('getSuperAdminConfig', [token()]);
                 if (!result.success) throw new Error(result.message);
                 state.users = result.users || [];
+                state.quotas = result.quotas || [];
                 state.criteria = result.criteria || { body: [], physical: [], settings: [] };
                 renderAll();
             } catch (error) {
@@ -312,6 +369,25 @@
                         </div>
                     </td>
                 </tr>`).join('');
+
+            $('quotasBody').innerHTML = state.quotas.map(row => {
+                const male = Number(row['ยอดจัดสรรชาย'] || 0) || 0;
+                const female = Number(row['ยอดจัดสรรหญิง'] || 0) || 0;
+                return `
+                <tr>
+                    <td class="px-4 font-bold text-sky-200">${escapeHtml(row['รหัสสถานศึกษา'] || '-')}</td>
+                    <td class="px-4 font-bold text-white">${escapeHtml(row['โรงเรียน'])}</td>
+                    <td class="px-4 text-center">${escapeHtml(row['ยอดจัดสรรชาย'] || '0')}</td>
+                    <td class="px-4 text-center">${escapeHtml(row['ยอดจัดสรรหญิง'] || '0')}</td>
+                    <td class="px-4 text-center font-bold text-emerald-200">${male + female}</td>
+                    <td class="px-4">
+                        <div class="flex justify-end gap-2">
+                            <button class="btn btn-soft !px-3 !py-2" onclick="openQuotaModal('${escapeHtml(row._rowId)}')" title="แก้ไข"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger !px-3 !py-2" onclick="removeQuota('${escapeHtml(row._rowId)}')" title="ลบ"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
 
             $('bodyCriteriaBody').innerHTML = state.criteria.body.map(row => `
                 <tr>
@@ -366,6 +442,17 @@
             $('userPassword').required = !user;
             $('userPassword').placeholder = user ? 'เว้นว่างไว้ถ้าไม่เปลี่ยนรหัสผ่าน' : 'กำหนดรหัสผ่าน';
             openModal('userModal');
+        }
+
+        function openQuotaModal(rowId = '') {
+            const row = rowId ? state.quotas.find(item => item._rowId === rowId) : null;
+            $('quotaRowId').value = row?._rowId || '';
+            $('quotaModalTitle').textContent = row ? 'แก้ไขยอดจัดสรร' : 'เพิ่มยอดจัดสรร';
+            $('quotaSchoolCode').value = row?.['รหัสสถานศึกษา'] || '';
+            $('quotaSchool').value = row?.['โรงเรียน'] || '';
+            $('quotaMale').value = row?.['ยอดจัดสรรชาย'] || '0';
+            $('quotaFemale').value = row?.['ยอดจัดสรรหญิง'] || '0';
+            openModal('quotaModal');
         }
 
         function fieldInput(id, label, value = '', type = 'text') {
@@ -461,6 +548,29 @@
             }
         });
 
+        $('quotaForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const payload = {
+                _rowId: $('quotaRowId').value,
+                schoolCode: $('quotaSchoolCode').value.trim(),
+                school: $('quotaSchool').value.trim(),
+                male: $('quotaMale').value,
+                female: $('quotaFemale').value
+            };
+            showLoading();
+            try {
+                const result = await api('saveQuotaRow', [token(), payload]);
+                if (!result.success) throw new Error(result.message);
+                closeModal('quotaModal');
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'สำเร็จ', text: result.message, timer: 1300, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('บันทึกไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
         $('criteriaForm').addEventListener('submit', async event => {
             event.preventDefault();
             const group = $('criteriaGroup').value;
@@ -488,6 +598,22 @@
             showLoading();
             try {
                 const result = await api('deleteUser', [token(), username]);
+                if (!result.success) throw new Error(result.message);
+                await loadAll();
+                Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('ลบไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function removeQuota(rowId) {
+            const confirm = await Swal.fire({ icon: 'warning', title: 'ลบยอดจัดสรร?', text: 'แถวนี้จะถูกลบออกจากตารางยอดจัดสรร', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#dc2626' });
+            if (!confirm.isConfirmed) return;
+            showLoading();
+            try {
+                const result = await api('deleteQuotaRow', [token(), rowId]);
                 if (!result.success) throw new Error(result.message);
                 await loadAll();
                 Swal.fire({ icon: 'success', title: 'ลบแล้ว', timer: 1200, showConfirmButton: false });
