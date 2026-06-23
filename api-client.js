@@ -1,5 +1,6 @@
 (function () {
-  const API_URL = window.NST_API_URL || '/api';
+  const DEFAULT_API_URL = 'https://wzcrghqftwwsszwfgxzj.supabase.co/functions/v1/nst-api';
+  const API_URL = window.NST_API_URL || DEFAULT_API_URL;
   const DEVICE_SESSION_KEY = 'nst_device_session';
 
   function wantsDeviceRemember() {
@@ -75,7 +76,13 @@
               body: JSON.stringify({ action: String(prop), args })
             });
             const text = await response.text();
-            const result = text ? JSON.parse(text) : {};
+            let result;
+            try {
+              result = text ? JSON.parse(text) : {};
+            } catch (error) {
+              const preview = text ? text.slice(0, 80).replace(/\s+/g, ' ') : '';
+              throw new Error(`API did not return JSON from ${API_URL}. ${preview}`);
+            }
             if (!response.ok) throw new Error(result.message || `HTTP ${response.status}`);
             if (successHandler) successHandler(result);
             return result;
