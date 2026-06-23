@@ -422,8 +422,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js"></script>
-    <script src="api-client.js"></script>
+    <script src="config.js?v=178225732549"></script>
+    <script src="api-client.js?v=178225732549"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -544,18 +544,18 @@
                     <p id="passPercent" class="text-3xl font-extrabold text-amber-300">0.00%</p>
                     <p id="poolCount" class="pb-1 text-sm text-slate-400">0 คน</p>
                 </div>
-                <p id="passRateDetail" class="mt-2 text-sm text-slate-300">ตัวจริง 0 คน / สำรอง 0 คน</p>
+                <p id="passRateDetail" class="mt-2 text-sm text-slate-300">ผู้สมัคร 0 คน / ผ่านการคัดเลือก 0 คน / สำรอง 0 คน</p>
             </div>
             <div class="glass-card rounded-2xl p-5 border border-white/10">
                 <p id="allocationTitle" class="text-sm text-slate-400">ยอดจัดสรรเพิ่ม</p>
                 <p id="allocationCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
-                <p id="allocationMeta" class="mt-2 text-sm text-slate-300">คิด ช.33% / ญ.75%</p>
+                <p id="allocationMeta" class="mt-2 text-sm text-slate-300">คิด ช.43% / ญ.75%</p>
             </div>
             <div class="glass-card rounded-2xl p-5 border border-white/10">
                 <p class="text-sm text-slate-400">ยอดจัดสรรห้วงที่ 2</p>
                 <div id="period2QuotaSummary" class="mt-2 space-y-1 text-sm text-slate-300">
-                    <p>ชาย 0/146 คงเหลือ 146</p>
-                    <p>หญิง 0/39 คงเหลือ 39</p>
+                    <p>ชาย 0/254 คงเหลือ 254</p>
+                    <p>หญิง 0/336 คงเหลือ 336</p>
                 </div>
             </div>
             <div class="glass-card rounded-2xl p-5 border border-white/10">
@@ -783,11 +783,14 @@
             $('allocationCount').textContent = count;
             $('allocationCount').classList.remove('text-emerald-300', 'text-amber-300', 'text-sky-300');
             $('allocationCount').classList.add(status === 'over' ? 'text-amber-300' : (count > 0 ? 'text-emerald-300' : 'text-sky-300'));
-            $('allocationMeta').textContent = `เป้า ${result.targetPassCount || 0} คน / คิด ช.33% ญ.75%`;
+            const allocationByGender = result.allocationByGender || {};
+            const male = allocationByGender['ชาย'] || {};
+            const female = allocationByGender['หญิง'] || {};
+            $('allocationMeta').textContent = `เป้า ${result.targetPassCount || 0} คน / ${result.allocationMeta || 'คิด ช.43% ญ.75%'} | ช ${allocationText(male.add || -(male.over || 0))} / ญ ${allocationText(female.add || -(female.over || 0))}`;
         }
 
         function getPeriod2QuotaItem(gender) {
-            const fallbackLimits = { 'ชาย': 146, 'หญิง': 39 };
+            const fallbackLimits = { 'ชาย': 254, 'หญิง': 336 };
             const item = period2Quota?.byGender?.[gender] || {};
             const limit = Number(item.limit || fallbackLimits[gender] || 0);
             const saved = Number(item.saved || 0);
@@ -854,9 +857,9 @@
             $('passPercent').classList.remove('text-emerald-300', 'text-amber-300');
             $('passPercent').classList.add(passPercentClass(result.passPercent));
             $('poolCount').textContent = `${result.totalPool || 0} คน`;
-            $('passRateDetail').textContent = `ตัวจริง ${result.passedCount || 0} คน / สำรอง ${result.reserveCount || 0} คน`;
+            $('passRateDetail').textContent = `ผู้สมัคร ${result.totalPool || 0} คน / ผ่านการคัดเลือก ${result.passedCount || 0} คน / สำรอง ${result.reserveCount || 0} คน`;
             renderAllocationSummary(result);
-            $('resultMeta').textContent = `${result.round || ''} / ${result.mode || ''} / สำรอง ${result.reserveCount || 0} คน`;
+            $('resultMeta').textContent = `${result.round || ''} / ${result.mode || ''} / ผู้สมัคร ${result.totalPool || 0} คน / สำรอง ${result.reserveCount || 0} คน`;
             $('saveButton').disabled = (result.selectedCount || 0) === 0;
             renderPeriod2QuotaSummary();
 
