@@ -677,6 +677,12 @@
                                     <i class="fas fa-print mr-2"></i>พิมพ์
                                 </button>
 
+                                <button onclick="openNSTPdfExportDialog()"
+                                    class="px-4 py-2 bg-rose-500/20 border border-rose-500/50 text-rose-300 rounded-lg hover:bg-rose-500/30 transition-all shadow-sm flex items-center"
+                                    title="ส่งออก PDF ทุกโรงเรียนตามหัวข้อตารางที่เลือก">
+                                    <i class="fas fa-file-pdf mr-2"></i>PDF
+                                </button>
+
                                 <button onclick="openWithdrawalDialog()"
                                     class="px-4 py-2 bg-red-500/20 border border-red-500/50 text-red-300 rounded-lg hover:bg-red-500/30 transition-all shadow-sm flex items-center"
                                     title="บันทึกผู้สละสิทธิ">
@@ -1870,8 +1876,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178227164116"></script>
-<script src="api-client.js?v=178227164116"></script>
+    <script src="config.js?v=178228435585"></script>
+<script src="api-client.js?v=178228435585"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -4081,6 +4087,312 @@
         setTimeout(() => {
             printWindow.print();
         }, 500);
+    }
+
+    function callNSTApi(action, ...args) {
+        return new Promise((resolve, reject) => {
+            google.script.run
+                .withSuccessHandler(resolve)
+                .withFailureHandler(reject)
+                [action](...args);
+        });
+    }
+
+    async function openNSTPdfExportDialog() {
+        const result = await Swal.fire({
+            title: 'ส่งออก PDF',
+            html: `
+                <div class="text-left space-y-3 py-2">
+                    <p class="text-sm text-slate-300 mb-3">เลือกหัวข้อตารางที่ต้องการส่งออกทุกโรงเรียน</p>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstPdfMode" value="selected" checked class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstPdfMode" value="period2" class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstPdfMode" value="round2" class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกรอบ 2</span>
+                    </label>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-file-pdf mr-2"></i>ส่งออก',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#e11d48',
+            background: '#1e293b',
+            color: '#e5e7eb',
+            preConfirm: () => {
+                const checked = document.querySelector('input[name="nstPdfMode"]:checked');
+                return checked ? checked.value : 'selected';
+            }
+        });
+        if (!result.isConfirmed) return;
+        exportNSTSelectionPdf(result.value || 'selected');
+    }
+
+    async function exportNSTSelectionPdf(mode) {
+        const reportWindow = window.open('', '_blank');
+        if (!reportWindow) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'เปิดหน้าต่างไม่ได้',
+                text: 'กรุณาอนุญาต pop-up แล้วลองส่งออกอีกครั้ง',
+                confirmButtonColor: '#e11d48'
+            });
+            return;
+        }
+
+        reportWindow.document.write(`
+            <!DOCTYPE html>
+            <html><head><title>กำลังเตรียม PDF</title></head>
+            <body style="font-family: sans-serif; padding: 32px;">
+                <h2>กำลังเตรียมรายงาน...</h2>
+                <p>กรุณารอสักครู่</p>
+            </body></html>
+        `);
+        reportWindow.document.close();
+
+        showLoading();
+        try {
+            const dateFilter = document.getElementById('filterRecruitDate')?.value || '';
+            const [dataResult, quotaResult] = await Promise.all([
+                callNSTApi('getNSTDataByFilter', sessionToken, dateFilter, '', { recalculate: false }),
+                callNSTApi('getSchoolQuotas', sessionToken, dateFilter || '')
+            ]);
+            if (!dataResult.success) throw new Error(dataResult.message || 'โหลดข้อมูลผู้สมัครไม่สำเร็จ');
+            if (!quotaResult.success) throw new Error(quotaResult.message || 'โหลดข้อมูลยอดจัดสรรไม่สำเร็จ');
+
+            const exportGroups = buildNSTPdfExportGroups(
+                dataResult.data || [],
+                dataResult.period2Selection || {},
+                dataResult.round2Selection || {},
+                quotaResult.quotas || {}
+            );
+            const titleMap = {
+                selected: 'รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)',
+                period2: 'รายชื่อผู้ผ่านการคัดเลือกห้วง 2',
+                round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2'
+            };
+            const rows = exportGroups[mode] || [];
+            writeNSTPdfReportWindow(reportWindow, titleMap[mode] || titleMap.selected, rows, dateFilter);
+        } catch (error) {
+            reportWindow.close();
+            handleError(error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function buildNSTPdfExportGroups(data, period2Selection, round2Selection, quotas) {
+        const quotaResults = buildNSTPdfQuotaResults(data, quotas);
+        const period2Ids = new Set(Object.keys(period2Selection || {}));
+        const round2Ids = new Set(Object.keys(round2Selection || {}));
+        const selected = [];
+        const period2 = [];
+        const round2 = [];
+
+        data.forEach(row => {
+            const appId = getNSTAppId(row);
+            const failureReason = getSelectionFailureReason(row);
+            if (failureReason) return;
+            if (period2Ids.has(appId)) {
+                period2.push({ row, selection: period2Selection[appId], rank: readNSTSavedSelectionRank(period2Selection[appId]) });
+            } else if (round2Ids.has(appId)) {
+                round2.push({ row, selection: round2Selection[appId], rank: readNSTSavedSelectionRank(round2Selection[appId]) });
+            } else if (quotaResults[appId]?.isQuota) {
+                selected.push({ row, selection: null, rank: quotaResults[appId].rank });
+            }
+        });
+
+        const bySchoolRank = (a, b) =>
+            String(a.row['สถานศึกษา'] || '').localeCompare(String(b.row['สถานศึกษา'] || ''), 'th', { numeric: true }) ||
+            rankValue(a.rank) - rankValue(b.rank) ||
+            getNSTAppId(a.row).localeCompare(getNSTAppId(b.row), 'th', { numeric: true });
+
+        return {
+            selected: selected.sort(bySchoolRank),
+            period2: period2.sort(bySchoolRank),
+            round2: round2.sort(bySchoolRank)
+        };
+    }
+
+    function buildNSTPdfQuotaResults(data, quotas) {
+        const schoolGroups = {};
+        const quotaResults = {};
+        data.forEach(row => {
+            const school = String(row['สถานศึกษา'] || '').trim();
+            if (!school) return;
+            schoolGroups[school] ||= [];
+            schoolGroups[school].push(row);
+        });
+
+        const genderQuotaLimit = (quotaConfig, gender) => {
+            if (!quotaConfig || typeof quotaConfig !== 'object' || Array.isArray(quotaConfig)) return Number(quotaConfig) || 0;
+            return Number(String(gender || '').trim() === 'หญิง' ? quotaConfig.female : quotaConfig.male) || 0;
+        };
+        const isLateExamStudent = row => row['_สอบช้า'] === true || String(row['_สอบช้า'] || '').toLowerCase() === 'true';
+        const applyQuota = (rows, quota) => {
+            if (quota <= 0) return;
+            const completed = rows.filter(hasCompletedAllPhysicalStations).sort((a, b) => compareSelectionRows(a, b, 'desc'));
+            completed.forEach((row, index) => row._pdfExportRank = index + 1);
+            const passed = completed.filter(row => {
+                const docCheck = row['ผลตรวจแพทย์'] || row['สถานะร่างกาย'];
+                return isStation1StatusPass(docCheck) && !getSelectionFailureReason(row);
+            });
+            let selectedCount = 0;
+            for (const row of passed) {
+                if (selectedCount >= quota) break;
+                if (isLateExamStudent(row)) continue;
+                const appId = getNSTAppId(row);
+                if (!appId) continue;
+                quotaResults[appId] = { isQuota: true, rank: row._pdfExportRank };
+                selectedCount++;
+            }
+        };
+
+        Object.entries(schoolGroups).forEach(([school, rows]) => {
+            const quotaConfig = quotas[school];
+            ['ชาย', 'หญิง'].forEach(gender => {
+                const genderRows = rows.filter(row => String(row['เพศ'] || '').trim() === gender);
+                applyQuota(genderRows, genderQuotaLimit(quotaConfig, gender));
+            });
+        });
+
+        return quotaResults;
+    }
+
+    function readNSTSavedSelectionRank(selectionData) {
+        const keys = ['ลำดับสำรอง', 'ลำดับคะแนน', 'ลำดับตัวจริง', 'scoreRank', 'rank'];
+        for (const key of keys) {
+            const value = Number(selectionData?.[key]);
+            if (Number.isFinite(value) && value > 0) return value;
+        }
+        return null;
+    }
+
+    function rankValue(value) {
+        const numberValue = Number(value);
+        return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : Number.MAX_SAFE_INTEGER;
+    }
+
+    function writeNSTPdfReportWindow(reportWindow, title, rows, dateFilter) {
+        const rowHtml = rows.map((item, index) => {
+            const row = item.row;
+            const score = getSelectionScore(row);
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${escapeHtml(getNSTAppId(row))}</td>
+                    <td class="name-cell">${escapeHtml(`${row['คำนำหน้า'] || ''}${row['ชื่อ'] || ''} ${row['นามสกุล'] || ''}`.trim())}</td>
+                    <td>${escapeHtml(row['เพศ'] || '-')}</td>
+                    <td class="school-cell">${escapeHtml(formatNSTSchoolWithCode(row))}</td>
+                    <td>${escapeHtml(row['จังหวัด'] || '-')}</td>
+                    <td>${escapeHtml(String(score.main || ''))}</td>
+                    <td>${escapeHtml(item.rank || '-')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const printedAt = new Date().toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        const scopeText = dateFilter ? `วันที่รับสมัคร: ${escapeHtml(dateFilter)}` : 'ทุกวันรับสมัคร / ทุกโรงเรียน';
+
+        reportWindow.document.open();
+        reportWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>${escapeHtml(title)}</title>
+                <style>
+                    @page { size: A4 portrait; margin: 8mm; }
+                    body {
+                        font-family: "Prompt", "Sarabun", "Tahoma", sans-serif;
+                        color: #111827;
+                        padding: 12px;
+                    }
+                    h1 {
+                        text-align: center;
+                        font-size: 20px;
+                        margin: 4px 0 6px;
+                    }
+                    .meta {
+                        display: flex;
+                        justify-content: space-between;
+                        gap: 12px;
+                        margin: 0 0 10px;
+                        font-size: 11px;
+                        color: #4b5563;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 10.5px;
+                    }
+                    th, td {
+                        border: 1px solid #374151;
+                        padding: 4px 5px;
+                        text-align: center;
+                        vertical-align: top;
+                    }
+                    th {
+                        background: #e5e7eb;
+                        font-weight: 700;
+                    }
+                    .name-cell,
+                    .school-cell {
+                        text-align: left;
+                    }
+                    tr { page-break-inside: avoid; }
+                    .empty {
+                        padding: 24px;
+                        text-align: center;
+                        color: #6b7280;
+                    }
+                    @media print {
+                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>${escapeHtml(title)}</h1>
+                <div class="meta">
+                    <span>${scopeText}</span>
+                    <span>วันที่ส่งออก: ${printedAt}</span>
+                    <span>จำนวน ${rows.length} ราย</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 6%;">ลำดับ</th>
+                            <th style="width: 12%;">รหัส</th>
+                            <th style="width: 23%;">ชื่อ-นามสกุล</th>
+                            <th style="width: 8%;">เพศ</th>
+                            <th style="width: 30%;">สถานศึกษา</th>
+                            <th style="width: 11%;">จังหวัด</th>
+                            <th style="width: 6%;">คะแนน</th>
+                            <th style="width: 6%;">อันดับ</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowHtml || '<tr><td colspan="8" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
+                </table>
+                <script>
+                    setTimeout(() => window.print(), 500);
+                <\/script>
+            </body>
+            </html>
+        `);
+        reportWindow.document.close();
+        reportWindow.focus();
     }
 
     function renderNSTSchoolRequiredMessage() {
