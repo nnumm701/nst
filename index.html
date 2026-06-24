@@ -1870,8 +1870,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178227034228"></script>
-<script src="api-client.js?v=178227034228"></script>
+    <script src="config.js?v=178227099645"></script>
+<script src="api-client.js?v=178227099645"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -3141,6 +3141,10 @@
         return `${score.main}${bonusHtml}`;
     }
 
+    function getNSTAppId(row) {
+        return String(row?.['รหัสใบสมัคร'] || row?.['รหัสประจำตัว'] || row?.['รหัส'] || row?.appId || row?.id || '').trim();
+    }
+
     function hasCompletedAllPhysicalStations(row) {
         const hasValue = (value) => {
             if (value === undefined || value === null) return false;
@@ -4316,7 +4320,7 @@
         };
 
         data.forEach(row => {
-            const appId = row['รหัสใบสมัคร'];
+            const appId = getNSTAppId(row);
             const quotaData = quotaResults[appId];
             const period2Data = currentPeriod2Selection?.[appId];
             const round2Data = currentRound2Selection?.[appId];
