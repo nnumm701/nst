@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178228619006"></script>
-<script src="api-client.js?v=178228619006"></script>
+    <script src="config.js?v=178228783956"></script>
+<script src="api-client.js?v=178228783956"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -4282,6 +4282,11 @@
         return value ? value.slice(-length).padStart(Math.min(length, value.length), '0') : '';
     }
 
+    function getNSTCitizenMaskedLastDigits(row, length = 5) {
+        const lastDigits = getNSTCitizenLastDigits(row, length);
+        return lastDigits ? `${'X'.repeat(Math.max(0, 13 - length))}${lastDigits}` : '';
+    }
+
     function getNSTExportFullName(row) {
         return String(
             row?.name ||
@@ -4301,7 +4306,7 @@
             return {
                 'รหัส': getNSTAppId(row),
                 'ชื่อ-นามสกุล': getNSTExportFullName(row),
-                'เลขหลัง 5 ตัวสุดท้าย': getNSTCitizenLastDigits(row, 5),
+                'เลขหลัง 5 ตัวสุดท้าย': getNSTCitizenMaskedLastDigits(row, 5),
                 'โรงเรียน': getNSTExportSchool(row)
             };
         });

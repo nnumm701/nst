@@ -516,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178228619006"></script>
-    <script src="api-client.js?v=178228619006"></script>
+    <script src="config.js?v=178228783956"></script>
+    <script src="api-client.js?v=178228783956"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -658,6 +658,35 @@
             <div class="glass-card rounded-2xl p-5 border border-white/10">
                 <p class="text-sm text-slate-400">พร้อมบันทึก</p>
                 <p id="selectedCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
+            </div>
+        </section>
+
+        <section id="maleSchoolPercentSection" class="glass-card rounded-2xl border border-white/10 overflow-hidden mb-6 hidden">
+            <div class="px-5 py-4 border-b border-white/10 bg-slate-900/40 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                    <h2 class="font-extrabold text-white flex items-center gap-2">
+                        <i class="fas fa-table text-amber-300"></i>
+                        เปอร์เซ็นต์ชายตามสถานศึกษา
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">แสดงสัดส่วน ชาย 43% แยกตามโรงเรียน เพื่อเทียบยอดจัดสรรรอบเพิ่มเติม</p>
+                </div>
+                <p id="maleSchoolPercentMeta" class="text-sm text-slate-300"></p>
+            </div>
+            <div class="overflow-auto max-h-[38vh]">
+                <table class="w-full min-w-[900px] text-sm">
+                    <thead class="sticky top-0 bg-slate-900 text-slate-300">
+                        <tr>
+                            <th class="py-3 px-3 text-left">โรงเรียน</th>
+                            <th class="py-3 px-3 text-center">ผ่านแล้ว</th>
+                            <th class="py-3 px-3 text-center">สำรอง</th>
+                            <th class="py-3 px-3 text-center">รวมชาย</th>
+                            <th class="py-3 px-3 text-center">เปอร์เซ็นต์ชาย</th>
+                            <th class="py-3 px-3 text-center">เป้า 43%</th>
+                            <th class="py-3 px-3 text-center">เพิ่ม/เกิน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maleSchoolPercentBody" class="divide-y divide-white/5"></tbody>
+                </table>
             </div>
         </section>
 
@@ -884,6 +913,63 @@
             $('allocationMeta').textContent = `เป้า ${result.targetPassCount || 0} คน / ${result.allocationMeta || 'คิด ช.43% ญ.75%'} | ช ${allocationText(male.add || -(male.over || 0))} / ญ ${allocationText(female.add || -(female.over || 0))}`;
         }
 
+        function renderMaleSchoolPercentTable(result) {
+            const section = $('maleSchoolPercentSection');
+            const body = $('maleSchoolPercentBody');
+            const meta = $('maleSchoolPercentMeta');
+            if (!section || !body) return;
+
+            const bySchool = result.allocationBySchool || {};
+            const rows = Object.entries(bySchool)
+                .map(([school, genders]) => ({ school, ...(genders?.['ชาย'] || {}) }))
+                .filter(row => row.total || row.passed || row.reserve)
+                .sort((a, b) => a.school.localeCompare(b.school, 'th', { numeric: true }));
+
+            if (!rows.length) {
+                section.classList.add('hidden');
+                body.innerHTML = '';
+                if (meta) meta.textContent = '';
+                return;
+            }
+
+            section.classList.remove('hidden');
+            const totals = rows.reduce((sum, row) => ({
+                total: sum.total + Number(row.total || 0),
+                passed: sum.passed + Number(row.passed || 0),
+                reserve: sum.reserve + Number(row.reserve || 0),
+                targetPass: sum.targetPass + Number(row.targetPass || 0),
+                add: sum.add + Number(row.add || 0),
+                over: sum.over + Number(row.over || 0)
+            }), { total: 0, passed: 0, reserve: 0, targetPass: 0, add: 0, over: 0 });
+            if (meta) {
+                const percent = totals.total ? ((totals.passed / totals.total) * 100).toFixed(2) : '0.00';
+                meta.textContent = `รวมชาย ${totals.passed}/${totals.total} คน (${percent}%)`;
+            }
+
+            body.innerHTML = rows.map(row => {
+                const total = Number(row.total || 0);
+                const passed = Number(row.passed || 0);
+                const reserve = Number(row.reserve || 0);
+                const targetPass = Number(row.targetPass || 0);
+                const percent = total ? ((passed / total) * 100) : 0;
+                const diff = Number(row.add || 0) ? Number(row.add || 0) : -Number(row.over || 0);
+                const diffText = allocationText(diff);
+                const percentClass = percent >= 43 ? 'text-emerald-300' : 'text-amber-300';
+                const diffClass = diff > 0 ? 'text-emerald-300' : (diff < 0 ? 'text-amber-300' : 'text-sky-300');
+                return `
+                    <tr class="hover:bg-white/5">
+                        <td class="py-3 px-3 font-semibold text-white">${escapeHtml(row.school)}</td>
+                        <td class="py-3 px-3 text-center text-slate-200">${passed}</td>
+                        <td class="py-3 px-3 text-center text-slate-300">${reserve}</td>
+                        <td class="py-3 px-3 text-center text-slate-200">${total}</td>
+                        <td class="py-3 px-3 text-center font-extrabold ${percentClass}">${percent.toFixed(2)}%</td>
+                        <td class="py-3 px-3 text-center text-slate-200">${targetPass}</td>
+                        <td class="py-3 px-3 text-center font-bold ${diffClass}">${escapeHtml(diffText)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         function getPeriod2QuotaItem(gender) {
             const item = period2Quota?.byGender?.[gender] || {};
             const saved = Number(item.saved || 0);
@@ -970,6 +1056,7 @@
             $('poolCount').textContent = `${result.totalPool || 0} คน`;
             $('passRateDetail').textContent = `ผู้สมัคร ${result.totalPool || 0} คน / ผ่านการคัดเลือก ${result.passedCount || 0} คน / สำรอง ${result.reserveCount || 0} คน`;
             renderAllocationSummary(result);
+            renderMaleSchoolPercentTable(result);
             $('resultMeta').textContent = `${result.round || ''} / ${result.mode || ''} / ผู้สมัคร ${result.totalPool || 0} คน / สำรอง ${result.reserveCount || 0} คน`;
             $('saveButton').disabled = (result.selectedCount || 0) === 0;
             renderPeriod2QuotaSummary();
