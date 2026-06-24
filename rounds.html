@@ -422,8 +422,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178225865410"></script>
-    <script src="api-client.js?v=178225865410"></script>
+    <script src="config.js?v=178226728372"></script>
+    <script src="api-client.js?v=178226728372"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -776,12 +776,14 @@
 
         function renderAllocationSummary(result) {
             const status = result.allocationStatus || 'match';
+            const addCount = Number(result.allocationAdd || 0);
+            const overCount = Number(result.allocationOver || 0);
             const count = Number(result.allocationAbs || 0);
-            const title = status === 'over' ? 'เกินยอดจัดสรร' : (count > 0 ? 'ยอดจัดสรรเพิ่ม' : 'ตรงตามยอดจัดสรร');
+            const title = status === 'mixed' ? 'เพิ่ม/เกินยอดจัดสรร' : (status === 'over' ? 'เกินยอดจัดสรร' : (count > 0 ? 'ยอดจัดสรรเพิ่ม' : 'ตรงตามยอดจัดสรร'));
             $('allocationTitle').textContent = title;
-            $('allocationCount').textContent = count;
+            $('allocationCount').textContent = status === 'mixed' ? `+${addCount} / เกิน ${overCount}` : count;
             $('allocationCount').classList.remove('text-emerald-300', 'text-amber-300', 'text-sky-300');
-            $('allocationCount').classList.add(status === 'over' ? 'text-amber-300' : (count > 0 ? 'text-emerald-300' : 'text-sky-300'));
+            $('allocationCount').classList.add(status === 'over' || status === 'mixed' ? 'text-amber-300' : (count > 0 ? 'text-emerald-300' : 'text-sky-300'));
             const allocationByGender = result.allocationByGender || {};
             const male = allocationByGender['ชาย'] || {};
             const female = allocationByGender['หญิง'] || {};
