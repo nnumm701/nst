@@ -516,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178226966491"></script>
-    <script src="api-client.js?v=178226966491"></script>
+    <script src="config.js?v=178227034228"></script>
+    <script src="api-client.js?v=178227034228"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -647,8 +647,8 @@
             <div class="glass-card rounded-2xl p-5 border border-white/10">
                 <p id="quotaLabel" class="text-sm text-slate-400">ยอดจัดสรรรอบ 2</p>
                 <div id="period2QuotaSummary" class="mt-2 space-y-1 text-sm text-slate-300">
-                    <p>ชาย 0/254 คงเหลือ 254</p>
-                    <p>หญิง 0/336 คงเหลือ 336</p>
+                    <p>รวม <span class="text-emerald-300 font-bold">0/590</span> คงเหลือ <span class="text-emerald-300 font-bold">590</span></p>
+                    <p>ชาย 0 / หญิง 0</p>
                 </div>
             </div>
             <div class="glass-card rounded-2xl p-5 border border-white/10">
@@ -885,9 +885,14 @@
         }
 
         function getPeriod2QuotaItem(gender) {
-            const fallbackLimits = { 'ชาย': 254, 'หญิง': 336 };
             const item = period2Quota?.byGender?.[gender] || {};
-            const limit = Number(item.limit || fallbackLimits[gender] || 0);
+            const saved = Number(item.saved || 0);
+            return { saved };
+        }
+
+        function getTotalQuotaItem() {
+            const item = period2Quota?.total || {};
+            const limit = Number(item.limit || 590);
             const saved = Number(item.saved || 0);
             return { limit, saved };
         }
@@ -902,25 +907,29 @@
             }, {});
         }
 
+        function getSelectedTotalCount(selectedCounts = getSelectedGenderCounts()) {
+            return Object.values(selectedCounts).reduce((sum, count) => sum + Number(count || 0), 0);
+        }
+
         function getPeriod2QuotaOverflow(selectedCounts = getSelectedGenderCounts()) {
             if (!enforcePeriod2Quota) return '';
-            return ['ชาย', 'หญิง'].find(gender => {
-                const quota = getPeriod2QuotaItem(gender);
-                return quota.limit > 0 && quota.saved + (selectedCounts[gender] || 0) > quota.limit;
-            }) || '';
+            const quota = getTotalQuotaItem();
+            return quota.limit > 0 && quota.saved + getSelectedTotalCount(selectedCounts) > quota.limit ? 'รวม' : '';
         }
 
         function renderPeriod2QuotaSummary(selectedCounts = getSelectedGenderCounts()) {
-            const lines = ['ชาย', 'หญิง'].map(gender => {
-                const quota = getPeriod2QuotaItem(gender);
-                const adding = Number(selectedCounts[gender] || 0);
-                const used = quota.saved + adding;
-                const remaining = Math.max(0, quota.limit - used);
-                const colorClass = remaining > 0 ? 'text-emerald-300' : 'text-amber-300';
-                const addText = adding ? ` <span class="text-sky-300">(+${adding})</span>` : '';
-                return `<p>${gender} <span class="${colorClass} font-bold">${used}/${quota.limit}</span>${addText} คงเหลือ <span class="${colorClass} font-bold">${remaining}</span></p>`;
-            });
-            $('period2QuotaSummary').innerHTML = lines.join('');
+            const quota = getTotalQuotaItem();
+            const adding = getSelectedTotalCount(selectedCounts);
+            const used = quota.saved + adding;
+            const remaining = Math.max(0, quota.limit - used);
+            const colorClass = remaining > 0 ? 'text-emerald-300' : 'text-amber-300';
+            const addText = adding ? ` <span class="text-sky-300">(+${adding})</span>` : '';
+            const maleSaved = getPeriod2QuotaItem('ชาย').saved + Number(selectedCounts['ชาย'] || 0);
+            const femaleSaved = getPeriod2QuotaItem('หญิง').saved + Number(selectedCounts['หญิง'] || 0);
+            $('period2QuotaSummary').innerHTML = `
+                <p>รวม <span class="${colorClass} font-bold">${used}/${quota.limit}</span>${addText} คงเหลือ <span class="${colorClass} font-bold">${remaining}</span></p>
+                <p>ชาย ${maleSaved} / หญิง ${femaleSaved} <span class="text-slate-400">(ไม่ล็อกแยกเพศ)</span></p>
+            `;
         }
 
         function getSelectedRoundSheetName() {
@@ -1018,17 +1027,17 @@
                 if (previewRows[index]) previewRows[index].selected = input.checked;
             });
             let selectedCounts = getSelectedGenderCounts();
-            const overflowGender = getPeriod2QuotaOverflow(selectedCounts);
-            if (overflowGender && event?.target?.matches?.('input[type="checkbox"]') && event.target.checked) {
+            const overflowQuota = getPeriod2QuotaOverflow(selectedCounts);
+            if (overflowQuota && event?.target?.matches?.('input[type="checkbox"]') && event.target.checked) {
                 const index = Number(event.target.dataset.index);
                 event.target.checked = false;
                 if (previewRows[index]) previewRows[index].selected = false;
                 selectedCounts = getSelectedGenderCounts();
-                const quota = getPeriod2QuotaItem(overflowGender);
+                const quota = getTotalQuotaItem();
                 const quotaLabel = $('quotaLabel')?.textContent || quotaLabelForRound(getSelectedRoundSheetName());
                 Swal.fire({
                     icon: 'warning',
-                    title: `${quotaLabel} ${overflowGender} เต็มแล้ว`,
+                    title: `${quotaLabel} เต็มแล้ว`,
                     text: `กำหนดไว้ไม่เกิน ${quota.limit} คน ตอนนี้บันทึกแล้ว ${quota.saved} คน`,
                     confirmButtonColor: '#8b5cf6'
                 });
@@ -1068,13 +1077,13 @@
                 return;
             }
             const selectedCounts = getSelectedGenderCounts();
-            const overflowGender = getPeriod2QuotaOverflow(selectedCounts);
-            if (overflowGender) {
-                const quota = getPeriod2QuotaItem(overflowGender);
+            const overflowQuota = getPeriod2QuotaOverflow(selectedCounts);
+            if (overflowQuota) {
+                const quota = getTotalQuotaItem();
                 const quotaLabel = $('quotaLabel')?.textContent || quotaLabelForRound(getSelectedRoundSheetName());
                 Swal.fire({
                     icon: 'warning',
-                    title: `${quotaLabel} ${overflowGender} เกินกำหนด`,
+                    title: `${quotaLabel} เกินกำหนด`,
                     text: `กำหนดไว้ไม่เกิน ${quota.limit} คน ตอนนี้บันทึกแล้ว ${quota.saved} คน`,
                     confirmButtonColor: '#8b5cf6'
                 });
