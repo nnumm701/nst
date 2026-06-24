@@ -17,6 +17,9 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- SheetJS for Excel export/import -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -677,10 +680,10 @@
                                     <i class="fas fa-print mr-2"></i>พิมพ์
                                 </button>
 
-                                <button onclick="openNSTPdfExportDialog()"
-                                    class="px-4 py-2 bg-rose-500/20 border border-rose-500/50 text-rose-300 rounded-lg hover:bg-rose-500/30 transition-all shadow-sm flex items-center"
-                                    title="ส่งออก PDF ทุกโรงเรียนตามหัวข้อตารางที่เลือก">
-                                    <i class="fas fa-file-pdf mr-2"></i>PDF
+                                <button onclick="openNSTXlsxExportDialog()"
+                                    class="px-4 py-2 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded-lg hover:bg-emerald-500/30 transition-all shadow-sm flex items-center"
+                                    title="ส่งออก Excel ทุกโรงเรียนตามหัวข้อตารางที่เลือก">
+                                    <i class="fas fa-file-excel mr-2"></i>Excel
                                 </button>
 
                                 <button onclick="openWithdrawalDialog()"
@@ -1876,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178228435585"></script>
-<script src="api-client.js?v=178228435585"></script>
+    <script src="config.js?v=178228481557"></script>
+<script src="api-client.js?v=178228481557"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -4098,64 +4101,47 @@
         });
     }
 
-    async function openNSTPdfExportDialog() {
+    async function openNSTXlsxExportDialog() {
         const result = await Swal.fire({
-            title: 'ส่งออก PDF',
+            title: 'ส่งออก Excel',
             html: `
                 <div class="text-left space-y-3 py-2">
                     <p class="text-sm text-slate-300 mb-3">เลือกหัวข้อตารางที่ต้องการส่งออกทุกโรงเรียน</p>
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
-                        <input type="radio" name="nstPdfMode" value="selected" checked class="w-4 h-4">
+                        <input type="radio" name="nstXlsxMode" value="selected" checked class="w-4 h-4">
                         <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
-                        <input type="radio" name="nstPdfMode" value="period2" class="w-4 h-4">
+                        <input type="radio" name="nstXlsxMode" value="period2" class="w-4 h-4">
                         <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
-                        <input type="radio" name="nstPdfMode" value="round2" class="w-4 h-4">
+                        <input type="radio" name="nstXlsxMode" value="round2" class="w-4 h-4">
                         <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกรอบ 2</span>
                     </label>
                 </div>
             `,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-file-pdf mr-2"></i>ส่งออก',
+            confirmButtonText: '<i class="fas fa-file-excel mr-2"></i>ส่งออก',
             cancelButtonText: 'ยกเลิก',
             confirmButtonColor: '#e11d48',
             background: '#1e293b',
             color: '#e5e7eb',
             preConfirm: () => {
-                const checked = document.querySelector('input[name="nstPdfMode"]:checked');
+                const checked = document.querySelector('input[name="nstXlsxMode"]:checked');
                 return checked ? checked.value : 'selected';
             }
         });
         if (!result.isConfirmed) return;
-        exportNSTSelectionPdf(result.value || 'selected');
+        exportNSTSelectionXlsx(result.value || 'selected');
     }
 
-    async function exportNSTSelectionPdf(mode) {
-        const reportWindow = window.open('', '_blank');
-        if (!reportWindow) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'เปิดหน้าต่างไม่ได้',
-                text: 'กรุณาอนุญาต pop-up แล้วลองส่งออกอีกครั้ง',
-                confirmButtonColor: '#e11d48'
-            });
+    async function exportNSTSelectionXlsx(mode) {
+        if (typeof XLSX === 'undefined') {
+            Swal.fire({ icon: 'error', title: 'ไม่พบตัวสร้างไฟล์ Excel', confirmButtonColor: '#10b981' });
             return;
         }
-
-        reportWindow.document.write(`
-            <!DOCTYPE html>
-            <html><head><title>กำลังเตรียม PDF</title></head>
-            <body style="font-family: sans-serif; padding: 32px;">
-                <h2>กำลังเตรียมรายงาน...</h2>
-                <p>กรุณารอสักครู่</p>
-            </body></html>
-        `);
-        reportWindow.document.close();
-
         showLoading();
         try {
             const dateFilter = document.getElementById('filterRecruitDate')?.value || '';
@@ -4178,9 +4164,8 @@
                 round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2'
             };
             const rows = exportGroups[mode] || [];
-            writeNSTPdfReportWindow(reportWindow, titleMap[mode] || titleMap.selected, rows, dateFilter);
+            writeNSTSelectionXlsx(titleMap[mode] || titleMap.selected, rows, dateFilter);
         } catch (error) {
-            reportWindow.close();
             handleError(error);
         } finally {
             hideLoading();
@@ -4277,6 +4262,65 @@
     function rankValue(value) {
         const numberValue = Number(value);
         return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : Number.MAX_SAFE_INTEGER;
+    }
+
+    function getNSTCitizenLastDigits(row, length = 5) {
+        const value = String(
+            row?.nationalId ||
+            row?.['เลขประจำตัวประชาชน'] ||
+            row?.['เลข ปชช.'] ||
+            row?.['เลขบัตรประชาชน'] ||
+            ''
+        ).replace(/\D/g, '');
+        return value ? value.slice(-length).padStart(Math.min(length, value.length), '0') : '';
+    }
+
+    function getNSTExportFullName(row) {
+        return String(
+            row?.name ||
+            `${row?.['คำนำหน้า'] || ''}${row?.['ชื่อ'] || ''} ${row?.['นามสกุล'] || ''}`.trim() ||
+            row?.['ชื่อ-นามสกุล'] ||
+            ''
+        ).trim();
+    }
+
+    function writeNSTSelectionXlsx(title, rows, dateFilter) {
+        const dataRows = rows.map(item => {
+            const row = item.row || {};
+            return {
+                'รหัส': getNSTAppId(row),
+                'ชื่อ-นามสกุล': getNSTExportFullName(row),
+                'เลขหลัง 5 ตัวสุดท้าย': getNSTCitizenLastDigits(row, 5),
+                'โรงเรียน': row['สถานศึกษา'] || row.school || row['โรงเรียน'] || ''
+            };
+        });
+
+        if (!dataRows.length) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่มีข้อมูลสำหรับส่งออก',
+                text: 'หัวข้อที่เลือกยังไม่มีรายชื่อ',
+                confirmButtonColor: '#10b981'
+            });
+            return;
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(dataRows, {
+            header: ['รหัส', 'ชื่อ-นามสกุล', 'เลขหลัง 5 ตัวสุดท้าย', 'โรงเรียน']
+        });
+        worksheet['!cols'] = [
+            { wch: 14 },
+            { wch: 30 },
+            { wch: 18 },
+            { wch: 48 }
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'รายชื่อ');
+        const safeTitle = String(title || 'รายชื่อ').replace(/[\\/:*?"<>|]/g, '').slice(0, 80);
+        const dateScope = dateFilter ? String(dateFilter).replace(/[\\/:*?"<>|]/g, '-') : 'ทุกโรงเรียน';
+        const today = new Date().toLocaleDateString('th-TH-u-nu-latn').replace(/\//g, '-');
+        XLSX.writeFile(workbook, `${safeTitle}_${dateScope}_${today}.xlsx`);
     }
 
     function writeNSTPdfReportWindow(reportWindow, title, rows, dateFilter) {
