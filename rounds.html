@@ -407,7 +407,101 @@
     }
 
     /* ==================== RESPONSIVE ==================== */
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .app-shell {
+        width: 100%;
+    }
+
+    #adminActionToolbar {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    #adminActionToolbar>button {
+        min-height: 42px;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    #adminDataSection {
+        min-width: 0;
+    }
+
     @media (max-width: 640px) {
+        .app-shell {
+            max-width: 100% !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+
+        #mainApp nav .h-16 {
+            height: 58px;
+        }
+
+        #mainApp nav img {
+            width: 32px;
+            height: 32px;
+        }
+
+        #mainApp nav .text-xl {
+            font-size: 1rem;
+            line-height: 1.35;
+        }
+
+        #mainApp main {
+            padding-top: 72px !important;
+            padding-bottom: 24px !important;
+        }
+
+        #adminDashboard .glass-card {
+            border-radius: 14px !important;
+        }
+
+        #adminDataSection>.glass-card {
+            padding: 16px !important;
+        }
+
+        #adminDataSection h2 {
+            width: 100%;
+            font-size: 1.1rem;
+        }
+
+        #adminActionToolbar {
+            width: 100%;
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px !important;
+        }
+
+        #adminActionToolbar>button {
+            width: 100%;
+            min-width: 0;
+            padding: 10px 8px !important;
+            font-size: 0.78rem;
+            line-height: 1.25;
+            white-space: normal;
+            text-align: center;
+        }
+
+        #adminActionToolbar>button i {
+            margin-right: 6px !important;
+        }
+
+        #adminDataSection .mb-6.p-4 {
+            padding: 12px !important;
+        }
+
+        #adminDataSection input,
+        #adminDataSection select,
+        #adminDataSection .mb-6.p-4 button {
+            min-height: 44px;
+        }
+
         .data-table {
             font-size: 0.875rem;
         }
@@ -422,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178226728372"></script>
-    <script src="api-client.js?v=178226728372"></script>
+    <script src="config.js?v=178226966491"></script>
+    <script src="api-client.js?v=178226966491"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -490,8 +584,8 @@
                 <div>
                     <label class="block text-sm font-semibold text-slate-300 mb-2">รอบ</label>
                     <select id="roundSelect" class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white">
-                        <option value="รายชื่อผู้ผ่านการคัดเลือกห้วง2">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</option>
                         <option value="รายชื่อผู้ผ่านการคัดเลือกรอบ2">รายชื่อผู้ผ่านการคัดเลือกรอบ 2</option>
+                        <option value="รายชื่อผู้ผ่านการคัดเลือกห้วง2">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</option>
                     </select>
                 </div>
                 <div>
@@ -551,7 +645,7 @@
                 <p id="allocationMeta" class="mt-2 text-sm text-slate-300">คิด ช.43% / ญ.75%</p>
             </div>
             <div class="glass-card rounded-2xl p-5 border border-white/10">
-                <p class="text-sm text-slate-400">ยอดจัดสรรห้วงที่ 2</p>
+                <p id="quotaLabel" class="text-sm text-slate-400">ยอดจัดสรรรอบ 2</p>
                 <div id="period2QuotaSummary" class="mt-2 space-y-1 text-sm text-slate-300">
                     <p>ชาย 0/254 คงเหลือ 254</p>
                     <p>หญิง 0/336 คงเหลือ 336</p>
@@ -600,7 +694,7 @@
         let previewRows = [];
         let period2Quota = null;
         let enforcePeriod2Quota = true;
-        let currentOutputSheetName = 'รายชื่อผู้ผ่านการคัดเลือกห้วง2';
+        let currentOutputSheetName = 'รายชื่อผู้ผ่านการคัดเลือกรอบ2';
 
         const $ = (id) => document.getElementById(id);
         const rememberedLoginKey = 'nst_rounds_remembered_login';
@@ -830,12 +924,18 @@
         }
 
         function getSelectedRoundSheetName() {
-            return $('roundSelect').value || 'รายชื่อผู้ผ่านการคัดเลือกห้วง2';
+            return $('roundSelect').value || 'รายชื่อผู้ผ่านการคัดเลือกรอบ2';
         }
 
         function updateRoundSheetLabel() {
             currentOutputSheetName = getSelectedRoundSheetName();
             $('nominationSheetName').textContent = currentOutputSheetName;
+            $('quotaLabel').textContent = quotaLabelForRound(currentOutputSheetName);
+        }
+
+        function quotaLabelForRound(roundName) {
+            const value = String(roundName || '');
+            return value.includes('รอบ2') || value.includes('รอบ 2') ? 'ยอดจัดสรรรอบ 2' : 'ยอดจัดสรรห้วงที่ 2';
         }
 
         function allocationText(value) {
@@ -851,6 +951,7 @@
             enforcePeriod2Quota = result.enforcePeriod2Quota !== false;
             currentOutputSheetName = result.outputSheetName || currentOutputSheetName;
             $('nominationSheetName').textContent = currentOutputSheetName;
+            $('quotaLabel').textContent = result.quotaLabel || quotaLabelForRound(currentOutputSheetName);
             $('previewTitle').textContent = result.round || $('roundSelect').selectedOptions[0]?.textContent || 'รายชื่อผู้ผ่านการคัดเลือก';
             $('totalCount').textContent = result.total || 0;
             $('selectedCount').textContent = result.selectedCount || 0;
@@ -924,9 +1025,10 @@
                 if (previewRows[index]) previewRows[index].selected = false;
                 selectedCounts = getSelectedGenderCounts();
                 const quota = getPeriod2QuotaItem(overflowGender);
+                const quotaLabel = $('quotaLabel')?.textContent || quotaLabelForRound(getSelectedRoundSheetName());
                 Swal.fire({
                     icon: 'warning',
-                    title: `ยอดจัดสรรห้วงที่ 2 ${overflowGender} เต็มแล้ว`,
+                    title: `${quotaLabel} ${overflowGender} เต็มแล้ว`,
                     text: `กำหนดไว้ไม่เกิน ${quota.limit} คน ตอนนี้บันทึกแล้ว ${quota.saved} คน`,
                     confirmButtonColor: '#8b5cf6'
                 });
@@ -969,9 +1071,10 @@
             const overflowGender = getPeriod2QuotaOverflow(selectedCounts);
             if (overflowGender) {
                 const quota = getPeriod2QuotaItem(overflowGender);
+                const quotaLabel = $('quotaLabel')?.textContent || quotaLabelForRound(getSelectedRoundSheetName());
                 Swal.fire({
                     icon: 'warning',
-                    title: `ยอดจัดสรรห้วงที่ 2 ${overflowGender} เกินกำหนด`,
+                    title: `${quotaLabel} ${overflowGender} เกินกำหนด`,
                     text: `กำหนดไว้ไม่เกิน ${quota.limit} คน ตอนนี้บันทึกแล้ว ${quota.saved} คน`,
                     confirmButtonColor: '#8b5cf6'
                 });
