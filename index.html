@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178228481557"></script>
-<script src="api-client.js?v=178228481557"></script>
+    <script src="config.js?v=178228619006"></script>
+<script src="api-client.js?v=178228619006"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -4174,27 +4174,34 @@
 
     function buildNSTPdfExportGroups(data, period2Selection, round2Selection, quotas) {
         const quotaResults = buildNSTPdfQuotaResults(data, quotas);
+        const dataByAppId = Object.fromEntries((data || [])
+            .map(row => [getNSTAppId(row), row])
+            .filter(([appId]) => appId));
         const period2Ids = new Set(Object.keys(period2Selection || {}));
         const round2Ids = new Set(Object.keys(round2Selection || {}));
         const selected = [];
-        const period2 = [];
-        const round2 = [];
+        const selectionItem = (appId, selection) => {
+            const source = dataByAppId[appId] || {};
+            const row = { ...source, ...(selection || {}) };
+            return { row, selection, rank: readNSTSavedSelectionRank(selection) };
+        };
+        const period2 = Object.entries(period2Selection || {})
+            .map(([appId, selection]) => selectionItem(appId, selection));
+        const round2 = Object.entries(round2Selection || {})
+            .map(([appId, selection]) => selectionItem(appId, selection));
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
             const failureReason = getSelectionFailureReason(row);
             if (failureReason) return;
-            if (period2Ids.has(appId)) {
-                period2.push({ row, selection: period2Selection[appId], rank: readNSTSavedSelectionRank(period2Selection[appId]) });
-            } else if (round2Ids.has(appId)) {
-                round2.push({ row, selection: round2Selection[appId], rank: readNSTSavedSelectionRank(round2Selection[appId]) });
-            } else if (quotaResults[appId]?.isQuota) {
+            if (period2Ids.has(appId) || round2Ids.has(appId)) return;
+            if (quotaResults[appId]?.isQuota) {
                 selected.push({ row, selection: null, rank: quotaResults[appId].rank });
             }
         });
 
         const bySchoolRank = (a, b) =>
-            String(a.row['สถานศึกษา'] || '').localeCompare(String(b.row['สถานศึกษา'] || ''), 'th', { numeric: true }) ||
+            getNSTExportSchool(a.row).localeCompare(getNSTExportSchool(b.row), 'th', { numeric: true }) ||
             rankValue(a.rank) - rankValue(b.rank) ||
             getNSTAppId(a.row).localeCompare(getNSTAppId(b.row), 'th', { numeric: true });
 
@@ -4284,6 +4291,10 @@
         ).trim();
     }
 
+    function getNSTExportSchool(row) {
+        return String(row?.['สถานศึกษา'] || row?.school || row?.['โรงเรียน'] || '').trim();
+    }
+
     function writeNSTSelectionXlsx(title, rows, dateFilter) {
         const dataRows = rows.map(item => {
             const row = item.row || {};
@@ -4291,7 +4302,7 @@
                 'รหัส': getNSTAppId(row),
                 'ชื่อ-นามสกุล': getNSTExportFullName(row),
                 'เลขหลัง 5 ตัวสุดท้าย': getNSTCitizenLastDigits(row, 5),
-                'โรงเรียน': row['สถานศึกษา'] || row.school || row['โรงเรียน'] || ''
+                'โรงเรียน': getNSTExportSchool(row)
             };
         });
 
