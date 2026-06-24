@@ -516,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178228783956"></script>
-    <script src="api-client.js?v=178228783956"></script>
+    <script src="config.js?v=178228811724"></script>
+    <script src="api-client.js?v=178228811724"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -661,32 +661,46 @@
             </div>
         </section>
 
-        <section id="maleSchoolPercentSection" class="glass-card rounded-2xl border border-white/10 overflow-hidden mb-6 hidden">
-            <div class="px-5 py-4 border-b border-white/10 bg-slate-900/40 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                    <h2 class="font-extrabold text-white flex items-center gap-2">
-                        <i class="fas fa-table text-amber-300"></i>
-                        เปอร์เซ็นต์ชายตามสถานศึกษา
-                    </h2>
-                    <p class="text-sm text-slate-400 mt-1">แสดงสัดส่วน ชาย 43% แยกตามโรงเรียน เพื่อเทียบยอดจัดสรรรอบเพิ่มเติม</p>
+        <div id="maleSchoolPercentButtonWrap" class="mb-6 hidden">
+            <button type="button" onclick="openMaleSchoolPercentModal()"
+                class="px-5 py-3 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-200 font-extrabold hover:bg-amber-500/30 transition-all shadow-sm">
+                <i class="fas fa-table mr-2"></i>แสดงเปอร์เซ็นต์ชายตามสถานศึกษา
+            </button>
+        </div>
+
+        <section id="maleSchoolPercentSection" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-slate-950/60" onclick="closeMaleSchoolPercentModal()"></div>
+            <div class="relative mx-auto mt-6 w-[min(1100px,calc(100vw-24px))] max-h-[calc(100vh-48px)] glass-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                <div class="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="font-extrabold text-white flex items-center gap-2">
+                            <i class="fas fa-table text-amber-300"></i>
+                            เปอร์เซ็นต์ชายตามสถานศึกษา
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-1">แสดงสัดส่วน ชาย 43% แยกตามโรงเรียน เพื่อเทียบยอดจัดสรรรอบเพิ่มเติม</p>
+                        <p id="maleSchoolPercentMeta" class="text-sm text-slate-300 mt-2"></p>
+                    </div>
+                    <button type="button" onclick="closeMaleSchoolPercentModal()"
+                        class="w-10 h-10 rounded-lg border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <p id="maleSchoolPercentMeta" class="text-sm text-slate-300"></p>
-            </div>
-            <div class="overflow-auto max-h-[38vh]">
-                <table class="w-full min-w-[900px] text-sm">
-                    <thead class="sticky top-0 bg-slate-900 text-slate-300">
-                        <tr>
-                            <th class="py-3 px-3 text-left">โรงเรียน</th>
-                            <th class="py-3 px-3 text-center">ผ่านแล้ว</th>
-                            <th class="py-3 px-3 text-center">สำรอง</th>
-                            <th class="py-3 px-3 text-center">รวมชาย</th>
-                            <th class="py-3 px-3 text-center">เปอร์เซ็นต์ชาย</th>
-                            <th class="py-3 px-3 text-center">เป้า 43%</th>
-                            <th class="py-3 px-3 text-center">เพิ่ม/เกิน</th>
-                        </tr>
-                    </thead>
-                    <tbody id="maleSchoolPercentBody" class="divide-y divide-white/5"></tbody>
-                </table>
+                <div class="overflow-auto max-h-[calc(100vh-180px)]">
+                    <table class="w-full min-w-[900px] text-sm">
+                        <thead class="sticky top-0 bg-slate-900 text-slate-300">
+                            <tr>
+                                <th class="py-3 px-3 text-left">โรงเรียน</th>
+                                <th class="py-3 px-3 text-center">ผ่านแล้ว</th>
+                                <th class="py-3 px-3 text-center">สำรอง</th>
+                                <th class="py-3 px-3 text-center">รวมชาย</th>
+                                <th class="py-3 px-3 text-center">เปอร์เซ็นต์ชาย</th>
+                                <th class="py-3 px-3 text-center">เป้า 43%</th>
+                                <th class="py-3 px-3 text-center">เพิ่ม/เกิน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maleSchoolPercentBody" class="divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -915,6 +929,7 @@
 
         function renderMaleSchoolPercentTable(result) {
             const section = $('maleSchoolPercentSection');
+            const buttonWrap = $('maleSchoolPercentButtonWrap');
             const body = $('maleSchoolPercentBody');
             const meta = $('maleSchoolPercentMeta');
             if (!section || !body) return;
@@ -927,12 +942,14 @@
 
             if (!rows.length) {
                 section.classList.add('hidden');
+                if (buttonWrap) buttonWrap.classList.add('hidden');
                 body.innerHTML = '';
                 if (meta) meta.textContent = '';
                 return;
             }
 
-            section.classList.remove('hidden');
+            section.classList.add('hidden');
+            if (buttonWrap) buttonWrap.classList.remove('hidden');
             const totals = rows.reduce((sum, row) => ({
                 total: sum.total + Number(row.total || 0),
                 passed: sum.passed + Number(row.passed || 0),
@@ -1040,6 +1057,14 @@
             return 'พอดี';
         }
 
+        function openMaleSchoolPercentModal() {
+            $('maleSchoolPercentSection')?.classList.remove('hidden');
+        }
+
+        function closeMaleSchoolPercentModal() {
+            $('maleSchoolPercentSection')?.classList.add('hidden');
+        }
+
         function renderPreview(result) {
             previewRows = result.rows || [];
             period2Quota = result.period2Quota || null;
@@ -1098,6 +1123,10 @@
             $('selectedCount').textContent = 0;
             $('resultMeta').textContent = '';
             $('saveButton').disabled = true;
+            $('maleSchoolPercentButtonWrap')?.classList.add('hidden');
+            closeMaleSchoolPercentModal();
+            if ($('maleSchoolPercentBody')) $('maleSchoolPercentBody').innerHTML = '';
+            if ($('maleSchoolPercentMeta')) $('maleSchoolPercentMeta').textContent = '';
             renderPeriod2QuotaSummary();
             $('previewBody').innerHTML = `
                 <tr>
