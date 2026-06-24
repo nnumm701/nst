@@ -516,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178227099645"></script>
-    <script src="api-client.js?v=178227099645"></script>
+    <script src="config.js?v=178227164116"></script>
+    <script src="api-client.js?v=178227164116"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -1110,7 +1110,9 @@
                     })
                     .withFailureHandler(handleError)
                     .saveExtraSelection(sessionToken, {
-                        round: $('roundSelect').value,
+                        round: getSelectedRoundSheetName(),
+                        outputSheetName: getSelectedRoundSheetName(),
+                        targetSheet: getSelectedRoundSheetName(),
                         rows,
                         sortBy: $('sortSelect').value,
                         splitGender: false
