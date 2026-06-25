@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178238922651"></script>
-<script src="api-client.js?v=178238922651"></script>
+    <script src="config.js?v=178239478330"></script>
+<script src="api-client.js?v=178239478330"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -4144,6 +4144,10 @@
                         <input type="radio" name="nstXlsxMode" value="round2" class="w-4 h-4">
                         <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกรอบ 2</span>
                     </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstXlsxMode" value="extra1" class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1</span>
+                    </label>
                 </div>
             `,
             icon: 'question',
@@ -4186,7 +4190,8 @@
             const titleMap = {
                 selected: 'รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)',
                 period2: 'รายชื่อผู้ผ่านการคัดเลือกห้วง 2',
-                round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2'
+                round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2',
+                extra1: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1'
             };
             const rows = exportGroups[mode] || [];
             writeNSTSelectionXlsx(titleMap[mode] || titleMap.selected, rows, dateFilter);
@@ -4210,10 +4215,16 @@
             const row = { ...source, ...(selection || {}) };
             return { row, selection, rank: readNSTSavedSelectionRank(selection) };
         };
+        const isExtra1Selection = (selection) => {
+            const roundName = String(selection?.['รอบ'] || selection?.round || selection?.type || '').trim();
+            return roundName.includes('เพิ่มเติม1');
+        };
         const period2 = Object.entries(period2Selection || {})
             .map(([appId, selection]) => selectionItem(appId, selection));
-        const round2 = Object.entries(round2Selection || {})
+        const round2Items = Object.entries(round2Selection || {})
             .map(([appId, selection]) => selectionItem(appId, selection));
+        const round2 = round2Items.filter(item => !isExtra1Selection(item.selection));
+        const extra1 = round2Items.filter(item => isExtra1Selection(item.selection));
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
@@ -4233,7 +4244,8 @@
         return {
             selected: selected.sort(bySchoolRank),
             period2: period2.sort(bySchoolRank),
-            round2: round2.sort(bySchoolRank)
+            round2: round2.sort(bySchoolRank),
+            extra1: extra1.sort(bySchoolRank)
         };
     }
 
