@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178238870244"></script>
-<script src="api-client.js?v=178238870244"></script>
+    <script src="config.js?v=178238922651"></script>
+<script src="api-client.js?v=178238922651"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -3236,6 +3236,25 @@
             `);
         }
 
+        const round2Section = document.getElementById('round2Section');
+        const round2Table = document.getElementById('round2DataTable');
+        if (round2Section && round2Table && !document.getElementById('extra1Section')) {
+            const extra1TableHtml = round2Table.outerHTML
+                .replace('id="round2DataTable"', 'id="extra1DataTable"')
+                .replace('id="round2DataTableBody"', 'id="extra1DataTableBody"')
+                .replace(/violet-/g, 'cyan-');
+            round2Section.insertAdjacentHTML('afterend', `
+                <div class="mb-8 hidden" id="extra1Section">
+                    <h3 class="text-lg font-bold text-cyan-300 flex items-center mb-4 bg-cyan-900/20 p-3 rounded-xl border border-cyan-500/20 shadow-sm">
+                        <i class="fas fa-user-plus mr-3 text-2xl"></i>รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1
+                    </h3>
+                    <div class="overflow-x-auto glass-card rounded-xl border border-cyan-500/30 shadow-lg shadow-cyan-500/10" id="extra1TableContainer">
+                        ${extra1TableHtml}
+                    </div>
+                </div>
+            `);
+        }
+
         const reserveSection = document.getElementById('reserveSection') || reserveContainer.parentElement;
         reserveSection.id = 'reserveSection';
         reserveContainer.className = 'overflow-x-auto glass-card rounded-xl border border-amber-500/30 shadow-lg shadow-amber-500/10';
@@ -3269,6 +3288,7 @@
             reserveSection,
             period2Section: document.getElementById('period2Section'),
             round2Section: document.getElementById('round2Section'),
+            extra1Section: document.getElementById('extra1Section'),
             failedSection: document.getElementById('failedSection')
         };
     }
@@ -3279,17 +3299,20 @@
         const quotaTbody = document.getElementById('quotaDataTableBody');
         const period2Tbody = document.getElementById('period2DataTableBody');
         const round2Tbody = document.getElementById('round2DataTableBody');
+        const extra1Tbody = document.getElementById('extra1DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
 
         if (quotaSection) quotaSection.classList.add('hidden');
         if (sections.period2Section) sections.period2Section.classList.add('hidden');
         if (sections.round2Section) sections.round2Section.classList.add('hidden');
+        if (sections.extra1Section) sections.extra1Section.classList.add('hidden');
         if (sections.reserveSection) sections.reserveSection.classList.add('hidden');
         if (sections.failedSection) sections.failedSection.classList.add('hidden');
         if (quotaTbody) quotaTbody.innerHTML = '';
         if (period2Tbody) period2Tbody.innerHTML = '';
         if (round2Tbody) round2Tbody.innerHTML = '';
+        if (extra1Tbody) extra1Tbody.innerHTML = '';
         if (mainTbody) mainTbody.innerHTML = '';
         if (failedTbody) failedTbody.innerHTML = '';
     }
@@ -3538,7 +3561,7 @@
     }
 
     function expandNSTLazyTablesForPrint() {
-        ['quotaDataTableBody', 'period2DataTableBody', 'round2DataTableBody', 'nstDataTableBody', 'failedDataTableBody'].forEach(id => {
+        ['quotaDataTableBody', 'period2DataTableBody', 'round2DataTableBody', 'extra1DataTableBody', 'nstDataTableBody', 'failedDataTableBody'].forEach(id => {
             const tbody = document.getElementById(id);
             if (!tbody || !tbody._nstAllRows) return;
             tbody.innerHTML = tbody._nstAllRows.length ? tbody._nstAllRows.join('') : (tbody._nstEmptyHtml || '');
@@ -3814,11 +3837,13 @@
         const quotaSection = document.getElementById('quotaSection');
         const period2Section = document.getElementById('period2Section');
         const round2Section = document.getElementById('round2Section');
+        const extra1Section = document.getElementById('extra1Section');
         const reserveSection = document.getElementById('reserveSection');
         const failedSection = document.getElementById('failedSection');
         const quotaTable = document.getElementById('quotaDataTable');
         const period2Table = document.getElementById('period2DataTable');
         const round2Table = document.getElementById('round2DataTable');
+        const extra1Table = document.getElementById('extra1DataTable');
         const reserveTable = document.getElementById('nstDataTable');
         const failedTable = document.getElementById('failedDataTable');
 
@@ -4461,16 +4486,19 @@
         const quotaTbody = document.getElementById('quotaDataTableBody');
         const period2Tbody = document.getElementById('period2DataTableBody');
         const round2Tbody = document.getElementById('round2DataTableBody');
+        const extra1Tbody = document.getElementById('extra1DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
 
         if (quotaSection) quotaSection.classList.add('hidden');
         if (sections.period2Section) sections.period2Section.classList.add('hidden');
         if (sections.round2Section) sections.round2Section.classList.add('hidden');
+        if (sections.extra1Section) sections.extra1Section.classList.add('hidden');
         if (sections.failedSection) sections.failedSection.classList.add('hidden');
         if (quotaTbody) quotaTbody.innerHTML = '';
         if (period2Tbody) period2Tbody.innerHTML = '';
         if (round2Tbody) round2Tbody.innerHTML = '';
+        if (extra1Tbody) extra1Tbody.innerHTML = '';
         if (failedTbody) failedTbody.innerHTML = '';
         if (mainTbody) {
             mainTbody.innerHTML = `
@@ -4622,6 +4650,7 @@
         const quotaTbody = document.getElementById('quotaDataTableBody');
         const period2Tbody = document.getElementById('period2DataTableBody');
         const round2Tbody = document.getElementById('round2DataTableBody');
+        const extra1Tbody = document.getElementById('extra1DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
         const quotaSection = document.getElementById('quotaSection');
@@ -4629,12 +4658,14 @@
         if (quotaSection) quotaSection.classList.remove('hidden');
         if (sections.period2Section) sections.period2Section.classList.remove('hidden');
         if (sections.round2Section) sections.round2Section.classList.remove('hidden');
+        if (sections.extra1Section) sections.extra1Section.classList.remove('hidden');
         if (sections.reserveSection) sections.reserveSection.classList.remove('hidden');
         if (sections.failedSection) sections.failedSection.classList.remove('hidden');
 
         let quotaHtml = [];
         let period2Html = [];
         let round2Html = [];
+        let extra1Html = [];
         let mainHtml = [];
         let failedHtml = [];
 
@@ -4646,6 +4677,7 @@
         let quotaRows = [];
         let period2Rows = [];
         let round2Rows = [];
+        let extra1Rows = [];
         let mainRows = [];
         let failedRows = [];
 
@@ -4690,6 +4722,10 @@
             const value = Number(rank);
             return Number.isFinite(value) && value > 0 ? value : '-';
         };
+        const isExtra1SelectionData = (selectionData) => {
+            const roundName = String(selectionData?.['รอบ'] || selectionData?.round || selectionData?.type || '').trim();
+            return roundName.includes('เพิ่มเติม1');
+        };
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
@@ -4700,7 +4736,9 @@
             if (period2Data) {
                 period2Rows.push({ row, quotaData: { isQuota: true, rank: computedRankFor(period2Data, quotaData), period2: true } });
             } else if (round2Data) {
-                round2Rows.push({ row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true } });
+                const item = { row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true, extra1: isExtra1SelectionData(round2Data) } };
+                if (item.quotaData.extra1) extra1Rows.push(item);
+                else round2Rows.push(item);
             } else if (failureReason === 'สละสิทธิ') {
                 failedRows.push({ row, quotaData, failureReason });
             } else if (quotaData && quotaData.isQuota) {
@@ -4716,6 +4754,7 @@
             quotaRows.sort((a, b) => (a.quotaData.rank || 0) - (b.quotaData.rank || 0) || compareAppId(a, b));
             period2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             round2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
+            extra1Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             mainRows.sort((a, b) => {
                 if (a.quotaData && a.quotaData.rank && b.quotaData && b.quotaData.rank) {
                     return a.quotaData.rank - b.quotaData.rank || compareAppId(a, b);
@@ -4728,6 +4767,7 @@
             sortSelectionGroup(quotaRows);
             sortSelectionGroup(period2Rows);
             sortSelectionGroup(round2Rows);
+            sortSelectionGroup(extra1Rows);
             sortSelectionGroup(mainRows);
         }
 
@@ -4819,6 +4859,32 @@
         });
 
         // สร้าง HTML สำหรับข้อมูลทั่วไป
+        extra1Rows.forEach(item => {
+            const row = item.row;
+            const quotaData = item.quotaData;
+            const docCheck = row['ผลตรวจแพทย์'] || row['สถานะร่างกาย'];
+            const statusClass = isStation1StatusPass(docCheck) ? 'badge-pass' :
+                isStation1StatusFail(docCheck) ? 'badge-fail' : 'badge-pending';
+            const statusText = docCheck || 'รอตรวจ';
+            const rowAttrs = getNSTLookupRowAttrs(row, 'border-b border-cyan-900/50 bg-cyan-900/10');
+
+            extra1Html.push(`
+      <tr ${rowAttrs}>
+        <td class="font-bold text-gray-300 text-center py-3 px-4">${extra1Html.length + 1}</td>
+        <td class="font-bold text-gray-200 text-center py-3 px-4 whitespace-nowrap">${row['รหัสใบสมัคร']}</td>
+        <td class="text-left font-medium text-white py-3 px-4 whitespace-nowrap min-w-[150px]">${row['ชื่อ']} ${row['นามสกุล']}</td>
+        <td class="text-center text-gray-300 py-3 px-4">${row['เพศ'] || '-'}</td>
+        <td class="text-left text-gray-300 text-xs lg:text-sm py-3 px-4">${escapeHtml(formatNSTSchoolWithCode(row))}</td>
+        <td class="text-left text-gray-300 py-3 px-4">${row['จังหวัด']}</td>
+        <td class="text-center py-3 px-4"><span class="badge ${statusClass} border border-cyan-500/30 px-2 py-1 bg-cyan-500/20 text-cyan-300 shadow-sm rounded-lg">${statusText}</span></td>
+        ${formatTestCells(row, 'เวลาวิ่ง', 'คะแนนวิ่ง', 'คะแนนส่วนเพิ่มวิ่ง')}
+        ${formatTestCells(row, 'ลุกนั่ง', 'คะแนนลุกนั่ง', 'คะแนนส่วนเพิ่มลุกนั่ง')}
+        ${formatTestCells(row, 'ดันพื้น', 'คะแนนดันพื้น', 'คะแนนส่วนเพิ่มดันพื้น')}
+        <td class="font-black text-center text-cyan-300 text-lg py-3 px-4">${formatSelectionTotal(row)}</td>
+        <td class="text-center py-3 px-4"><span class="w-8 h-8 inline-flex items-center justify-center bg-cyan-500/20 border border-cyan-500/30 rounded-lg text-sm font-bold text-cyan-300 shadow-sm" title="ลำดับคะแนน (เพิ่มเติม1)">${displayRank(quotaData.rank)}</span></td>
+      </tr>`);
+        });
+
         mainRows.forEach(item => {
             const row = item.row;
             const quotaData = item.quotaData;
@@ -4913,6 +4979,13 @@
             round2Tbody,
             round2Html,
             emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกรอบ 2', 'fas fa-list-check text-violet-300'),
+            renderToken,
+            { showAll: true }
+        );
+        renderTbodyRowsLazy(
+            extra1Tbody,
+            extra1Html,
+            emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1', 'fas fa-user-plus text-cyan-300'),
             renderToken,
             { showAll: true }
         );
