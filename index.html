@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178243542265"></script>
-<script src="api-client.js?v=178243542265"></script>
+    <script src="config.js?v=178243899501"></script>
+<script src="api-client.js?v=178243899501"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -4209,6 +4209,10 @@
             .filter(([appId]) => appId));
         const period2Ids = new Set(Object.keys(period2Selection || {}));
         const round2Ids = new Set(Object.keys(round2Selection || {}));
+        const withdrawnIds = new Set((data || [])
+            .filter(row => getSelectionFailureReason(row) === 'สละสิทธิ')
+            .map(row => getNSTAppId(row))
+            .filter(Boolean));
         const selected = [];
         const selectionItem = (appId, selection) => {
             const source = dataByAppId[appId] || {};
@@ -4220,8 +4224,10 @@
             return roundName.includes('เพิ่มเติม1');
         };
         const period2 = Object.entries(period2Selection || {})
+            .filter(([appId]) => !withdrawnIds.has(appId))
             .map(([appId, selection]) => selectionItem(appId, selection));
         const round2Items = Object.entries(round2Selection || {})
+            .filter(([appId]) => !withdrawnIds.has(appId))
             .map(([appId, selection]) => selectionItem(appId, selection));
         const round2 = round2Items.filter(item => !isExtra1Selection(item.selection));
         const extra1 = round2Items.filter(item => isExtra1Selection(item.selection));
@@ -4745,14 +4751,14 @@
             const period2Data = currentPeriod2Selection?.[appId];
             const round2Data = currentRound2Selection?.[appId];
             const failureReason = getSelectionFailureReason(row);
-            if (period2Data) {
+            if (failureReason === 'สละสิทธิ') {
+                failedRows.push({ row, quotaData, failureReason });
+            } else if (period2Data) {
                 period2Rows.push({ row, quotaData: { isQuota: true, rank: computedRankFor(period2Data, quotaData), period2: true } });
             } else if (round2Data) {
                 const item = { row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true, extra1: isExtra1SelectionData(round2Data) } };
                 if (item.quotaData.extra1) extra1Rows.push(item);
                 else round2Rows.push(item);
-            } else if (failureReason === 'สละสิทธิ') {
-                failedRows.push({ row, quotaData, failureReason });
             } else if (quotaData && quotaData.isQuota) {
                 quotaRows.push({ row, quotaData });
             } else if (failureReason) {
