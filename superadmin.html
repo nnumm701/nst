@@ -26,8 +26,8 @@
         th { color: #94a3b8; font-size: .78rem; text-align: left; white-space: nowrap; }
         td { border-top: 1px solid rgba(148, 163, 184, .14); padding: .85rem .7rem; vertical-align: middle; }
     </style>
-    <script src="config.js?v=178243542265"></script>
-<script src="api-client.js?v=178243542265"></script>
+    <script src="config.js?v=178245343574"></script>
+<script src="api-client.js?v=178245343574"></script>
 </head>
 
 <body class="min-h-screen bg-[#080d19] text-slate-200">
@@ -90,6 +90,7 @@
                 <button class="btn btn-soft tab" data-tab="body"><i class="fas fa-weight-scale"></i>เกณฑ์ร่างกาย</button>
                 <button class="btn btn-soft tab" data-tab="physical"><i class="fas fa-person-running"></i>เกณฑ์สถานี</button>
                 <button class="btn btn-soft tab" data-tab="settings"><i class="fas fa-sliders"></i>ตั้งค่าทดสอบ</button>
+                <button class="btn btn-soft tab" data-tab="moves"><i class="fas fa-right-left"></i>ย้ายสถานะ</button>
                 <button class="btn btn-soft tab" data-tab="export"><i class="fas fa-download"></i>สำรอง</button>
                 <button class="btn btn-soft tab" data-tab="audit"><i class="fas fa-clock-rotate-left"></i>ประวัติ</button>
             </div>
@@ -238,6 +239,46 @@
                 </div>
             </section>
 
+            <section id="movesTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
+                <div class="p-5 border-b border-slate-700/50">
+                    <h2 class="text-xl font-bold text-white">ย้ายสถานะนักศึกษา</h2>
+                    <p class="text-sm text-slate-400 mt-1">เฉพาะ superadmin เท่านั้น ระบบจะปิดแถวเดิมและสร้างแถวใหม่แทนการลบข้อมูล</p>
+                </div>
+                <div class="p-5 grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-5">
+                    <div class="rounded-2xl bg-slate-900/70 border border-slate-700/70 p-4">
+                        <label class="block text-sm text-slate-300 mb-2">รหัสใบสมัคร</label>
+                        <div class="flex gap-2">
+                            <input id="moveAppId" class="field" placeholder="เช่น 329006">
+                            <button class="btn btn-primary whitespace-nowrap" onclick="searchMoveApplicant()"><i class="fas fa-magnifying-glass"></i>ค้นหา</button>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm text-slate-300 mb-2">ย้ายไปสถานะ</label>
+                            <select id="moveTargetStatus" class="field">
+                                <option value="selected">ตัวจริงตามจัดสรร</option>
+                                <option value="reserve">สำรอง</option>
+                                <option value="period2">ผ่านห้วง 2</option>
+                                <option value="round2">ผ่านรอบ 2</option>
+                                <option value="extra1">ผ่านเพิ่มเติม1</option>
+                                <option value="withdraw">สละสิทธิ์</option>
+                                <option value="clear_withdraw">คืนสิทธิ์/ล้างสละสิทธิ์</option>
+                            </select>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm text-slate-300 mb-2">ลำดับใหม่ (ไม่กรอก = ต่อท้ายอัตโนมัติ)</label>
+                            <input id="moveTargetRank" class="field" type="number" min="1" placeholder="ปล่อยว่างได้">
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm text-slate-300 mb-2">หมายเหตุ</label>
+                            <textarea id="moveNote" class="field min-h-[90px]" placeholder="เหตุผลการย้าย / เลขหนังสือ / ผู้สั่งการ"></textarea>
+                        </div>
+                        <button class="btn btn-green w-full mt-4" onclick="applyMoveApplicant()"><i class="fas fa-floppy-disk"></i>ยืนยันย้ายสถานะ</button>
+                    </div>
+                    <div id="moveResult" class="rounded-2xl bg-slate-900/70 border border-slate-700/70 p-4 text-slate-400">
+                        ค้นหารหัสใบสมัครก่อนย้ายสถานะ
+                    </div>
+                </div>
+            </section>
+
             <section id="auditTab" class="tab-page panel rounded-2xl overflow-hidden hidden">
                 <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div>
@@ -369,7 +410,8 @@
             actualExamDates: [],
             auditLogs: [],
             criteria: { body: [], physical: [], settings: [] },
-            currentUser: null
+            currentUser: null,
+            moveApplicant: null
         };
         const roleNames = {
             superadmin: 'ผู้ดูแลสูงสุด',
@@ -563,6 +605,118 @@
         function statusBadge(value) {
             const enabled = !['FALSE', 'false', '0', 'ไม่ใช้งาน', 'ปิด'].includes(String(value || '').trim());
             return `<span class="rounded-full ${enabled ? 'bg-emerald-500/15 text-emerald-200' : 'bg-rose-500/15 text-rose-200'} px-3 py-1 text-xs font-bold">${enabled ? 'ใช้งาน' : 'ปิด'}</span>`;
+        }
+        function moveStatusBadge(label) {
+            return `<span class="rounded-full bg-amber-500/15 text-amber-200 border border-amber-500/25 px-3 py-1 text-xs font-bold">${escapeHtml(label || '-')}</span>`;
+        }
+        function renderMoveResult(status) {
+            if (!status?.applicant) {
+                $('moveResult').innerHTML = '<div class="text-slate-400">ค้นหารหัสใบสมัครก่อนย้ายสถานะ</div>';
+                return;
+            }
+            const student = status.applicant;
+            const placements = status.placements || [];
+            $('moveResult').innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
+                    <div>
+                        <div class="text-xs text-sky-300 font-bold">ข้อมูลนักศึกษา</div>
+                        <div class="text-2xl font-bold text-white mt-1">${escapeHtml(student.appId)} ${escapeHtml(student.name)}</div>
+                        <div class="text-sm text-slate-300 mt-1">${escapeHtml(student.school || '-')} / ${escapeHtml(student.province || '-')} / ${escapeHtml(student.gender || '-')}</div>
+                    </div>
+                    <div>${moveStatusBadge(status.currentStatus)}</div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    <div class="rounded-xl bg-slate-950/70 border border-slate-700/70 p-3">
+                        <div class="text-xs text-slate-400">คะแนนรวม</div>
+                        <div class="text-xl font-bold text-white">${escapeHtml(student.totalScore || '-')}</div>
+                    </div>
+                    <div class="rounded-xl bg-slate-950/70 border border-slate-700/70 p-3">
+                        <div class="text-xs text-slate-400">คะแนนส่วนเพิ่มเฉลี่ย</div>
+                        <div class="text-xl font-bold text-white">${escapeHtml(student.bonusAverage || '-')}</div>
+                    </div>
+                    <div class="rounded-xl bg-slate-950/70 border border-slate-700/70 p-3">
+                        <div class="text-xs text-slate-400">สละสิทธิ์</div>
+                        <div class="text-xl font-bold ${student.withdrawalStatus ? 'text-rose-300' : 'text-emerald-300'}">${escapeHtml(student.withdrawalStatus || 'ไม่สละสิทธิ์')}</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-700/70">
+                    <table class="w-full min-w-[760px]">
+                        <thead>
+                            <tr class="bg-slate-950/80">
+                                <th class="px-4 py-3">ตาราง</th>
+                                <th class="px-4 py-3">ประเภท/รอบ</th>
+                                <th class="px-4 py-3">ลำดับ</th>
+                                <th class="px-4 py-3">โรงเรียน</th>
+                                <th class="px-4 py-3">ผู้บันทึก</th>
+                                <th class="px-4 py-3">เวลา</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${placements.map(row => `
+                                <tr>
+                                    <td class="px-4 font-bold text-sky-200">${escapeHtml(row.sheet)}</td>
+                                    <td class="px-4">${escapeHtml(row.type || '-')}</td>
+                                    <td class="px-4">${escapeHtml(row.rank || '-')}</td>
+                                    <td class="px-4">${escapeHtml(row.school || '-')}</td>
+                                    <td class="px-4">${escapeHtml(row.savedBy || '-')}</td>
+                                    <td class="px-4 text-slate-400">${escapeHtml(row.savedAt || '-')}</td>
+                                </tr>`).join('') || '<tr><td class="px-4 text-slate-400" colspan="6">ยังไม่มีแถวที่ใช้งานในตารางคัดเลือก</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+        async function searchMoveApplicant() {
+            const appId = $('moveAppId').value.trim();
+            if (!appId) return Swal.fire('กรอกรหัสก่อน', 'กรุณาระบุรหัสใบสมัคร', 'warning');
+            showLoading();
+            try {
+                const result = await api('getApplicantMoveStatus', [token(), appId]);
+                if (!result.success) throw new Error(result.message);
+                state.moveApplicant = result;
+                renderMoveResult(result);
+            } catch (error) {
+                state.moveApplicant = null;
+                renderMoveResult(null);
+                Swal.fire('ค้นหาไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        async function applyMoveApplicant() {
+            const appId = $('moveAppId').value.trim();
+            if (!appId) return Swal.fire('กรอกรหัสก่อน', 'กรุณาระบุรหัสใบสมัคร', 'warning');
+            const target = $('moveTargetStatus').value;
+            const targetText = $('moveTargetStatus').selectedOptions[0]?.textContent || target;
+            const confirm = await Swal.fire({
+                icon: 'warning',
+                title: 'ยืนยันย้ายสถานะ?',
+                text: `จะย้ายรหัส ${appId} ไป ${targetText}`,
+                showCancelButton: true,
+                confirmButtonText: 'ย้ายสถานะ',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#059669'
+            });
+            if (!confirm.isConfirmed) return;
+            showLoading();
+            try {
+                const payload = {
+                    appId,
+                    targetStatus: target,
+                    rank: $('moveTargetRank').value,
+                    note: $('moveNote').value.trim()
+                };
+                const result = await api('moveApplicantStatus', [token(), payload]);
+                if (!result.success) throw new Error(result.message);
+                const fresh = await api('getApplicantMoveStatus', [token(), appId]);
+                state.moveApplicant = fresh;
+                renderMoveResult(fresh);
+                await refreshAuditLogs();
+                Swal.fire({ icon: 'success', title: 'สำเร็จ', text: result.message, timer: 1500, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('ย้ายสถานะไม่ได้', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
         }
         function criteriaActions(group, row) {
             return `<div class="flex justify-end gap-2">
