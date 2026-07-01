@@ -516,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178289559413"></script>
-    <script src="api-client.js?v=178289559413"></script>
+    <script src="config.js?v=178289680090"></script>
+    <script src="api-client.js?v=178289680090"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -644,7 +644,7 @@
             <div class="glass-card rounded-2xl p-5 border border-white/10">
                 <p id="allocationTitle" class="text-sm text-slate-400">ยอดจัดสรรเพิ่ม</p>
                 <p id="allocationCount" class="text-3xl font-extrabold text-emerald-300 mt-1">0</p>
-                <p id="allocationMeta" class="mt-2 text-sm text-slate-300">คิด ช.45% / ญ.75%</p>
+                <p id="allocationMeta" class="mt-2 text-sm text-slate-300">คิด ช.50% / ญ.75%</p>
             </div>
             <div class="glass-card rounded-2xl p-5 border border-white/10">
                 <p id="quotaLabel" class="text-sm text-slate-400">ยอดจัดสรรรอบ 2</p>
@@ -679,7 +679,7 @@
                             <i class="fas fa-table text-amber-300"></i>
                             เปอร์เซ็นต์ชายตามสถานศึกษา
                         </h2>
-                        <p class="text-sm text-slate-400 mt-1">ผ่านแล้ว = จัดสรร + ห้วง 2 + รอบ 2 ใช้เทียบสัดส่วนชาย 45% แยกตามโรงเรียน</p>
+                        <p class="text-sm text-slate-400 mt-1">ผ่านแล้ว = จัดสรร + ห้วง 2 + รอบ 2 ใช้เทียบสัดส่วนชาย 50% แยกตามโรงเรียน</p>
                         <p id="maleSchoolPercentMeta" class="text-sm text-slate-300 mt-2"></p>
                     </div>
                     <button type="button" onclick="closeMaleSchoolPercentModal()"
@@ -696,7 +696,7 @@
                                 <th class="py-3 px-3 text-center">สำรอง</th>
                                 <th class="py-3 px-3 text-center">รวมชาย</th>
                                 <th class="py-3 px-3 text-center">เปอร์เซ็นต์ชาย</th>
-                                <th class="py-3 px-3 text-center">เป้า 45%</th>
+                                <th class="py-3 px-3 text-center">เป้า 50%</th>
                                 <th class="py-3 px-3 text-center">เพิ่ม/เกิน</th>
                             </tr>
                         </thead>
@@ -740,7 +740,7 @@
         let period2Quota = null;
         let enforcePeriod2Quota = true;
         let currentOutputSheetName = 'รายชื่อผู้ผ่านการคัดเลือกรอบ2';
-        const EXTRA_SELECTION_MALE_TARGET_RATE = 45;
+        const EXTRA_SELECTION_MALE_TARGET_RATE = 50;
 
         const $ = (id) => document.getElementById(id);
         const rememberedLoginKey = 'nst_rounds_remembered_login';
@@ -927,7 +927,7 @@
             const allocationByGender = result.allocationByGender || {};
             const male = allocationByGender['ชาย'] || {};
             const female = allocationByGender['หญิง'] || {};
-            $('allocationMeta').textContent = `เป้า ${result.targetPassCount || 0} คน / ${result.allocationMeta || 'คิด ช.45% ญ.75%'} | ช ${allocationText(male.add || -(male.over || 0))} / ญ ${allocationText(female.add || -(female.over || 0))}`;
+            $('allocationMeta').textContent = `เป้า ${result.targetPassCount || 0} คน / ${result.allocationMeta || 'คิด ช.50% ญ.75%'} | ช ${allocationText(male.add || -(male.over || 0))} / ญ ${allocationText(female.add || -(female.over || 0))}`;
         }
 
         function renderMaleSchoolPercentTable(result) {
