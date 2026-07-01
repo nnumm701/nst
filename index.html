@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178245343574"></script>
-<script src="api-client.js?v=178245343574"></script>
+    <script src="config.js?v=178289559413"></script>
+<script src="api-client.js?v=178289559413"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -3255,6 +3255,25 @@
             `);
         }
 
+        const extra1Section = document.getElementById('extra1Section');
+        const extra1Table = document.getElementById('extra1DataTable');
+        if (extra1Section && extra1Table && !document.getElementById('extra2Section')) {
+            const extra2TableHtml = extra1Table.outerHTML
+                .replace('id="extra1DataTable"', 'id="extra2DataTable"')
+                .replace('id="extra1DataTableBody"', 'id="extra2DataTableBody"')
+                .replace(/cyan-/g, 'teal-');
+            extra1Section.insertAdjacentHTML('afterend', `
+                <div class="mb-8 hidden" id="extra2Section">
+                    <h3 class="text-lg font-bold text-teal-300 flex items-center mb-4 bg-teal-900/20 p-3 rounded-xl border border-teal-500/20 shadow-sm">
+                        <i class="fas fa-user-plus mr-3 text-2xl"></i>รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2
+                    </h3>
+                    <div class="overflow-x-auto glass-card rounded-xl border border-teal-500/30 shadow-lg shadow-teal-500/10" id="extra2TableContainer">
+                        ${extra2TableHtml}
+                    </div>
+                </div>
+            `);
+        }
+
         const reserveSection = document.getElementById('reserveSection') || reserveContainer.parentElement;
         reserveSection.id = 'reserveSection';
         reserveContainer.className = 'overflow-x-auto glass-card rounded-xl border border-amber-500/30 shadow-lg shadow-amber-500/10';
@@ -3289,6 +3308,7 @@
             period2Section: document.getElementById('period2Section'),
             round2Section: document.getElementById('round2Section'),
             extra1Section: document.getElementById('extra1Section'),
+            extra2Section: document.getElementById('extra2Section'),
             failedSection: document.getElementById('failedSection')
         };
     }
@@ -3300,6 +3320,7 @@
         const period2Tbody = document.getElementById('period2DataTableBody');
         const round2Tbody = document.getElementById('round2DataTableBody');
         const extra1Tbody = document.getElementById('extra1DataTableBody');
+        const extra2Tbody = document.getElementById('extra2DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
 
@@ -3307,12 +3328,14 @@
         if (sections.period2Section) sections.period2Section.classList.add('hidden');
         if (sections.round2Section) sections.round2Section.classList.add('hidden');
         if (sections.extra1Section) sections.extra1Section.classList.add('hidden');
+        if (sections.extra2Section) sections.extra2Section.classList.add('hidden');
         if (sections.reserveSection) sections.reserveSection.classList.add('hidden');
         if (sections.failedSection) sections.failedSection.classList.add('hidden');
         if (quotaTbody) quotaTbody.innerHTML = '';
         if (period2Tbody) period2Tbody.innerHTML = '';
         if (round2Tbody) round2Tbody.innerHTML = '';
         if (extra1Tbody) extra1Tbody.innerHTML = '';
+        if (extra2Tbody) extra2Tbody.innerHTML = '';
         if (mainTbody) mainTbody.innerHTML = '';
         if (failedTbody) failedTbody.innerHTML = '';
     }
@@ -3561,7 +3584,7 @@
     }
 
     function expandNSTLazyTablesForPrint() {
-        ['quotaDataTableBody', 'period2DataTableBody', 'round2DataTableBody', 'extra1DataTableBody', 'nstDataTableBody', 'failedDataTableBody'].forEach(id => {
+        ['quotaDataTableBody', 'period2DataTableBody', 'round2DataTableBody', 'extra1DataTableBody', 'extra2DataTableBody', 'nstDataTableBody', 'failedDataTableBody'].forEach(id => {
             const tbody = document.getElementById(id);
             if (!tbody || !tbody._nstAllRows) return;
             tbody.innerHTML = tbody._nstAllRows.length ? tbody._nstAllRows.join('') : (tbody._nstEmptyHtml || '');
@@ -3838,12 +3861,14 @@
         const period2Section = document.getElementById('period2Section');
         const round2Section = document.getElementById('round2Section');
         const extra1Section = document.getElementById('extra1Section');
+        const extra2Section = document.getElementById('extra2Section');
         const reserveSection = document.getElementById('reserveSection');
         const failedSection = document.getElementById('failedSection');
         const quotaTable = document.getElementById('quotaDataTable');
         const period2Table = document.getElementById('period2DataTable');
         const round2Table = document.getElementById('round2DataTable');
         const extra1Table = document.getElementById('extra1DataTable');
+        const extra2Table = document.getElementById('extra2DataTable');
         const reserveTable = document.getElementById('nstDataTable');
         const failedTable = document.getElementById('failedDataTable');
 
@@ -3876,6 +3901,14 @@
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
                         <input type="radio" name="printMode" value="round2" class="w-4 h-4">
                         <span class="font-semibold">พิมพ์เฉพาะรายชื่อผู้ผ่านการคัดเลือกรอบ 2</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="printMode" value="extra1" class="w-4 h-4">
+                        <span class="font-semibold">พิมพ์เฉพาะรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="printMode" value="extra2" class="w-4 h-4">
+                        <span class="font-semibold">พิมพ์เฉพาะรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
                         <input type="radio" name="printMode" value="reserve" class="w-4 h-4">
@@ -3973,6 +4006,8 @@
         const selectedPrintHtml = sectionBuilder(quotaSection, quotaTable, 'ผู้ที่ผ่านการคัดเลือก', 'quota-title');
         const period2PrintHtml = sectionBuilder(period2Section, period2Table, 'ผู้ผ่านการคัดเลือกห้วง 2', 'quota-title');
         const round2PrintHtml = sectionBuilder(round2Section, round2Table, 'ผู้ผ่านการคัดเลือกรอบ 2', 'quota-title');
+        const extra1PrintHtml = sectionBuilder(extra1Section, extra1Table, 'ผู้ผ่านการคัดเลือกเพิ่มเติม1', 'quota-title');
+        const extra2PrintHtml = sectionBuilder(extra2Section, extra2Table, 'ผู้ผ่านการคัดเลือกเพิ่มเติม2', 'quota-title');
         const reservePrintHtml = sectionBuilder(reserveSection, reserveTable, 'สำรอง', 'reserve-title');
         const failedPrintHtml = sectionBuilder(failedSection, failedTable, 'ผู้ที่ไม่ผ่านการคัดเลือก', 'failed-title');
         const printModeTitles = {
@@ -3980,14 +4015,18 @@
             selected: 'ผู้ที่ผ่านการคัดเลือก',
             period2: 'รายชื่อผู้ผ่านการคัดเลือกห้วง 2',
             round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2',
+            extra1: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1',
+            extra2: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2',
             reserve: 'รายชื่อสำรอง',
             failed: 'ผู้ที่ไม่ผ่านการคัดเลือก'
         };
         const printModeSections = {
-            all: selectedPrintHtml + period2PrintHtml + round2PrintHtml + reservePrintHtml + failedPrintHtml,
+            all: selectedPrintHtml + period2PrintHtml + round2PrintHtml + extra1PrintHtml + extra2PrintHtml + reservePrintHtml + failedPrintHtml,
             selected: selectedPrintHtml,
             period2: period2PrintHtml,
             round2: round2PrintHtml,
+            extra1: extra1PrintHtml,
+            extra2: extra2PrintHtml,
             reserve: reservePrintHtml,
             failed: failedPrintHtml
         };
@@ -4148,6 +4187,10 @@
                         <input type="radio" name="nstXlsxMode" value="extra1" class="w-4 h-4">
                         <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1</span>
                     </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstXlsxMode" value="extra2" class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2</span>
+                    </label>
                 </div>
             `,
             icon: 'question',
@@ -4191,7 +4234,8 @@
                 selected: 'รายชื่อผู้ผ่านการคัดเลือก (ตามการจัดสรร)',
                 period2: 'รายชื่อผู้ผ่านการคัดเลือกห้วง 2',
                 round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2',
-                extra1: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1'
+                extra1: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1',
+                extra2: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2'
             };
             const rows = exportGroups[mode] || [];
             writeNSTSelectionXlsx(titleMap[mode] || titleMap.selected, rows, dateFilter);
@@ -4223,14 +4267,19 @@
             const roundName = String(selection?.['รอบ'] || selection?.round || selection?.type || '').trim();
             return roundName.includes('เพิ่มเติม1');
         };
+        const isExtra2Selection = (selection) => {
+            const roundName = String(selection?.['รอบ'] || selection?.round || selection?.type || '').trim();
+            return roundName.includes('เพิ่มเติม2');
+        };
         const period2 = Object.entries(period2Selection || {})
             .filter(([appId]) => !withdrawnIds.has(appId))
             .map(([appId, selection]) => selectionItem(appId, selection));
         const round2Items = Object.entries(round2Selection || {})
             .filter(([appId]) => !withdrawnIds.has(appId))
             .map(([appId, selection]) => selectionItem(appId, selection));
-        const round2 = round2Items.filter(item => !isExtra1Selection(item.selection));
+        const round2 = round2Items.filter(item => !isExtra1Selection(item.selection) && !isExtra2Selection(item.selection));
         const extra1 = round2Items.filter(item => isExtra1Selection(item.selection));
+        const extra2 = round2Items.filter(item => isExtra2Selection(item.selection));
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
@@ -4251,7 +4300,8 @@
             selected: selected.sort(bySchoolRank),
             period2: period2.sort(bySchoolRank),
             round2: round2.sort(bySchoolRank),
-            extra1: extra1.sort(bySchoolRank)
+            extra1: extra1.sort(bySchoolRank),
+            extra2: extra2.sort(bySchoolRank)
         };
     }
 
@@ -4505,6 +4555,7 @@
         const period2Tbody = document.getElementById('period2DataTableBody');
         const round2Tbody = document.getElementById('round2DataTableBody');
         const extra1Tbody = document.getElementById('extra1DataTableBody');
+        const extra2Tbody = document.getElementById('extra2DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
 
@@ -4512,11 +4563,13 @@
         if (sections.period2Section) sections.period2Section.classList.add('hidden');
         if (sections.round2Section) sections.round2Section.classList.add('hidden');
         if (sections.extra1Section) sections.extra1Section.classList.add('hidden');
+        if (sections.extra2Section) sections.extra2Section.classList.add('hidden');
         if (sections.failedSection) sections.failedSection.classList.add('hidden');
         if (quotaTbody) quotaTbody.innerHTML = '';
         if (period2Tbody) period2Tbody.innerHTML = '';
         if (round2Tbody) round2Tbody.innerHTML = '';
         if (extra1Tbody) extra1Tbody.innerHTML = '';
+        if (extra2Tbody) extra2Tbody.innerHTML = '';
         if (failedTbody) failedTbody.innerHTML = '';
         if (mainTbody) {
             mainTbody.innerHTML = `
@@ -4669,6 +4722,7 @@
         const period2Tbody = document.getElementById('period2DataTableBody');
         const round2Tbody = document.getElementById('round2DataTableBody');
         const extra1Tbody = document.getElementById('extra1DataTableBody');
+        const extra2Tbody = document.getElementById('extra2DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
         const quotaSection = document.getElementById('quotaSection');
@@ -4677,6 +4731,7 @@
         if (sections.period2Section) sections.period2Section.classList.remove('hidden');
         if (sections.round2Section) sections.round2Section.classList.remove('hidden');
         if (sections.extra1Section) sections.extra1Section.classList.remove('hidden');
+        if (sections.extra2Section) sections.extra2Section.classList.remove('hidden');
         if (sections.reserveSection) sections.reserveSection.classList.remove('hidden');
         if (sections.failedSection) sections.failedSection.classList.remove('hidden');
 
@@ -4684,6 +4739,7 @@
         let period2Html = [];
         let round2Html = [];
         let extra1Html = [];
+        let extra2Html = [];
         let mainHtml = [];
         let failedHtml = [];
 
@@ -4696,6 +4752,7 @@
         let period2Rows = [];
         let round2Rows = [];
         let extra1Rows = [];
+        let extra2Rows = [];
         let mainRows = [];
         let failedRows = [];
 
@@ -4744,6 +4801,10 @@
             const roundName = String(selectionData?.['รอบ'] || selectionData?.round || selectionData?.type || '').trim();
             return roundName.includes('เพิ่มเติม1');
         };
+        const isExtra2SelectionData = (selectionData) => {
+            const roundName = String(selectionData?.['รอบ'] || selectionData?.round || selectionData?.type || '').trim();
+            return roundName.includes('เพิ่มเติม2');
+        };
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
@@ -4756,8 +4817,9 @@
             } else if (period2Data) {
                 period2Rows.push({ row, quotaData: { isQuota: true, rank: computedRankFor(period2Data, quotaData), period2: true } });
             } else if (round2Data) {
-                const item = { row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true, extra1: isExtra1SelectionData(round2Data) } };
-                if (item.quotaData.extra1) extra1Rows.push(item);
+                const item = { row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true, extra1: isExtra1SelectionData(round2Data), extra2: isExtra2SelectionData(round2Data) } };
+                if (item.quotaData.extra2) extra2Rows.push(item);
+                else if (item.quotaData.extra1) extra1Rows.push(item);
                 else round2Rows.push(item);
             } else if (quotaData && quotaData.isQuota) {
                 quotaRows.push({ row, quotaData });
@@ -4773,6 +4835,7 @@
             period2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             round2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             extra1Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
+            extra2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             mainRows.sort((a, b) => {
                 if (a.quotaData && a.quotaData.rank && b.quotaData && b.quotaData.rank) {
                     return a.quotaData.rank - b.quotaData.rank || compareAppId(a, b);
@@ -4786,6 +4849,7 @@
             sortSelectionGroup(period2Rows);
             sortSelectionGroup(round2Rows);
             sortSelectionGroup(extra1Rows);
+            sortSelectionGroup(extra2Rows);
             sortSelectionGroup(mainRows);
         }
 
@@ -4903,6 +4967,32 @@
       </tr>`);
         });
 
+        extra2Rows.forEach(item => {
+            const row = item.row;
+            const quotaData = item.quotaData;
+            const docCheck = row['ผลตรวจแพทย์'] || row['สถานะร่างกาย'];
+            const statusClass = isStation1StatusPass(docCheck) ? 'badge-pass' :
+                isStation1StatusFail(docCheck) ? 'badge-fail' : 'badge-pending';
+            const statusText = docCheck || 'รอตรวจ';
+            const rowAttrs = getNSTLookupRowAttrs(row, 'border-b border-teal-900/50 bg-teal-900/10');
+
+            extra2Html.push(`
+      <tr ${rowAttrs}>
+        <td class="font-bold text-gray-300 text-center py-3 px-4">${extra2Html.length + 1}</td>
+        <td class="font-bold text-gray-200 text-center py-3 px-4 whitespace-nowrap">${row['รหัสใบสมัคร']}</td>
+        <td class="text-left font-medium text-white py-3 px-4 whitespace-nowrap min-w-[150px]">${row['ชื่อ']} ${row['นามสกุล']}</td>
+        <td class="text-center text-gray-300 py-3 px-4">${row['เพศ'] || '-'}</td>
+        <td class="text-left text-gray-300 text-xs lg:text-sm py-3 px-4">${escapeHtml(formatNSTSchoolWithCode(row))}</td>
+        <td class="text-left text-gray-300 py-3 px-4">${row['จังหวัด']}</td>
+        <td class="text-center py-3 px-4"><span class="badge ${statusClass} border border-teal-500/30 px-2 py-1 bg-teal-500/20 text-teal-300 shadow-sm rounded-lg">${statusText}</span></td>
+        ${formatTestCells(row, 'เวลาวิ่ง', 'คะแนนวิ่ง', 'คะแนนส่วนเพิ่มวิ่ง')}
+        ${formatTestCells(row, 'ลุกนั่ง', 'คะแนนลุกนั่ง', 'คะแนนส่วนเพิ่มลุกนั่ง')}
+        ${formatTestCells(row, 'ดันพื้น', 'คะแนนดันพื้น', 'คะแนนส่วนเพิ่มดันพื้น')}
+        <td class="font-black text-center text-teal-300 text-lg py-3 px-4">${formatSelectionTotal(row)}</td>
+        <td class="text-center py-3 px-4"><span class="w-8 h-8 inline-flex items-center justify-center bg-teal-500/20 border border-teal-500/30 rounded-lg text-sm font-bold text-teal-300 shadow-sm" title="ลำดับคะแนน (เพิ่มเติม2)">${displayRank(quotaData.rank)}</span></td>
+      </tr>`);
+        });
+
         mainRows.forEach(item => {
             const row = item.row;
             const quotaData = item.quotaData;
@@ -5004,6 +5094,13 @@
             extra1Tbody,
             extra1Html,
             emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1', 'fas fa-user-plus text-cyan-300'),
+            renderToken,
+            { showAll: true }
+        );
+        renderTbodyRowsLazy(
+            extra2Tbody,
+            extra2Html,
+            emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2', 'fas fa-user-plus text-teal-300'),
             renderToken,
             { showAll: true }
         );
