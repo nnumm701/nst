@@ -516,8 +516,8 @@
     <style>
         body { font-family: 'Prompt', sans-serif; }
     </style>
-    <script src="config.js?v=178289680090"></script>
-    <script src="api-client.js?v=178289680090"></script>
+    <script src="config.js?v=178296538179"></script>
+    <script src="api-client.js?v=178296538179"></script>
 </head>
 
 <body class="bg-[#0f172a] min-h-screen text-slate-200">
@@ -586,6 +586,8 @@
                     <select id="roundSelect" class="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-white/10 text-white">
                         <option value="เพิ่มเติม1 รับ 80">เพิ่มเติม1 รับ 80</option>
                         <option value="เพิ่มเติม2">เพิ่มเติม2 ไม่จำกัดจำนวน</option>
+                        <option value="เพิ่มเติม3">เพิ่มเติม3 ไม่จำกัดจำนวน</option>
+                        <option value="เพิ่มเติม4">เพิ่มเติม4 ไม่จำกัดจำนวน</option>
                         <option value="รายชื่อผู้ผ่านการคัดเลือกรอบ2">รายชื่อผู้ผ่านการคัดเลือกรอบ 2</option>
                         <option value="รายชื่อผู้ผ่านการคัดเลือกห้วง2">รายชื่อผู้ผ่านการคัดเลือกห้วง 2</option>
                     </select>
@@ -1057,6 +1059,8 @@
             const value = String(roundName || '');
             if (value.includes('เพิ่มเติม1')) return 'ยอดจัดสรรเพิ่มเติม1';
             if (value.includes('เพิ่มเติม2')) return 'ยอดจัดสรรเพิ่มเติม2';
+            if (value.includes('เพิ่มเติม3')) return 'ยอดจัดสรรเพิ่มเติม3';
+            if (value.includes('เพิ่มเติม4')) return 'ยอดจัดสรรเพิ่มเติม4';
             return value.includes('รอบ2') || value.includes('รอบ 2') ? 'ยอดจัดสรรรอบ 2' : 'ยอดจัดสรรห้วงที่ 2';
         }
 

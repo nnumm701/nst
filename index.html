@@ -1879,8 +1879,8 @@
         </div>
     </div>
 
-    <script src="config.js?v=178289559413"></script>
-<script src="api-client.js?v=178289559413"></script>
+    <script src="config.js?v=178296538179"></script>
+<script src="api-client.js?v=178296538179"></script>
 <script>
 // ==================== APP STATE ====================
     let currentUser = null;
@@ -3274,6 +3274,44 @@
             `);
         }
 
+        const extra2Section = document.getElementById('extra2Section');
+        const extra2Table = document.getElementById('extra2DataTable');
+        if (extra2Section && extra2Table && !document.getElementById('extra3Section')) {
+            const extra3TableHtml = extra2Table.outerHTML
+                .replace('id="extra2DataTable"', 'id="extra3DataTable"')
+                .replace('id="extra2DataTableBody"', 'id="extra3DataTableBody"')
+                .replace(/teal-/g, 'lime-');
+            extra2Section.insertAdjacentHTML('afterend', `
+                <div class="mb-8 hidden" id="extra3Section">
+                    <h3 class="text-lg font-bold text-lime-300 flex items-center mb-4 bg-lime-900/20 p-3 rounded-xl border border-lime-500/20 shadow-sm">
+                        <i class="fas fa-user-plus mr-3 text-2xl"></i>รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม3
+                    </h3>
+                    <div class="overflow-x-auto glass-card rounded-xl border border-lime-500/30 shadow-lg shadow-lime-500/10" id="extra3TableContainer">
+                        ${extra3TableHtml}
+                    </div>
+                </div>
+            `);
+        }
+
+        const extra3Section = document.getElementById('extra3Section');
+        const extra3Table = document.getElementById('extra3DataTable');
+        if (extra3Section && extra3Table && !document.getElementById('extra4Section')) {
+            const extra4TableHtml = extra3Table.outerHTML
+                .replace('id="extra3DataTable"', 'id="extra4DataTable"')
+                .replace('id="extra3DataTableBody"', 'id="extra4DataTableBody"')
+                .replace(/lime-/g, 'fuchsia-');
+            extra3Section.insertAdjacentHTML('afterend', `
+                <div class="mb-8 hidden" id="extra4Section">
+                    <h3 class="text-lg font-bold text-fuchsia-300 flex items-center mb-4 bg-fuchsia-900/20 p-3 rounded-xl border border-fuchsia-500/20 shadow-sm">
+                        <i class="fas fa-user-plus mr-3 text-2xl"></i>รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม4
+                    </h3>
+                    <div class="overflow-x-auto glass-card rounded-xl border border-fuchsia-500/30 shadow-lg shadow-fuchsia-500/10" id="extra4TableContainer">
+                        ${extra4TableHtml}
+                    </div>
+                </div>
+            `);
+        }
+
         const reserveSection = document.getElementById('reserveSection') || reserveContainer.parentElement;
         reserveSection.id = 'reserveSection';
         reserveContainer.className = 'overflow-x-auto glass-card rounded-xl border border-amber-500/30 shadow-lg shadow-amber-500/10';
@@ -3309,6 +3347,8 @@
             round2Section: document.getElementById('round2Section'),
             extra1Section: document.getElementById('extra1Section'),
             extra2Section: document.getElementById('extra2Section'),
+            extra3Section: document.getElementById('extra3Section'),
+            extra4Section: document.getElementById('extra4Section'),
             failedSection: document.getElementById('failedSection')
         };
     }
@@ -3321,6 +3361,8 @@
         const round2Tbody = document.getElementById('round2DataTableBody');
         const extra1Tbody = document.getElementById('extra1DataTableBody');
         const extra2Tbody = document.getElementById('extra2DataTableBody');
+        const extra3Tbody = document.getElementById('extra3DataTableBody');
+        const extra4Tbody = document.getElementById('extra4DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
 
@@ -3329,6 +3371,8 @@
         if (sections.round2Section) sections.round2Section.classList.add('hidden');
         if (sections.extra1Section) sections.extra1Section.classList.add('hidden');
         if (sections.extra2Section) sections.extra2Section.classList.add('hidden');
+        if (sections.extra3Section) sections.extra3Section.classList.add('hidden');
+        if (sections.extra4Section) sections.extra4Section.classList.add('hidden');
         if (sections.reserveSection) sections.reserveSection.classList.add('hidden');
         if (sections.failedSection) sections.failedSection.classList.add('hidden');
         if (quotaTbody) quotaTbody.innerHTML = '';
@@ -3336,6 +3380,8 @@
         if (round2Tbody) round2Tbody.innerHTML = '';
         if (extra1Tbody) extra1Tbody.innerHTML = '';
         if (extra2Tbody) extra2Tbody.innerHTML = '';
+        if (extra3Tbody) extra3Tbody.innerHTML = '';
+        if (extra4Tbody) extra4Tbody.innerHTML = '';
         if (mainTbody) mainTbody.innerHTML = '';
         if (failedTbody) failedTbody.innerHTML = '';
     }
@@ -3584,7 +3630,7 @@
     }
 
     function expandNSTLazyTablesForPrint() {
-        ['quotaDataTableBody', 'period2DataTableBody', 'round2DataTableBody', 'extra1DataTableBody', 'extra2DataTableBody', 'nstDataTableBody', 'failedDataTableBody'].forEach(id => {
+        ['quotaDataTableBody', 'period2DataTableBody', 'round2DataTableBody', 'extra1DataTableBody', 'extra2DataTableBody', 'extra3DataTableBody', 'extra4DataTableBody', 'nstDataTableBody', 'failedDataTableBody'].forEach(id => {
             const tbody = document.getElementById(id);
             if (!tbody || !tbody._nstAllRows) return;
             tbody.innerHTML = tbody._nstAllRows.length ? tbody._nstAllRows.join('') : (tbody._nstEmptyHtml || '');
@@ -3862,6 +3908,8 @@
         const round2Section = document.getElementById('round2Section');
         const extra1Section = document.getElementById('extra1Section');
         const extra2Section = document.getElementById('extra2Section');
+        const extra3Section = document.getElementById('extra3Section');
+        const extra4Section = document.getElementById('extra4Section');
         const reserveSection = document.getElementById('reserveSection');
         const failedSection = document.getElementById('failedSection');
         const quotaTable = document.getElementById('quotaDataTable');
@@ -3869,6 +3917,8 @@
         const round2Table = document.getElementById('round2DataTable');
         const extra1Table = document.getElementById('extra1DataTable');
         const extra2Table = document.getElementById('extra2DataTable');
+        const extra3Table = document.getElementById('extra3DataTable');
+        const extra4Table = document.getElementById('extra4DataTable');
         const reserveTable = document.getElementById('nstDataTable');
         const failedTable = document.getElementById('failedDataTable');
 
@@ -3909,6 +3959,14 @@
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
                         <input type="radio" name="printMode" value="extra2" class="w-4 h-4">
                         <span class="font-semibold">พิมพ์เฉพาะรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="printMode" value="extra3" class="w-4 h-4">
+                        <span class="font-semibold">พิมพ์เฉพาะรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม3</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="printMode" value="extra4" class="w-4 h-4">
+                        <span class="font-semibold">พิมพ์เฉพาะรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม4</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
                         <input type="radio" name="printMode" value="reserve" class="w-4 h-4">
@@ -4008,6 +4066,8 @@
         const round2PrintHtml = sectionBuilder(round2Section, round2Table, 'ผู้ผ่านการคัดเลือกรอบ 2', 'quota-title');
         const extra1PrintHtml = sectionBuilder(extra1Section, extra1Table, 'ผู้ผ่านการคัดเลือกเพิ่มเติม1', 'quota-title');
         const extra2PrintHtml = sectionBuilder(extra2Section, extra2Table, 'ผู้ผ่านการคัดเลือกเพิ่มเติม2', 'quota-title');
+        const extra3PrintHtml = sectionBuilder(extra3Section, extra3Table, 'ผู้ผ่านการคัดเลือกเพิ่มเติม3', 'quota-title');
+        const extra4PrintHtml = sectionBuilder(extra4Section, extra4Table, 'ผู้ผ่านการคัดเลือกเพิ่มเติม4', 'quota-title');
         const reservePrintHtml = sectionBuilder(reserveSection, reserveTable, 'สำรอง', 'reserve-title');
         const failedPrintHtml = sectionBuilder(failedSection, failedTable, 'ผู้ที่ไม่ผ่านการคัดเลือก', 'failed-title');
         const printModeTitles = {
@@ -4017,16 +4077,20 @@
             round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2',
             extra1: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1',
             extra2: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2',
+            extra3: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม3',
+            extra4: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม4',
             reserve: 'รายชื่อสำรอง',
             failed: 'ผู้ที่ไม่ผ่านการคัดเลือก'
         };
         const printModeSections = {
-            all: selectedPrintHtml + period2PrintHtml + round2PrintHtml + extra1PrintHtml + extra2PrintHtml + reservePrintHtml + failedPrintHtml,
+            all: selectedPrintHtml + period2PrintHtml + round2PrintHtml + extra1PrintHtml + extra2PrintHtml + extra3PrintHtml + extra4PrintHtml + reservePrintHtml + failedPrintHtml,
             selected: selectedPrintHtml,
             period2: period2PrintHtml,
             round2: round2PrintHtml,
             extra1: extra1PrintHtml,
             extra2: extra2PrintHtml,
+            extra3: extra3PrintHtml,
+            extra4: extra4PrintHtml,
             reserve: reservePrintHtml,
             failed: failedPrintHtml
         };
@@ -4191,6 +4255,14 @@
                         <input type="radio" name="nstXlsxMode" value="extra2" class="w-4 h-4">
                         <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2</span>
                     </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstXlsxMode" value="extra3" class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม3</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-slate-900/60 cursor-pointer">
+                        <input type="radio" name="nstXlsxMode" value="extra4" class="w-4 h-4">
+                        <span class="font-semibold">รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม4</span>
+                    </label>
                 </div>
             `,
             icon: 'question',
@@ -4235,7 +4307,9 @@
                 period2: 'รายชื่อผู้ผ่านการคัดเลือกห้วง 2',
                 round2: 'รายชื่อผู้ผ่านการคัดเลือกรอบ 2',
                 extra1: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม1',
-                extra2: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2'
+                extra2: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2',
+                extra3: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม3',
+                extra4: 'รายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม4'
             };
             const rows = exportGroups[mode] || [];
             writeNSTSelectionXlsx(titleMap[mode] || titleMap.selected, rows, dateFilter);
@@ -4271,15 +4345,25 @@
             const roundName = String(selection?.['รอบ'] || selection?.round || selection?.type || '').trim();
             return roundName.includes('เพิ่มเติม2');
         };
+        const isExtra3Selection = (selection) => {
+            const roundName = String(selection?.['รอบ'] || selection?.round || selection?.type || '').trim();
+            return roundName.includes('เพิ่มเติม3');
+        };
+        const isExtra4Selection = (selection) => {
+            const roundName = String(selection?.['รอบ'] || selection?.round || selection?.type || '').trim();
+            return roundName.includes('เพิ่มเติม4');
+        };
         const period2 = Object.entries(period2Selection || {})
             .filter(([appId]) => !withdrawnIds.has(appId))
             .map(([appId, selection]) => selectionItem(appId, selection));
         const round2Items = Object.entries(round2Selection || {})
             .filter(([appId]) => !withdrawnIds.has(appId))
             .map(([appId, selection]) => selectionItem(appId, selection));
-        const round2 = round2Items.filter(item => !isExtra1Selection(item.selection) && !isExtra2Selection(item.selection));
+        const round2 = round2Items.filter(item => !isExtra1Selection(item.selection) && !isExtra2Selection(item.selection) && !isExtra3Selection(item.selection) && !isExtra4Selection(item.selection));
         const extra1 = round2Items.filter(item => isExtra1Selection(item.selection));
         const extra2 = round2Items.filter(item => isExtra2Selection(item.selection));
+        const extra3 = round2Items.filter(item => isExtra3Selection(item.selection));
+        const extra4 = round2Items.filter(item => isExtra4Selection(item.selection));
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
@@ -4301,7 +4385,9 @@
             period2: period2.sort(bySchoolRank),
             round2: round2.sort(bySchoolRank),
             extra1: extra1.sort(bySchoolRank),
-            extra2: extra2.sort(bySchoolRank)
+            extra2: extra2.sort(bySchoolRank),
+            extra3: extra3.sort(bySchoolRank),
+            extra4: extra4.sort(bySchoolRank)
         };
     }
 
@@ -4556,6 +4642,8 @@
         const round2Tbody = document.getElementById('round2DataTableBody');
         const extra1Tbody = document.getElementById('extra1DataTableBody');
         const extra2Tbody = document.getElementById('extra2DataTableBody');
+        const extra3Tbody = document.getElementById('extra3DataTableBody');
+        const extra4Tbody = document.getElementById('extra4DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
 
@@ -4564,12 +4652,16 @@
         if (sections.round2Section) sections.round2Section.classList.add('hidden');
         if (sections.extra1Section) sections.extra1Section.classList.add('hidden');
         if (sections.extra2Section) sections.extra2Section.classList.add('hidden');
+        if (sections.extra3Section) sections.extra3Section.classList.add('hidden');
+        if (sections.extra4Section) sections.extra4Section.classList.add('hidden');
         if (sections.failedSection) sections.failedSection.classList.add('hidden');
         if (quotaTbody) quotaTbody.innerHTML = '';
         if (period2Tbody) period2Tbody.innerHTML = '';
         if (round2Tbody) round2Tbody.innerHTML = '';
         if (extra1Tbody) extra1Tbody.innerHTML = '';
         if (extra2Tbody) extra2Tbody.innerHTML = '';
+        if (extra3Tbody) extra3Tbody.innerHTML = '';
+        if (extra4Tbody) extra4Tbody.innerHTML = '';
         if (failedTbody) failedTbody.innerHTML = '';
         if (mainTbody) {
             mainTbody.innerHTML = `
@@ -4723,6 +4815,8 @@
         const round2Tbody = document.getElementById('round2DataTableBody');
         const extra1Tbody = document.getElementById('extra1DataTableBody');
         const extra2Tbody = document.getElementById('extra2DataTableBody');
+        const extra3Tbody = document.getElementById('extra3DataTableBody');
+        const extra4Tbody = document.getElementById('extra4DataTableBody');
         const mainTbody = document.getElementById('nstDataTableBody');
         const failedTbody = document.getElementById('failedDataTableBody');
         const quotaSection = document.getElementById('quotaSection');
@@ -4732,6 +4826,8 @@
         if (sections.round2Section) sections.round2Section.classList.remove('hidden');
         if (sections.extra1Section) sections.extra1Section.classList.remove('hidden');
         if (sections.extra2Section) sections.extra2Section.classList.remove('hidden');
+        if (sections.extra3Section) sections.extra3Section.classList.remove('hidden');
+        if (sections.extra4Section) sections.extra4Section.classList.remove('hidden');
         if (sections.reserveSection) sections.reserveSection.classList.remove('hidden');
         if (sections.failedSection) sections.failedSection.classList.remove('hidden');
 
@@ -4740,6 +4836,8 @@
         let round2Html = [];
         let extra1Html = [];
         let extra2Html = [];
+        let extra3Html = [];
+        let extra4Html = [];
         let mainHtml = [];
         let failedHtml = [];
 
@@ -4753,6 +4851,8 @@
         let round2Rows = [];
         let extra1Rows = [];
         let extra2Rows = [];
+        let extra3Rows = [];
+        let extra4Rows = [];
         let mainRows = [];
         let failedRows = [];
 
@@ -4805,6 +4905,14 @@
             const roundName = String(selectionData?.['รอบ'] || selectionData?.round || selectionData?.type || '').trim();
             return roundName.includes('เพิ่มเติม2');
         };
+        const isExtra3SelectionData = (selectionData) => {
+            const roundName = String(selectionData?.['รอบ'] || selectionData?.round || selectionData?.type || '').trim();
+            return roundName.includes('เพิ่มเติม3');
+        };
+        const isExtra4SelectionData = (selectionData) => {
+            const roundName = String(selectionData?.['รอบ'] || selectionData?.round || selectionData?.type || '').trim();
+            return roundName.includes('เพิ่มเติม4');
+        };
 
         data.forEach(row => {
             const appId = getNSTAppId(row);
@@ -4817,8 +4925,10 @@
             } else if (period2Data) {
                 period2Rows.push({ row, quotaData: { isQuota: true, rank: computedRankFor(period2Data, quotaData), period2: true } });
             } else if (round2Data) {
-                const item = { row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true, extra1: isExtra1SelectionData(round2Data), extra2: isExtra2SelectionData(round2Data) } };
-                if (item.quotaData.extra2) extra2Rows.push(item);
+                const item = { row, quotaData: { isQuota: true, rank: computedRankFor(round2Data, quotaData), round2: true, extra1: isExtra1SelectionData(round2Data), extra2: isExtra2SelectionData(round2Data), extra3: isExtra3SelectionData(round2Data), extra4: isExtra4SelectionData(round2Data) } };
+                if (item.quotaData.extra4) extra4Rows.push(item);
+                else if (item.quotaData.extra3) extra3Rows.push(item);
+                else if (item.quotaData.extra2) extra2Rows.push(item);
                 else if (item.quotaData.extra1) extra1Rows.push(item);
                 else round2Rows.push(item);
             } else if (quotaData && quotaData.isQuota) {
@@ -4836,6 +4946,8 @@
             round2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             extra1Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             extra2Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
+            extra3Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
+            extra4Rows.sort((a, b) => rankSortValue(a) - rankSortValue(b) || compareAppId(a, b));
             mainRows.sort((a, b) => {
                 if (a.quotaData && a.quotaData.rank && b.quotaData && b.quotaData.rank) {
                     return a.quotaData.rank - b.quotaData.rank || compareAppId(a, b);
@@ -4850,6 +4962,8 @@
             sortSelectionGroup(round2Rows);
             sortSelectionGroup(extra1Rows);
             sortSelectionGroup(extra2Rows);
+            sortSelectionGroup(extra3Rows);
+            sortSelectionGroup(extra4Rows);
             sortSelectionGroup(mainRows);
         }
 
@@ -4993,6 +5107,58 @@
       </tr>`);
         });
 
+        extra3Rows.forEach(item => {
+            const row = item.row;
+            const quotaData = item.quotaData;
+            const docCheck = row['ผลตรวจแพทย์'] || row['สถานะร่างกาย'];
+            const statusClass = isStation1StatusPass(docCheck) ? 'badge-pass' :
+                isStation1StatusFail(docCheck) ? 'badge-fail' : 'badge-pending';
+            const statusText = docCheck || 'รอตรวจ';
+            const rowAttrs = getNSTLookupRowAttrs(row, 'border-b border-lime-900/50 bg-lime-900/10');
+
+            extra3Html.push(`
+      <tr ${rowAttrs}>
+        <td class="font-bold text-gray-300 text-center py-3 px-4">${extra3Html.length + 1}</td>
+        <td class="font-bold text-gray-200 text-center py-3 px-4 whitespace-nowrap">${row['รหัสใบสมัคร']}</td>
+        <td class="text-left font-medium text-white py-3 px-4 whitespace-nowrap min-w-[150px]">${row['ชื่อ']} ${row['นามสกุล']}</td>
+        <td class="text-center text-gray-300 py-3 px-4">${row['เพศ'] || '-'}</td>
+        <td class="text-left text-gray-300 text-xs lg:text-sm py-3 px-4">${escapeHtml(formatNSTSchoolWithCode(row))}</td>
+        <td class="text-left text-gray-300 py-3 px-4">${row['จังหวัด']}</td>
+        <td class="text-center py-3 px-4"><span class="badge ${statusClass} border border-lime-500/30 px-2 py-1 bg-lime-500/20 text-lime-300 shadow-sm rounded-lg">${statusText}</span></td>
+        ${formatTestCells(row, 'เวลาวิ่ง', 'คะแนนวิ่ง', 'คะแนนส่วนเพิ่มวิ่ง')}
+        ${formatTestCells(row, 'ลุกนั่ง', 'คะแนนลุกนั่ง', 'คะแนนส่วนเพิ่มลุกนั่ง')}
+        ${formatTestCells(row, 'ดันพื้น', 'คะแนนดันพื้น', 'คะแนนส่วนเพิ่มดันพื้น')}
+        <td class="font-black text-center text-lime-300 text-lg py-3 px-4">${formatSelectionTotal(row)}</td>
+        <td class="text-center py-3 px-4"><span class="w-8 h-8 inline-flex items-center justify-center bg-lime-500/20 border border-lime-500/30 rounded-lg text-sm font-bold text-lime-300 shadow-sm" title="ลำดับคะแนน (เพิ่มเติม3)">${displayRank(quotaData.rank)}</span></td>
+      </tr>`);
+        });
+
+        extra4Rows.forEach(item => {
+            const row = item.row;
+            const quotaData = item.quotaData;
+            const docCheck = row['ผลตรวจแพทย์'] || row['สถานะร่างกาย'];
+            const statusClass = isStation1StatusPass(docCheck) ? 'badge-pass' :
+                isStation1StatusFail(docCheck) ? 'badge-fail' : 'badge-pending';
+            const statusText = docCheck || 'รอตรวจ';
+            const rowAttrs = getNSTLookupRowAttrs(row, 'border-b border-fuchsia-900/50 bg-fuchsia-900/10');
+
+            extra4Html.push(`
+      <tr ${rowAttrs}>
+        <td class="font-bold text-gray-300 text-center py-3 px-4">${extra4Html.length + 1}</td>
+        <td class="font-bold text-gray-200 text-center py-3 px-4 whitespace-nowrap">${row['รหัสใบสมัคร']}</td>
+        <td class="text-left font-medium text-white py-3 px-4 whitespace-nowrap min-w-[150px]">${row['ชื่อ']} ${row['นามสกุล']}</td>
+        <td class="text-center text-gray-300 py-3 px-4">${row['เพศ'] || '-'}</td>
+        <td class="text-left text-gray-300 text-xs lg:text-sm py-3 px-4">${escapeHtml(formatNSTSchoolWithCode(row))}</td>
+        <td class="text-left text-gray-300 py-3 px-4">${row['จังหวัด']}</td>
+        <td class="text-center py-3 px-4"><span class="badge ${statusClass} border border-fuchsia-500/30 px-2 py-1 bg-fuchsia-500/20 text-fuchsia-300 shadow-sm rounded-lg">${statusText}</span></td>
+        ${formatTestCells(row, 'เวลาวิ่ง', 'คะแนนวิ่ง', 'คะแนนส่วนเพิ่มวิ่ง')}
+        ${formatTestCells(row, 'ลุกนั่ง', 'คะแนนลุกนั่ง', 'คะแนนส่วนเพิ่มลุกนั่ง')}
+        ${formatTestCells(row, 'ดันพื้น', 'คะแนนดันพื้น', 'คะแนนส่วนเพิ่มดันพื้น')}
+        <td class="font-black text-center text-fuchsia-300 text-lg py-3 px-4">${formatSelectionTotal(row)}</td>
+        <td class="text-center py-3 px-4"><span class="w-8 h-8 inline-flex items-center justify-center bg-fuchsia-500/20 border border-fuchsia-500/30 rounded-lg text-sm font-bold text-fuchsia-300 shadow-sm" title="ลำดับคะแนน (เพิ่มเติม4)">${displayRank(quotaData.rank)}</span></td>
+      </tr>`);
+        });
+
         mainRows.forEach(item => {
             const row = item.row;
             const quotaData = item.quotaData;
@@ -5101,6 +5267,20 @@
             extra2Tbody,
             extra2Html,
             emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม2', 'fas fa-user-plus text-teal-300'),
+            renderToken,
+            { showAll: true }
+        );
+        renderTbodyRowsLazy(
+            extra3Tbody,
+            extra3Html,
+            emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม3', 'fas fa-user-plus text-lime-300'),
+            renderToken,
+            { showAll: true }
+        );
+        renderTbodyRowsLazy(
+            extra4Tbody,
+            extra4Html,
+            emptyRow('ยังไม่มีรายชื่อผู้ผ่านการคัดเลือกเพิ่มเติม4', 'fas fa-user-plus text-fuchsia-300'),
             renderToken,
             { showAll: true }
         );
